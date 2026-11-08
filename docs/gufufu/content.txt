@@ -8,6 +8,7 @@
 オリジナル箴言集 https://sugishun-tech.github.io/proverbs/
 ハッカーになるには https://sugishun-tech.github.io/hacker/
 Separate the dots https://sugishun-tech.github.io/separate_the_dots/
+ヒトボネヌート https://sugishun-tech.github.io/cosplay/
 
 [謎テキスト]
 ジーンズに関する思考実験 https://sugishun-tech.github.io/jeans/
