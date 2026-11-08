@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="282HWwFqX5MAEmjMUQXGFlpHvfHdCSs5btSxB52O1vA" />
+    <title>Shun Sugiyama's Personal Page</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: serif;
+            line-height: 1.4;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+        h1 {
+            border-bottom: 2px solid #990000;
+            color: #990000;
+        }
+        h2 {
+            background-color: #eeeeee;
+            padding: 5px;
+            border-left: 10px solid #990000;
+        }
+        .profile-img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border: 1px solid #000;
+            float: right;
+            margin-left: 20px;
+        }
+        ul {
+            list-style-type: square;
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 0.9em;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        a {
+            color: #0000EE;
+        }
+        a:visited {
+            color: #551A8B;
+        }
+        .clear {
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>杉山 駿 (Shun Sugiyama)</h1>
+
+    <img src="image.jpg" alt="Profile Image" class="profile-img">
+
+    <p>
+        ハンドルネーム: <strong>sugiyamath</strong>, <strong>sugishun</strong>
+    </p>
+
+    <h2>略歴</h2>
+    <p>
+        1990年、静岡県御殿場市生まれ。
+    </p>
+    <ul>
+        <li><strong>学歴:</strong>
+            <ul>
+                <li>御殿場市立富士岡小学校</li>
+                <li>御殿場市立富士岡中学校</li>
+                <li>静岡県立小山高等学校 (前半)</li>
+                <li>ウィッツ青山学園高等学校 (後半)</li>
+                <li>京都コンピュータ学院 中退</li>
+            </ul>
+        </li>
+    </ul>
+    <p>
+        統合失調症による錯乱等の困難を抱えながら京都コンピュータ学院へ入学しましたが、病状の悪化と経済的理由により中退を余儀なくされました。
+    </p>
+    <p>
+        その後、数学教師、交通誘導警備員、複合機品質テスター、Webプログラマーなどの職を転々とし、現在は小規模な企業にてPythonプログラマーとして従事しています。
+    </p>
+
+    <h2>関心事</h2>
+    <ul>
+        <li><strong>趣味:</strong> ゲーム、読書、ネットサーフィン</li>
+        <li><strong>バケットリスト:</strong> <a href="bucketlist.html">bucketlist.html</a></li>
+    </ul>
+
+    <div class="clear"></div>
+
+    <h2>連絡先・アカウント</h2>
+    <ul>
+        <li><strong>mail:</strong> arming-roman-apply@duck.com </li>
+        <li><strong>social:</strong> <a href="social.html">social.html</a></li>
+    </ul>
+
+    <h2>作品集</h2>
+    <p>これまでに生成・管理したアーカイブです。</p>
+    <ul>
+        <li><strong>my_sora_backup:</strong> <a href="https://www.youtube.com/@my_sora_backup">YouTube Channel</a></li>
+        <li><strong>AI Music:</strong> <a href="https://soundcloud.com/thumb-pranker-nape">SoundCloud</a></li>
+        <li><strong>Art:</strong> <a href="art.html">art.html</a></li>
+        <li><strong>Cosplay:</strong> <a href="cosplay.html">cosplay.html</a></li>
+    </ul>
+
+    <h2>自作オンラインツール集</h2>
+    <uL>
+      <li><a href="https://sugishun-tech.github.io/market/">Market Watch</a></li>
+      <li><a href="https://sugishun-tech.github.io/mynostr/">nostrクライアント</a></li>
+      <li><a href="https://sugishun-tech.github.io/smtest/">セルフモニタリング力のテスト</a></li>
+      <li><a href="https://sugishun-tech.github.io/device_tester/">Webマイク・カメラテスト</a></li>
+    </ul>
+
+    <footer><br><br></footer>
+</body>
+</html>

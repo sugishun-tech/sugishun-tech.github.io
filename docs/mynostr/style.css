@@ -1,0 +1,155 @@
+:root {
+  --bg-color: #e6ecf0;
+  --content-bg: #ffffff;
+  --border-color: #e6ecf0;
+  --text-main: #14171a;
+  --text-sub: #657786;
+  --accent: #1da1f2;
+  --accent-hover: #1a91da;
+  --like-color: #e0245e;
+  --hover-bg: #f5f8fa;
+}
+
+
+
+body, html { margin: 0; padding: 0; height: 100%; background: var(--bg-color); color: var(--text-main); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+.app-container { display: flex; justify-content: center; height: 100vh; max-width: 1200px; margin: 0 auto; }
+
+.sidebar { width: 275px; display: flex; justify-content: flex-end; padding-right: 20px; }
+.sidebar-inner { width: 250px; display: flex; flex-direction: column; padding-top: 20px; }
+.logo { font-size: 24px; font-weight: bold; color: var(--accent); margin-bottom: 20px; padding-left: 15px; }
+
+/* ▼ 縦並びになるようflex-direction: columnを追加 */
+.nav-links { list-style: none; padding: 0; flex-grow: 1; margin: 0; display: flex; flex-direction: column; }
+.nav-links li { display: inline-flex; width: max-content; margin-bottom: 5px; border-radius: 99px; transition: background 0.2s; }
+.nav-links li:hover { background: rgba(29, 161, 242, 0.1); }
+.nav-links li a { padding: 12px 15px; cursor: pointer; font-size: 19px; border-radius: 99px; display: inline-flex; align-items: center; font-weight: bold; color: var(--text-main); text-decoration: none; }
+.nav-links li:hover a, .nav-links li.active a { color: var(--accent); }
+.nav-links li .icon { margin-right: 15px; font-size: 24px; }
+.hidden { display: none !important; }
+
+.user-info { padding: 20px 0; margin-bottom: 20px; }
+#login-btn { width: 100%; padding: 15px; border-radius: 99px; font-size: 15px; }
+#profile-display { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 99px; cursor: pointer; transition: 0.2s; }
+#profile-display:hover { background: var(--hover-bg); }
+.my-info { display: flex; flex-direction: column; }
+#my-name { font-weight: bold; font-size: 15px; color: var(--text-main); }
+
+.main-content { max-width: 600px; width: 100%; background: var(--content-bg); border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; min-width: 0; }
+.right-sidebar { width: 350px; padding-left: 20px; }
+
+.sticky-controls { 
+  position: sticky; top: 0; background: rgba(255, 255, 255, 0.95);
+  z-index: 10; padding: 10px 15px; border-bottom: 1px solid var(--border-color);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.header-title { font-size: 19px; font-weight: 800; }
+.control-group { display: flex; gap: 8px; }
+.btn-primary { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 99px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 8px 16px; border-radius: 99px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
+.btn-secondary:hover { background: rgba(29, 161, 242, 0.1); }
+
+.feed-container { flex: 1; overflow-y: auto; }
+.feed-container::-webkit-scrollbar { width: 0; }
+
+.post-box { padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; background: #fefefe; }
+.post-input-wrapper { flex: 1; display: flex; flex-direction: column; }
+#post-input, #reply-input { background: transparent; border: none; color: var(--text-main); font-size: 18px; resize: none; outline: none; min-height: 50px; font-family: inherit; margin-top: 10px; }
+#post-input::placeholder, #reply-input::placeholder { color: var(--text-sub); }
+.post-actions-row { display: flex; justify-content: flex-end; padding-top: 10px; border-top: 1px solid var(--border-color); margin-top: 10px; }
+
+.post { display: flex; gap: 10px; padding: 12px 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; }
+.post:hover { background: var(--hover-bg); }
+.avatar-sm { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; background: #eee; cursor: pointer; flex-shrink: 0; }
+.avatar-sm:hover { filter: brightness(0.9); }
+.post-content { flex: 1; min-width: 0; }
+.post-header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 2px;}
+.header-user-info {display: flex; gap: 5px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; flex: 1; }
+.post-time { color: var(--text-sub); font-size: 12px; margin-left: 8px;flex-shrink: 0;}
+.post-meta { display: flex; align-items: baseline; justify-content: flex-end; gap: 5px; min-width: 0; flex-shrink: 1; }
+.post-client { color: var(--text-sub); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+.notification-action { color: var(--text-sub); font-size: 14px; overflow: hidden; text-overflow: ellipsis; }
+.user-name { font-weight: bold; font-size: 15px; cursor: pointer; color: var(--text-main); }
+.user-name:hover { text-decoration: underline; }
+.user-name:hover::after {content: " ↗"; font-size: 10px; text-decoration: none; display: inline-block;}
+.user-id { color: var(--text-sub); font-size: 14px; }
+.badge { font-size: 13px; margin-left: 2px; }
+.post-text { line-height: 1.4; word-wrap: break-word; font-size: 15px; white-space: pre-wrap; margin-top: 2px; }
+
+.reply-context { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--text-sub); margin-bottom: 4px; }
+.reply-context img { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; }
+.reply-context .snippet { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%; }
+
+.reply-context.preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background-color: var(--hover-bg);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  max-width: fit-content;
+  text-decoration: none;
+}
+.reply-context.preview:hover {
+  background-color: #e8f0f6;
+}
+.reply-context.preview .avatar-tiny {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.reply-context.preview .snippet {
+  font-size: 13px;
+  color: var(--text-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px; /* 必要に応じて調整 */
+}
+
+#thread-parent-post .post {
+  border-bottom: 2px solid var(--hover-bg);
+  opacity: 0.9;
+}
+
+.post-actions { margin-top: 10px; display: flex; gap: 40px; }
+.action-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-sub); display: flex; align-items: center; gap: 5px; transition: 0.1s; padding: 0; text-decoration: none; }
+.action-btn:hover { color: var(--accent); }
+.heart-btn.liked { color: var(--like-color); }
+.heart-btn:hover { color: var(--like-color); }
+
+.profile-banner { height: 200px; background-color: var(--accent); background-size: cover; background-position: center; }
+.profile-details { padding: 15px; position: relative; border-bottom: 1px solid var(--border-color); }
+.profile-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+.avatar-lg { width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--content-bg); background: #eee; object-fit: cover; position: absolute; top: -70px; }
+#profile-name { margin: 10px 0 0 0; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 5px; }
+#profile-pubkey { font-size: 15px; color: var(--text-sub); margin-top: 2px; }
+#profile-about { margin-top: 12px; font-size: 15px; line-height: 1.4; white-space: pre-wrap; }
+
+.back-btn { margin: 10px 15px; display: inline-block; text-decoration: none; }
+.empty-state { padding: 24px 15px; color: var(--text-sub); text-align: center; border-bottom: 1px solid var(--border-color); }
+.section-title { font-size: 19px; font-weight: bold; padding: 15px; border-bottom: 1px solid var(--border-color); }
+.user-list .post { align-items: center; }
+.setting-content { padding: 20px; }
+.setting-item { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; font-weight: bold; color: var(--text-sub); }
+.setting-item textarea, .setting-item input { background: #fff; border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 4px; font-family: inherit; font-size: 15px; }
+.setting-item textarea:focus, .setting-item input:focus { outline: none; border-color: var(--accent); }
+
+@media (max-width: 700px) {
+  .app-container { justify-content: flex-start; }
+  .sidebar { display: none; } /* サイドバー非表示 */
+  .right-sidebar { display: none; } /* 右サイドバー非表示 */
+  .main-content { max-width: 100%; border: none; } /* 画面幅いっぱいに */
+}
+
+/* 投稿はデフォルト非表示。ミュート判定を通過したものだけ表示する。 */
+.post { display: none !important; }
+.post.visible { display: flex !important; }
+.setting-actions { display: flex; gap: 10px; flex-wrap: wrap; }

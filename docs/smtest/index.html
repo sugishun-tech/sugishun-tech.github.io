@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="282HWwFqX5MAEmjMUQXGFlpHvfHdCSs5btSxB52O1vA" />
+    <title>たまねぎ・アボカドテスト | セルフモニタリング診断</title>
+    <style>
+     :root {
+       --primary: #6b8e23;
+       --secondary: #d2b48c;
+       --bg: #fdfaf5;
+       --text: #333;
+     }
+
+     body {
+       font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+       background-color: var(--bg);
+       color: var(--text);
+       line-height: 1.6;
+       margin: 0;
+       padding: 20px;
+     }
+
+     .container {
+       max-width: 700px;
+       margin: 0 auto;
+       background: #fff;
+       padding: 30px;
+       border-radius: 15px;
+       box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+     }
+
+     header {
+       text-align: center;
+       margin-bottom: 30px;
+     }
+
+     h1 {
+       color: var(--primary);
+       font-size: 1.8rem;
+       margin-bottom: 10px;
+     }
+
+     p.description {
+       font-size: 0.9rem;
+       color: #666;
+     }
+
+     .question-item {
+       margin-bottom: 20px;
+       padding-bottom: 15px;
+       border-bottom: 1px solid #eee;
+     }
+
+     .question-text {
+       font-weight: bold;
+       margin-bottom: 10px;
+       display: block;
+     }
+
+     .options {
+       display: flex;
+       gap: 15px;
+     }
+
+     .options label {
+       flex: 1;
+       cursor: pointer;
+       text-align: center;
+       padding: 10px;
+       border: 2px solid #ddd;
+       border-radius: 8px;
+       transition: all 0.2s;
+     }
+
+     .options input[type="radio"] {
+       display: none;
+     }
+
+     .options input[type="radio"]:checked + span {
+       font-weight: bold;
+     }
+
+     /* T(True)が選択された時 */
+     .options label:has(input[value="T"]:checked) {
+       background-color: var(--primary);
+       border-color: var(--primary);
+       color: white;
+     }
+
+     /* F(False)が選択された時 */
+     .options label:has(input[value="F"]:checked) {
+       background-color: var(--secondary);
+       border-color: var(--secondary);
+       color: white;
+     }
+
+     #submit-btn {
+       display: block;
+       width: 100%;
+       padding: 15px;
+       background: var(--primary);
+       color: white;
+       border: none;
+       border-radius: 8px;
+       font-size: 1.1rem;
+       cursor: pointer;
+       margin-top: 30px;
+     }
+
+     #result-area {
+       display: none;
+       text-align: center;
+       animation: fadeIn 0.5s;
+     }
+
+     .score-bar-container {
+       height: 30px;
+       background: #eee;
+       border-radius: 15px;
+       overflow: hidden;
+       margin: 20px 0;
+       display: flex;
+     }
+
+     .score-bar-onion { background: var(--primary); height: 100%; transition: width 1s; }
+     .score-bar-avocado { background: var(--secondary); height: 100%; transition: width 1s; }
+
+     .result-title { font-size: 1.5rem; margin-top: 20px; }
+     .result-desc { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 20px; }
+
+     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+  </head>
+  <body>
+
+    <div class="container">
+      <header>
+        <h1>たまねぎ・アボカドテスト</h1>
+        <p class="description">あなたの「セルフモニタリング能力」を測定します。<br>直感で「T（あてはまる）」か「F（あてはまらない）」を選んでください。</p>
+      </header>
+
+      <form id="quiz-form">
+        <div id="questions"></div>
+        <button type="button" id="submit-btn" onclick="calculateScore()">結果を表示する</button>
+      </form>
+
+      <div id="result-area">
+        <h2>診断結果</h2>
+        <div class="score-bar-container">
+          <div id="bar-onion" class="score-bar-onion"></div>
+          <div id="bar-avocado" class="score-bar-avocado"></div>
+        </div>
+        <p id="result-text" class="result-title"></p>
+        <div class="result-desc">
+          <p id="detail-text"></p>
+        </div>
+        <button type="button" id="submit-btn" onclick="location.href=location.pathname" style="background:#666;">もう一度受ける</button>
+      </div>
+    </div>
+
+    <script>
+     const questions = [
+       { q: "他人の行動を真似るのは難しいと感じる。", key: false },
+       { q: "自分の行動は通常、自分の本当の感情、態度、信念の表れである。", key: false },
+       { q: "パーティーや社交の場では、他人が好むようなことを言ったりしたりしようとはしない。", key: false },
+       { q: "自分がすでに信じている考えのためにしか議論できない。", key: false },
+       { q: "ほとんど情報がないトピックでも、即興でスピーチができる。", key: true },
+       { q: "人を感動させたり楽しませたりするために、自分を演じているところがある。", key: true },
+       { q: "社交的な場面でどう振る舞えばいいか確信が持てないとき、他人の行動をヒントにする。", key: true },
+       { q: "自分はおそらく良い俳優になれると思う。", key: true },
+       { q: "映画や本、音楽を選ぶ際、友人のアドバイスを求めることはめったにない。", key: false },
+       { q: "実際よりも深い感情を経験しているように他人にみせることがある。", key: true },
+       { q: "コメディ番組を見るとき、一人でいるときよりも誰かと一緒にいるときの方がよく笑う。", key: true },
+       { q: "グループの中にいるとき、注目の的になることはめったにない。", key: false },
+       { q: "状況や相手によって、全く別人のように振る舞うことがよくある。", key: true },
+       { q: "他人に自分を好きになってもらうのが特に得意というわけではない。", key: false },
+       { q: "楽しんでいないときでも、楽しんでいるふりをすることがよくある。", key: true },
+       { q: "私は常に、見かけ通りの人間であるとは限らない。", key: true },
+       { q: "誰かを喜ばせたり、好意を得たりするために、自分の意見ややり方を変えることはない。", key: false },
+       { q: "芸能人（エンターテイナー）になることを考えたことがある。", key: true },
+       { q: "周囲とうまくやって好かれるために、自分自身であることよりも、他人が期待する通りの人間になろうとする傾向がある。", key: true },
+       { q: "ジェスチャーゲームや即興劇のような遊びが得意だったことは一度もない。", key: false },
+       { q: "相手や状況に合わせて行動を変えるのが苦手だ。", key: false },
+       { q: "パーティーでは、冗談や話の盛り上げ役は他人に任せる。", key: false },
+       { q: "人前では少しぎこちなくなり、期待されるほど自分をうまく出せない。", key: false },
+       { q: "（正しい目的のためなら）平然とした顔で誰の目を見て嘘をつくことができる。", key: true },
+       { q: "実際には嫌いな相手であっても、親しく振る舞うことで人をだますことがある。", key: true }
+     ];
+
+     const qContainer = document.getElementById('questions');
+
+     // 問題の生成
+     questions.forEach((item, index) => {
+       const div = document.createElement('div');
+       div.className = 'question-item';
+       div.innerHTML = `
+         <span class="question-text">${index + 1}. ${item.q}</span>
+         <div class="options">
+           <label><input type="radio" name="q${index}" value="T" required> <span>T (あてはまる)</span></label>
+           <label><input type="radio" name="q${index}" value="F" required> <span>F (あてはまらない)</span></label>
+         </div>
+       `;
+       qContainer.appendChild(div);
+     });
+
+     // --- 追加・修正ロジック ---
+
+     function calculateScore() {
+       const form = document.getElementById('quiz-form');
+       const formData = new FormData(form);
+       let resultsBitString = "";
+
+       for (let i = 0; i < questions.length; i++) {
+         const answer = formData.get(`q${i}`);
+         if (!answer) {
+           alert('すべての質問に答えてくださいね！');
+           return;
+         }
+         resultsBitString += (answer === 'T' ? '1' : '0');
+       }
+
+       // URLにクエリを付与して画面を更新
+       const newUrl = window.location.pathname + '?res=' + resultsBitString;
+       window.history.pushState({ path: newUrl }, '', newUrl);
+       
+       showResult(resultsBitString);
+     }
+
+     function showResult(bitString) {
+       let score = 0;
+       const answers = bitString.split('');
+
+       answers.forEach((ans, index) => {
+         const isTrue = (ans === '1');
+         if (isTrue === questions[index].key) {
+           score++;
+         }
+       });
+
+       const smPercentage = Math.round((score / 25) * 100);
+       const lowSmPercentage = 100 - smPercentage;
+
+       document.getElementById('quiz-form').style.display = 'none';
+       document.getElementById('result-area').style.display = 'block';
+
+       setTimeout(() => {
+         document.getElementById('bar-onion').style.width = smPercentage + '%';
+         document.getElementById('bar-avocado').style.width = lowSmPercentage + '%';
+       }, 100);
+
+       document.getElementById('result-text').innerText = 
+         `あなたは ${smPercentage}% たまねぎ、${lowSmPercentage}% アボカド です`;
+
+       let detail = "";
+       if (smPercentage >= 60) {
+         detail = "<strong>【高セルフモニタリング：たまねぎタイプ】</strong><br>あなたは状況や周囲の期待を敏感に察知し、自分を柔軟に演出できる「たまねぎ」タイプです。社会適応能力が高く、どんな場所でもうまくやっていけますが、皮をむきすぎて「本当の自分」を見失わないように気をつけてくださいね。";
+       } else if (smPercentage >= 40) {
+         detail = "<strong>【バランスタイプ】</strong><br>あなたは自分らしさと周囲への配慮をバランスよく持っています。状況に応じて自分を調整しつつも、譲れない芯の部分もしっかり持っているタイプです。";
+       } else {
+         detail = "<strong>【低セルフモニタリング：アボカドタイプ】</strong><br>あなたは周囲に流されず、常に自分の内面に従って行動する「アボカド」タイプです。裏表がなく誠実ですが、たまには周囲の空気を読んで、少しだけ自分を「演出」してみると新しい世界が開けるかもしれません。";
+       }
+       document.getElementById('detail-text').innerHTML = detail;
+       window.scrollTo(0, 0);
+     }
+
+     // ページ読み込み時にクエリがあるかチェック
+     window.onload = () => {
+       const urlParams = new URLSearchParams(window.location.search);
+       const res = urlParams.get('res');
+       if (res && res.length === questions.length) {
+         showResult(res);
+       }
+     };
+    </script>
+  </body>
+</html>

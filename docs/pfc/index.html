@@ -1,0 +1,2458 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta name="google-site-verification" content="282HWwFqX5MAEmjMUQXGFlpHvfHdCSs5btSxB52O1vA" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="摂取カロリー、PFCバランス、活動量から、数か月後の体重・脂肪量・除脂肪体重を概算するシミュレータです。">
+  <meta name="theme-color" content="#10253f">
+  <title>体重・PFCバランス予測シミュレータ</title>
+  <style>
+    :root {
+      --bg: #eef3f7;
+      --surface: #ffffff;
+      --surface-soft: #f7f9fb;
+      --ink: #162235;
+      --muted: #657286;
+      --line: #dce3ea;
+      --navy: #10253f;
+      --navy-2: #193b61;
+      --accent: #0b8f76;
+      --accent-dark: #087461;
+      --accent-soft: #e5f5f1;
+      --blue: #2f6fed;
+      --blue-soft: #eaf0ff;
+      --amber: #a56708;
+      --amber-soft: #fff4dd;
+      --danger: #b53434;
+      --danger-soft: #fff0f0;
+      --shadow: 0 18px 48px rgba(16, 37, 63, 0.10);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --focus: 0 0 0 4px rgba(47, 111, 237, 0.17);
+    }
+
+    * { box-sizing: border-box; }
+
+    [hidden] { display: none !important; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(11, 143, 118, 0.10), transparent 28rem),
+        radial-gradient(circle at 95% 9%, rgba(47, 111, 237, 0.10), transparent 30rem),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.65;
+    }
+
+    button, input, select { font: inherit; }
+
+    button { cursor: pointer; }
+
+    a { color: var(--blue); }
+
+    .hero {
+      color: #fff;
+      background: linear-gradient(135deg, var(--navy), var(--navy-2));
+      padding: 42px 24px 34px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .hero-inner {
+      width: min(1380px, 100%);
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #8de0cf;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 850px;
+      font-size: clamp(1.9rem, 4vw, 3.35rem);
+      line-height: 1.12;
+      letter-spacing: -0.035em;
+    }
+
+    .hero-copy {
+      margin: 14px 0 0;
+      max-width: 850px;
+      color: #d8e3ef;
+      font-size: clamp(0.95rem, 2vw, 1.08rem);
+    }
+
+    .privacy-chip {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 999px;
+      color: #d8e3ef;
+      background: rgba(255,255,255,0.06);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .page {
+      width: min(1380px, calc(100% - 32px));
+      margin: 28px auto 56px;
+    }
+
+    .notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 14px 16px;
+      border: 1px solid #ecd9ad;
+      border-radius: var(--radius-sm);
+      background: var(--amber-soft);
+      color: #644306;
+      font-size: 0.9rem;
+    }
+
+    .notice strong { color: #4f3505; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(340px, 430px) minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid rgba(220, 227, 234, 0.9);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .input-panel {
+      overflow: hidden;
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-panel > form {
+      width: 100%;
+      min-height: 0;
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .input-scroll {
+      min-height: 0;
+      flex: 1 1 auto;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+
+    .section {
+      padding: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section:last-child { border-bottom: 0; }
+
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .section h2, .section h3 {
+      margin: 0;
+      line-height: 1.25;
+    }
+
+    .section h2 { font-size: 1.08rem; }
+    .section h3 { font-size: 0.98rem; }
+
+    .badge {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-required { color: #fff; background: var(--navy); }
+    .badge-optional { color: var(--accent-dark); background: var(--accent-soft); }
+    .badge-neutral { color: var(--muted); background: #eef2f5; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field { min-width: 0; }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label, .label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+      font-weight: 750;
+      color: #344157;
+    }
+
+    .label-note {
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .control-wrap { position: relative; }
+
+    input[type="number"], select {
+      width: 100%;
+      min-height: 44px;
+      padding: 9px 38px 9px 11px;
+      border: 1px solid #cbd5df;
+      border-radius: 10px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+
+    select { padding-right: 34px; }
+
+    input[type="number"]:focus, select:focus {
+      border-color: var(--blue);
+      box-shadow: var(--focus);
+    }
+
+    input[readonly] {
+      color: #536075;
+      background: #f0f3f6;
+    }
+
+    input::placeholder { color: #9aa4b2; }
+
+    .unit {
+      position: absolute;
+      right: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7a8698;
+      font-size: 0.78rem;
+      pointer-events: none;
+    }
+
+    .help {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.45;
+    }
+
+    .help.warning { color: var(--amber); }
+    .help.error { color: var(--danger); }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 11px;
+      background: #edf1f5;
+    }
+
+    .segmented label {
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .segmented input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .segmented span {
+      display: flex;
+      min-height: 36px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 0.79rem;
+      font-weight: 800;
+      transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .segmented input:checked + span {
+      color: var(--navy);
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(16,37,63,0.10);
+    }
+
+    .macro-status {
+      margin-top: 10px;
+      padding: 10px 11px;
+      border-radius: 10px;
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    details.optional-group {
+      border-bottom: 1px solid var(--line);
+    }
+
+    details.optional-group > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      user-select: none;
+    }
+
+    details.optional-group > summary::-webkit-details-marker { display: none; }
+
+    .summary-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .summary-title {
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .chevron {
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid #8792a1;
+      border-bottom: 2px solid #8792a1;
+      transform: rotate(45deg);
+      transition: transform 0.18s ease;
+      margin-right: 3px;
+    }
+
+    details[open] .chevron { transform: rotate(225deg); }
+
+    .optional-content {
+      padding: 0 22px 22px;
+    }
+
+    .subgroup {
+      padding: 16px 0;
+      border-top: 1px dashed var(--line);
+    }
+
+    .subgroup:first-child { border-top: 0; padding-top: 0; }
+
+    .subgroup-title {
+      margin: 0 0 12px;
+      font-size: 0.86rem;
+      color: #334259;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-soft);
+    }
+
+    .check-row input { margin-top: 4px; }
+
+    .check-row label {
+      margin: 0;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .form-actions {
+      padding: 16px 22px 18px;
+      background: rgba(255,255,255,0.96);
+      border-top: 1px solid var(--line);
+    }
+
+    .primary-button {
+      width: 100%;
+      min-height: 50px;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      font-weight: 850;
+      box-shadow: 0 10px 22px rgba(11,143,118,0.22);
+      transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+    }
+
+    .primary-button:hover { filter: brightness(1.03); box-shadow: 0 13px 28px rgba(11,143,118,0.27); }
+    .primary-button:active { transform: translateY(1px); }
+    .primary-button:focus-visible { outline: none; box-shadow: var(--focus), 0 10px 22px rgba(11,143,118,0.22); }
+
+    .minor-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 9px;
+    }
+
+    .ghost-button {
+      min-height: 38px;
+      padding: 7px 9px;
+      border: 1px solid #cbd5df;
+      border-radius: 9px;
+      color: #455269;
+      background: #fff;
+      font-size: 0.75rem;
+      font-weight: 750;
+    }
+
+    .ghost-button:hover { background: #f5f7f9; }
+    .ghost-button:focus-visible { outline: none; box-shadow: var(--focus); }
+
+    .error-box {
+      display: none;
+      margin-top: 10px;
+      padding: 10px 11px;
+      border-radius: 10px;
+      color: var(--danger);
+      background: var(--danger-soft);
+      font-size: 0.78rem;
+      font-weight: 650;
+    }
+
+    .error-box.show { display: block; }
+
+    .results-panel { min-height: 720px; overflow: hidden; }
+
+    .empty-state {
+      min-height: 720px;
+      padding: 54px 28px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .empty-inner { max-width: 520px; }
+
+    .empty-icon {
+      width: 76px;
+      height: 76px;
+      margin: 0 auto 18px;
+      display: grid;
+      place-items: center;
+      border-radius: 22px;
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .empty-state h2 { margin: 0 0 8px; font-size: 1.3rem; }
+    .empty-state p { margin: 0; color: var(--muted); }
+
+    .result-header {
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+    }
+
+    .result-header h2 { margin: 0; font-size: 1.3rem; }
+    .result-header p { margin: 5px 0 0; color: var(--muted); font-size: 0.84rem; }
+
+    .condition-score {
+      min-width: 170px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface-soft);
+    }
+
+    .score-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .score-top strong { color: var(--ink); }
+
+    .score-bar {
+      height: 7px;
+      margin-top: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #dde4eb;
+    }
+
+    .score-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--accent));
+      transition: width 0.35s ease;
+    }
+
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      padding: 18px 24px 8px;
+    }
+
+    .metric-card {
+      min-width: 0;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: linear-gradient(180deg, #fff, #fbfcfd);
+    }
+
+    .metric-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .metric-value {
+      display: block;
+      margin-top: 4px;
+      color: var(--navy);
+      font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      white-space: nowrap;
+    }
+
+    .metric-sub {
+      display: block;
+      min-height: 1.35em;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .insight-row {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 12px;
+      padding: 8px 24px 18px;
+    }
+
+    .insight-box {
+      padding: 14px 15px;
+      border-radius: 12px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+    }
+
+    .insight-box h3 { margin: 0 0 7px; font-size: 0.86rem; }
+    .insight-box p { margin: 0; color: #4e5c70; font-size: 0.8rem; }
+
+    .pfc-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .pfc-chip {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: #46546a;
+      font-size: 0.72rem;
+      font-weight: 750;
+    }
+
+    .chart-section {
+      padding: 18px 24px 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .chart-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 13px;
+    }
+
+    .chart-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .chart-tab {
+      min-height: 36px;
+      padding: 7px 12px;
+      border: 1px solid #cbd5df;
+      border-radius: 999px;
+      color: #59667a;
+      background: #fff;
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .chart-tab.active {
+      border-color: var(--navy);
+      color: #fff;
+      background: var(--navy);
+    }
+
+    .chart-actions { display: flex; gap: 7px; }
+
+    .chart-shell {
+      position: relative;
+      min-height: 370px;
+      padding: 10px 8px 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 350px;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      z-index: 3;
+      display: none;
+      min-width: 150px;
+      max-width: 220px;
+      padding: 9px 10px;
+      border-radius: 9px;
+      color: #fff;
+      background: rgba(16,37,63,0.94);
+      box-shadow: 0 10px 25px rgba(16,37,63,0.22);
+      font-size: 0.72rem;
+      line-height: 1.55;
+      pointer-events: none;
+    }
+
+    .chart-legend {
+      min-height: 24px;
+      margin: 9px 7px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-line { width: 18px; height: 3px; border-radius: 999px; }
+    .legend-band { width: 18px; height: 8px; border-radius: 3px; }
+
+    .warnings-section, .table-section, .method-section {
+      padding: 18px 24px 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .warnings-section h3, .table-section h3, .method-section h3 {
+      margin: 0 0 11px;
+      font-size: 0.95rem;
+    }
+
+    .warning-list { display: grid; gap: 8px; }
+
+    .warning-item {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #ecd9ad;
+      color: #654608;
+      background: var(--amber-soft);
+      font-size: 0.79rem;
+    }
+
+    .warning-item.danger {
+      border-color: #efc7c7;
+      color: #7e2727;
+      background: var(--danger-soft);
+    }
+
+    .warning-item.info {
+      border-color: #cddafa;
+      color: #294d9c;
+      background: var(--blue-soft);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.76rem;
+      white-space: nowrap;
+    }
+
+    th, td {
+      padding: 10px 11px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+    }
+
+    th:first-child, td:first-child { text-align: left; }
+    tr:last-child td { border-bottom: 0; }
+
+    th {
+      color: #536075;
+      background: #f5f7f9;
+      font-weight: 800;
+    }
+
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .method-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface-soft);
+    }
+
+    .method-card strong { display: block; margin-bottom: 4px; font-size: 0.78rem; }
+    .method-card span { display: block; color: var(--muted); font-size: 0.73rem; }
+
+    .fineprint {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .site-footer {
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto 50px;
+      color: #647186;
+      font-size: 0.76rem;
+    }
+
+    .site-footer details {
+      padding: 15px 17px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.72);
+    }
+
+    .site-footer summary {
+      cursor: pointer;
+      color: #3d4b60;
+      font-weight: 800;
+    }
+
+    .source-list { margin: 10px 0 0; padding-left: 19px; }
+    .source-list li { margin: 6px 0; }
+
+    .toast {
+      position: fixed;
+      z-index: 10;
+      right: 18px;
+      bottom: 18px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      color: #fff;
+      background: rgba(16,37,63,0.96);
+      box-shadow: 0 12px 28px rgba(16,37,63,0.25);
+      font-size: 0.8rem;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 1040px) {
+      .layout { grid-template-columns: 1fr; }
+      .input-panel { position: static; max-height: none; }
+      .input-scroll { overflow: visible; }
+      .results-panel, .empty-state { min-height: 520px; }
+    }
+
+    @media (max-width: 720px) {
+      .hero { padding: 30px 18px 26px; }
+      .hero-inner { display: block; }
+      .privacy-chip { margin-top: 18px; }
+      .page { width: min(100% - 20px, 1380px); margin-top: 18px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .summary-cards { grid-template-columns: repeat(2, minmax(0,1fr)); padding-inline: 16px; }
+      .insight-row { grid-template-columns: 1fr; padding-inline: 16px; }
+      .result-header { display: block; padding-inline: 16px; }
+      .condition-score { margin-top: 13px; }
+      .chart-section, .warnings-section, .table-section, .method-section { padding-inline: 16px; }
+      .chart-toolbar { align-items: flex-start; flex-direction: column; }
+      .method-grid { grid-template-columns: 1fr; }
+      .minor-actions { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 440px) {
+      .summary-cards { grid-template-columns: 1fr; }
+      .section, .optional-content, .form-actions { padding-left: 16px; padding-right: 16px; }
+      details.optional-group > summary { padding-left: 16px; padding-right: 16px; }
+      canvas { height: 300px; }
+      .chart-shell { min-height: 320px; }
+    }
+
+    @media print {
+      .hero, .input-panel, .notice, .chart-actions, .site-footer, .toast { display: none !important; }
+      body { background: #fff; }
+      .page { width: 100%; margin: 0; }
+      .layout { display: block; }
+      .panel { box-shadow: none; border: 0; }
+      .chart-section, .warnings-section, .table-section, .method-section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <p class="eyebrow">Dynamic energy balance</p>
+        <h2>体重・PFCバランス予測シミュレータ</h2>
+        <p class="hero-copy">摂取カロリー、PFC、活動量から、体重・脂肪量・除脂肪体重・水分変動を日単位で概算します。一本道の断言ではなく、入力誤差を含むレンジで表示します。</p>
+      </div>
+      <div class="privacy-chip" aria-label="プライバシー情報">端末内で計算・送信なし</div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="notice" role="note">
+      <span aria-hidden="true">※</span>
+      <div><strong>成人向けの参考値です。</strong> 18歳未満、妊娠・授乳中、摂食障害の既往、腎・心・内分泌疾患、むくみを伴う病態などには適しません。診断や治療、食事処方の代わりにはなりません。</div>
+    </div>
+
+    <div class="layout">
+      <aside class="panel input-panel" aria-label="シミュレーション条件">
+        <form id="simForm" novalidate>
+          <div class="input-scroll">
+            <section class="section">
+              <div class="section-title-row">
+                <div class="section-title-wrap">
+                  <span class="badge badge-required">必須</span>
+                  <h2>身体情報</h2>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field">
+                  <label for="sex">生物学的性別 <span class="label-note">（推定式用）</span></label>
+                  <select id="sex" name="sex" required>
+                    <option value="male">男性</option>
+                    <option value="female">女性</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="age">年齢</label>
+                  <div class="control-wrap">
+                    <input id="age" name="age" type="number" min="18" max="90" step="1" value="35" required>
+                    <span class="unit">歳</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="height">身長</label>
+                  <div class="control-wrap">
+                    <input id="height" name="height" type="number" min="120" max="230" step="0.1" value="170" required>
+                    <span class="unit">cm</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="weight">現在体重</label>
+                  <div class="control-wrap">
+                    <input id="weight" name="weight" type="number" min="30" max="300" step="0.1" value="70" required>
+                    <span class="unit">kg</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="section">
+              <div class="section-title-row">
+                <div class="section-title-wrap">
+                  <span class="badge badge-required">必須</span>
+                  <h2>食事条件</h2>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field full">
+                  <label for="calories">1日平均摂取カロリー</label>
+                  <div class="control-wrap">
+                    <input id="calories" name="calories" type="number" min="500" max="8000" step="1" value="2100" required>
+                    <span class="unit">kcal</span>
+                  </div>
+                  <p class="help" id="calorieHelp">曜日差をならした「週平均」を入れると、日々の気合いよりは多少まともな入力になります。</p>
+                </div>
+
+                <div class="field full">
+                  <span class="label">PFCの入力方法</span>
+                  <div class="segmented" role="radiogroup" aria-label="PFC入力方法">
+                    <label><input type="radio" name="macroMode" value="percent" checked><span>割合（%）</span></label>
+                    <label><input type="radio" name="macroMode" value="grams"><span>重量（g）</span></label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid-3" style="margin-top: 12px;">
+                <div class="field">
+                  <label for="protein">タンパク質</label>
+                  <div class="control-wrap">
+                    <input id="protein" name="protein" type="number" min="0" max="800" step="0.1" value="25" required>
+                    <span class="unit macro-unit">%</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="fat">脂質</label>
+                  <div class="control-wrap">
+                    <input id="fat" name="fat" type="number" min="0" max="800" step="0.1" value="25" required>
+                    <span class="unit macro-unit">%</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="carbs">炭水化物</label>
+                  <div class="control-wrap">
+                    <input id="carbs" name="carbs" type="number" min="0" max="1200" step="0.1" value="50" required>
+                    <span class="unit macro-unit">%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="macro-status" id="macroStatus" aria-live="polite"></div>
+            </section>
+
+            <section class="section">
+              <div class="section-title-row">
+                <div class="section-title-wrap">
+                  <span class="badge badge-required">必須</span>
+                  <h2>活動量と期間</h2>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field full">
+                  <label for="activity">日常活動レベル <span class="label-note">（意図的な運動を除く）</span></label>
+                  <select id="activity" name="activity" required>
+                    <option value="0.18">ほぼ座位・移動も少ない</option>
+                    <option value="0.32" selected>座位中心・日常的に少し歩く</option>
+                    <option value="0.48">立位や歩行が多い</option>
+                    <option value="0.68">肉体労働・かなり活動的</option>
+                  </select>
+                  <p class="help">歩数を任意入力した場合、この選択より歩数を優先します。</p>
+                </div>
+                <div class="field full">
+                  <label for="months">予測期間</label>
+                  <div class="control-wrap">
+                    <input id="months" name="months" type="number" min="1" max="24" step="1" value="6" required>
+                    <span class="unit">か月</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <details class="optional-group" id="optionalGroup">
+              <summary>
+                <span class="summary-left">
+                  <span class="badge badge-optional">任意</span>
+                  <span class="summary-title">精度を上げる入力</span>
+                  <span class="badge badge-neutral" id="optionalCount">0項目</span>
+                </span>
+                <span class="chevron" aria-hidden="true"></span>
+              </summary>
+
+              <div class="optional-content">
+                <section class="subgroup">
+                  <h3 class="subgroup-title">体組成・実測値</h3>
+                  <div class="grid-2">
+                    <div class="field">
+                      <label for="bodyFat">現在の体脂肪率</label>
+                      <div class="control-wrap">
+                        <input id="bodyFat" name="bodyFat" type="number" min="3" max="65" step="0.1" placeholder="例 20">
+                        <span class="unit">%</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="measuredTdee">実測・推定済みTDEE</label>
+                      <div class="control-wrap">
+                        <input id="measuredTdee" name="measuredTdee" type="number" min="800" max="7000" step="1" placeholder="例 2400">
+                        <span class="unit">kcal</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="help">TDEEを入力すると、式による活動量推定より優先します。運動欄はその場合、主に体組成の配分補正に使います。</p>
+                </section>
+
+                <section class="subgroup">
+                  <h3 class="subgroup-title">体重履歴によるTDEE校正</h3>
+                  <div class="grid-3">
+                    <div class="field">
+                      <label for="historyCalories">平均摂取</label>
+                      <div class="control-wrap">
+                        <input id="historyCalories" name="historyCalories" type="number" min="500" max="8000" step="1" placeholder="2100">
+                        <span class="unit">kcal</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="historyDays">観測期間</label>
+                      <div class="control-wrap">
+                        <input id="historyDays" name="historyDays" type="number" min="14" max="180" step="1" placeholder="28">
+                        <span class="unit">日</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="historyChange">体重変化</label>
+                      <div class="control-wrap">
+                        <input id="historyChange" name="historyChange" type="number" min="-30" max="30" step="0.1" placeholder="-0.8">
+                        <span class="unit">kg</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="help">現在体重 − 開始時体重。70.0kgから69.2kgなら「−0.8」。3項目すべて入力した場合のみ使用します。</p>
+                </section>
+
+                <section class="subgroup">
+                  <h3 class="subgroup-title">日常活動・運動</h3>
+                  <div class="grid-2">
+                    <div class="field full">
+                      <label for="steps">1日平均歩数</label>
+                      <div class="control-wrap">
+                        <input id="steps" name="steps" type="number" min="0" max="60000" step="100" placeholder="例 8000">
+                        <span class="unit">歩</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="resistanceSessions">筋トレ回数</label>
+                      <div class="control-wrap">
+                        <input id="resistanceSessions" name="resistanceSessions" type="number" min="0" max="14" step="0.5" placeholder="3">
+                        <span class="unit">回/週</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="resistanceMinutes">1回の時間</label>
+                      <div class="control-wrap">
+                        <input id="resistanceMinutes" name="resistanceMinutes" type="number" min="0" max="240" step="5" placeholder="45">
+                        <span class="unit">分</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="resistanceIntensity">筋トレ強度</label>
+                      <select id="resistanceIntensity" name="resistanceIntensity">
+                        <option value="3">軽め</option>
+                        <option value="5" selected>中程度</option>
+                        <option value="6">高強度</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="trainingExperience">トレーニング歴</label>
+                      <select id="trainingExperience" name="trainingExperience">
+                        <option value="none">なし・ほぼなし</option>
+                        <option value="beginner" selected>初心者</option>
+                        <option value="intermediate">中級者</option>
+                        <option value="advanced">上級者</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="cardioSessions">有酸素回数</label>
+                      <div class="control-wrap">
+                        <input id="cardioSessions" name="cardioSessions" type="number" min="0" max="14" step="0.5" placeholder="2">
+                        <span class="unit">回/週</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="cardioMinutes">1回の時間</label>
+                      <div class="control-wrap">
+                        <input id="cardioMinutes" name="cardioMinutes" type="number" min="0" max="300" step="5" placeholder="30">
+                        <span class="unit">分</span>
+                      </div>
+                    </div>
+                    <div class="field full">
+                      <label for="cardioIntensity">有酸素強度</label>
+                      <select id="cardioIntensity" name="cardioIntensity">
+                        <option value="4">軽め</option>
+                        <option value="7" selected>中程度</option>
+                        <option value="10">高強度</option>
+                      </select>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="subgroup">
+                  <h3 class="subgroup-title">回復・水分・誤差</h3>
+                  <div class="grid-2">
+                    <div class="field">
+                      <label for="sleep">平均睡眠時間</label>
+                      <div class="control-wrap">
+                        <input id="sleep" name="sleep" type="number" min="3" max="12" step="0.1" placeholder="7">
+                        <span class="unit">時間</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="currentCarbs">変更前の炭水化物</label>
+                      <div class="control-wrap">
+                        <input id="currentCarbs" name="currentCarbs" type="number" min="0" max="1200" step="1" placeholder="例 280">
+                        <span class="unit">g/日</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="sodiumChange">食塩相当の変化</label>
+                      <div class="control-wrap">
+                        <input id="sodiumChange" name="sodiumChange" type="number" min="-10000" max="10000" step="100" placeholder="例 -1000">
+                        <span class="unit">mg/日</span>
+                      </div>
+                      <p class="help">変更後 − 変更前。水分補正だけに使います。</p>
+                    </div>
+                    <div class="field">
+                      <label for="intakeError">摂取量の推定誤差</label>
+                      <div class="control-wrap">
+                        <input id="intakeError" name="intakeError" type="number" min="0" max="25" step="1" placeholder="既定 6">
+                        <span class="unit">±%</span>
+                      </div>
+                    </div>
+                    <div class="field full">
+                      <div class="check-row">
+                        <input id="includeWater" name="includeWater" type="checkbox" checked>
+                        <label for="includeWater">炭水化物・塩分による初期の水分変動を含める</label>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="help">睡眠は筋量変化の補正を弱く調整するだけです。睡眠時間だけで代謝を精密に言い当てるような超能力は実装していません。</p>
+                </section>
+              </div>
+            </details>
+          </div>
+
+          <div class="form-actions">
+            <button class="primary-button" type="submit">予測を計算する</button>
+            <div class="minor-actions">
+              <button class="ghost-button" type="button" id="saveButton">入力を保存</button>
+              <button class="ghost-button" type="button" id="shareButton">条件URLをコピー</button>
+              <button class="ghost-button" type="button" id="resetButton">初期値に戻す</button>
+            </div>
+            <div class="error-box" id="formError" role="alert"></div>
+          </div>
+        </form>
+      </aside>
+
+      <section class="panel results-panel" aria-label="予測結果">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-inner">
+            <div class="empty-icon" aria-hidden="true">∿</div>
+            <h2>条件を入力して予測を計算</h2>
+            <p>体重だけでなく、脂肪量・除脂肪体重・TDEEの変化も表示します。任意項目は空欄でも動きます。入力すれば、少なくとも根拠のない自信だけは減ります。</p>
+          </div>
+        </div>
+
+        <div id="resultContent" hidden>
+          <header class="result-header">
+            <div>
+              <h2>予測結果</h2>
+              <p id="resultCaption">日単位の動的モデルによる概算</p>
+            </div>
+            <div class="condition-score" title="入力条件の充実度であり、医学的な精度保証ではありません。">
+              <div class="score-top"><span>推定条件の充実度</span><strong id="scoreText">0 / 100</strong></div>
+              <div class="score-bar"><div class="score-fill" id="scoreFill"></div></div>
+            </div>
+          </header>
+
+          <div class="summary-cards">
+            <article class="metric-card">
+              <span class="metric-label">予測体重</span>
+              <strong class="metric-value" id="finalWeight">--</strong>
+              <span class="metric-sub" id="weightRange">--</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">体重変化</span>
+              <strong class="metric-value" id="weightDelta">--</strong>
+              <span class="metric-sub" id="weeklyRate">--</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">体脂肪率</span>
+              <strong class="metric-value" id="finalBodyFat">--</strong>
+              <span class="metric-sub" id="bodyFatDelta">--</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">脂肪量変化</span>
+              <strong class="metric-value" id="fatDelta">--</strong>
+              <span class="metric-sub" id="finalFatMass">--</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">除脂肪体重変化</span>
+              <strong class="metric-value" id="ffmDelta">--</strong>
+              <span class="metric-sub">水分・グリコーゲン込み</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">推定TDEE</span>
+              <strong class="metric-value" id="tdeeValue">--</strong>
+              <span class="metric-sub" id="tdeeSource">--</span>
+            </article>
+          </div>
+
+          <div class="insight-row">
+            <article class="insight-box">
+              <h3>エネルギー収支</h3>
+              <p id="energyInsight">--</p>
+              <div class="pfc-line" id="pfcLine"></div>
+            </article>
+            <article class="insight-box">
+              <h3>体組成モデルの読み方</h3>
+              <p id="compositionInsight">--</p>
+            </article>
+          </div>
+
+          <section class="chart-section">
+            <div class="chart-toolbar">
+              <div class="chart-tabs" role="tablist" aria-label="グラフ切り替え">
+                <button type="button" class="chart-tab active" data-chart="weight" role="tab" aria-selected="true">体重レンジ</button>
+                <button type="button" class="chart-tab" data-chart="composition" role="tab" aria-selected="false">体組成</button>
+                <button type="button" class="chart-tab" data-chart="energy" role="tab" aria-selected="false">摂取・消費</button>
+              </div>
+              <div class="chart-actions">
+                <button type="button" class="ghost-button" id="csvButton">日次CSV</button>
+                <button type="button" class="ghost-button" id="printButton">印刷</button>
+              </div>
+            </div>
+            <div class="chart-shell" id="chartShell">
+              <canvas id="chartCanvas" aria-label="予測グラフ" role="img"></canvas>
+              <div class="chart-tooltip" id="chartTooltip"></div>
+              <div class="chart-legend" id="chartLegend"></div>
+            </div>
+          </section>
+
+          <section class="warnings-section">
+            <h3>注意点</h3>
+            <div class="warning-list" id="warningList"></div>
+          </section>
+
+          <section class="table-section">
+            <h3>月ごとの概算</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>時点</th>
+                    <th>体重レンジ</th>
+                    <th>中央値</th>
+                    <th>体脂肪率</th>
+                    <th>脂肪量</th>
+                    <th>除脂肪体重</th>
+                    <th>TDEE</th>
+                  </tr>
+                </thead>
+                <tbody id="monthlyTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="method-section">
+            <h3>この計算で行っていること</h3>
+            <div class="method-grid">
+              <div class="method-card"><strong>安静時消費</strong><span>Mifflin–St Jeor式を初期値にし、脂肪・除脂肪組織の変化に応じて日々補正。</span></div>
+              <div class="method-card"><strong>動的エネルギー収支</strong><span>体重低下に伴う消費低下と、約2週間で立ち上がる適応性熱産生を簡略モデル化。</span></div>
+              <div class="method-card"><strong>PFCの影響</strong><span>食事誘発性熱産生、タンパク質量、筋トレ、水分・グリコーゲンを通じて反映。</span></div>
+              <div class="method-card"><strong>予測レンジ</strong><span>摂取量の記録誤差とTDEE推定誤差を両方向に振った低位・中央値・高位シナリオ。</span></div>
+            </div>
+            <p class="fineprint" id="methodFineprint">これはNIH Body Weight Plannerそのものではなく、公開された研究式を参考にした簡略実装です。除脂肪体重の予測は脂肪量より不確実で、個人のホルモン、薬剤、病気、食欲変化、運動強度の実態などは扱いません。</p>
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <details>
+      <summary>計算根拠・制約・参考文献</summary>
+      <p>基礎代謝の初期値はMifflin–St Jeor式、体重変化はHallらの動的エネルギーバランスモデルとForbes型の脂肪・除脂肪組織配分を参考にしています。PFC別の食事誘発性熱産生は代表値を用い、タンパク質と筋トレによる筋量維持・増加は保守的な上限付き補正です。</p>
+      <ul class="source-list">
+        <li><a href="https://pubmed.ncbi.nlm.nih.gov/2305711/" target="_blank" rel="noopener">Mifflin et al. (1990), resting energy expenditure equation</a></li>
+        <li><a href="https://www.niddk.nih.gov/research-funding/at-niddk/labs-branches/laboratory-biological-modeling/integrative-physiology-section/research/body-weight-planner" target="_blank" rel="noopener">NIDDK: Research Behind the Body Weight Planner</a></li>
+        <li><a href="https://www.niddk.nih.gov/-/media/Files/Labs-Branches-Sections/laboratory-biological-modeling/integrative-physiology-section/Hall-Lancet-Web-Appendix_508.pdf" target="_blank" rel="noopener">Hall et al. dynamic model equations (web appendix)</a></li>
+        <li><a href="https://pubmed.ncbi.nlm.nih.gov/15507147/" target="_blank" rel="noopener">Westerterp (2004), diet-induced thermogenesis</a></li>
+        <li><a href="https://bjsm.bmj.com/content/52/6/376" target="_blank" rel="noopener">Morton et al. (2018), protein and resistance training meta-analysis</a></li>
+      </ul>
+      <p>想定範囲は成人の一般的な生活介入です。競技前の急速減量、極端な低炭水化物・断食、浮腫、薬剤による急変などでは水分と代謝の仮定が崩れます。表示桁が細かくても、人体が小数点以下まで契約を守るわけではありません。</p>
+    </details>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    'use strict';
+
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+    const round = (value, digits = 1) => {
+      const p = 10 ** digits;
+      return Math.round((value + Number.EPSILON) * p) / p;
+    };
+    const finiteOrNull = (value) => Number.isFinite(value) ? value : null;
+    const readNumber = (id) => {
+      const raw = $(id).value.trim();
+      return raw === '' ? null : finiteOrNull(Number(raw));
+    };
+    const formatSigned = (value, digits = 1, unit = '') => `${value > 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
+    const formatNumber = (value, digits = 0) => Number(value).toLocaleString('ja-JP', {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits
+    });
+
+    const STORAGE_KEY = 'body-pfc-simulator-v1';
+    const RHO_F = 39.5 * 239.005736;   // kcal/kg of fat mass change
+    const RHO_L = 7.6 * 239.005736;    // kcal/kg of lean tissue change
+    const RHO_G = 17.6 * 239.005736;   // kcal/kg of glycogen
+    const FORBES_C = 10.4 * (RHO_L / RHO_F);
+    const GAMMA_F = 13 / 4.184;         // kcal/kg/day
+    const GAMMA_L = 92 / 4.184;         // kcal/kg/day
+    const DEFAULT_INTAKE_ERROR = 0.06;
+
+    let macroMode = 'percent';
+    let activeChart = 'weight';
+    let lastResult = null;
+    let chartMeta = null;
+    let toastTimer = null;
+
+    const form = $('#simForm');
+    const calorieInput = $('#calories');
+    const macroInputs = [$('#protein'), $('#fat'), $('#carbs')];
+    const optionalIds = [
+      '#bodyFat', '#measuredTdee', '#historyCalories', '#historyDays', '#historyChange',
+      '#steps', '#resistanceSessions', '#resistanceMinutes', '#cardioSessions', '#cardioMinutes',
+      '#sleep', '#currentCarbs', '#sodiumChange', '#intakeError'
+    ];
+
+    function showToast(message) {
+      const toast = $('#toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2300);
+    }
+
+    function getMacroMode() {
+      return $('input[name="macroMode"]:checked').value;
+    }
+
+    function macroCaloriesFromGrams(p, f, c) {
+      return p * 4 + f * 9 + c * 4;
+    }
+
+    function switchMacroMode(nextMode, convert = true) {
+      if (nextMode === macroMode && convert) {
+        updateMacroStatus();
+        return;
+      }
+
+      const calories = Number(calorieInput.value) || 0;
+      const p = Number($('#protein').value) || 0;
+      const f = Number($('#fat').value) || 0;
+      const c = Number($('#carbs').value) || 0;
+
+      if (convert) {
+        if (nextMode === 'grams' && macroMode === 'percent') {
+          const sum = p + f + c || 100;
+          $('#protein').value = round(calories * (p / sum) / 4, 1);
+          $('#fat').value = round(calories * (f / sum) / 9, 1);
+          $('#carbs').value = round(calories * (c / sum) / 4, 1);
+        } else if (nextMode === 'percent' && macroMode === 'grams') {
+          const total = macroCaloriesFromGrams(p, f, c) || calories || 1;
+          $('#protein').value = round((p * 4 / total) * 100, 1);
+          $('#fat').value = round((f * 9 / total) * 100, 1);
+          $('#carbs').value = round((c * 4 / total) * 100, 1);
+          calorieInput.value = Math.round(total);
+        }
+      }
+
+      macroMode = nextMode;
+      $$('.macro-unit').forEach(el => { el.textContent = nextMode === 'percent' ? '%' : 'g'; });
+      calorieInput.readOnly = nextMode === 'grams';
+      $('#calorieHelp').textContent = nextMode === 'grams'
+        ? 'PFCのグラム数からカロリーを自動計算します。アルコールや食物繊維などは別計算なので、食品表示と少しズレることがあります。'
+        : '曜日差をならした「週平均」を入れると、日々の気合いよりは多少まともな入力になります。';
+      updateMacroStatus();
+    }
+
+    function updateMacroStatus() {
+      const p = Number($('#protein').value) || 0;
+      const f = Number($('#fat').value) || 0;
+      const c = Number($('#carbs').value) || 0;
+      const status = $('#macroStatus');
+
+      if (getMacroMode() === 'percent') {
+        const sum = p + f + c;
+        const calories = Number(calorieInput.value) || 0;
+        const pg = calories * p / Math.max(sum, 1) / 4;
+        const fg = calories * f / Math.max(sum, 1) / 9;
+        const cg = calories * c / Math.max(sum, 1) / 4;
+        status.textContent = `合計 ${formatNumber(sum, 1)}% ｜ 約 P ${formatNumber(pg, 0)}g・F ${formatNumber(fg, 0)}g・C ${formatNumber(cg, 0)}g`;
+        status.style.background = Math.abs(sum - 100) <= 0.5 ? 'var(--surface-soft)' : 'var(--danger-soft)';
+        status.style.color = Math.abs(sum - 100) <= 0.5 ? 'var(--muted)' : 'var(--danger)';
+      } else {
+        const total = macroCaloriesFromGrams(p, f, c);
+        calorieInput.value = Math.round(total);
+        const pPct = total > 0 ? p * 4 / total * 100 : 0;
+        const fPct = total > 0 ? f * 9 / total * 100 : 0;
+        const cPct = total > 0 ? c * 4 / total * 100 : 0;
+        status.textContent = `約 ${formatNumber(total, 0)} kcal ｜ P ${formatNumber(pPct, 1)}%・F ${formatNumber(fPct, 1)}%・C ${formatNumber(cPct, 1)}%`;
+        status.style.background = 'var(--surface-soft)';
+        status.style.color = 'var(--muted)';
+      }
+    }
+
+    function updateOptionalCount() {
+      let count = 0;
+      optionalIds.forEach(id => {
+        const el = $(id);
+        if (el && el.value.trim() !== '') count += 1;
+      });
+      if (!$('#includeWater').checked) count += 1;
+      $('#optionalCount').textContent = `${count}項目`;
+    }
+
+    function getMacroData(calories) {
+      const p = Number($('#protein').value);
+      const f = Number($('#fat').value);
+      const c = Number($('#carbs').value);
+      if (getMacroMode() === 'percent') {
+        const sum = p + f + c;
+        return {
+          mode: 'percent',
+          pShare: p / sum,
+          fShare: f / sum,
+          cShare: c / sum,
+          proteinG: calories * (p / sum) / 4,
+          fatG: calories * (f / sum) / 9,
+          carbsG: calories * (c / sum) / 4,
+          sum
+        };
+      }
+      const total = macroCaloriesFromGrams(p, f, c);
+      return {
+        mode: 'grams',
+        pShare: total > 0 ? p * 4 / total : 0,
+        fShare: total > 0 ? f * 9 / total : 0,
+        cShare: total > 0 ? c * 4 / total : 0,
+        proteinG: p,
+        fatG: f,
+        carbsG: c,
+        sum: 100
+      };
+    }
+
+    function validateAndReadInputs() {
+      const errors = [];
+      const required = ['#age', '#height', '#weight', '#calories', '#months', '#protein', '#fat', '#carbs'];
+      required.forEach(id => {
+        const el = $(id);
+        if (!el.checkValidity() || el.value.trim() === '') errors.push(`${el.previousElementSibling?.textContent?.trim() || id}を確認してください。`);
+      });
+
+      const age = readNumber('#age');
+      const height = readNumber('#height');
+      const weight = readNumber('#weight');
+      const calories = readNumber('#calories');
+      const months = readNumber('#months');
+      const p = readNumber('#protein');
+      const f = readNumber('#fat');
+      const c = readNumber('#carbs');
+
+      if (getMacroMode() === 'percent' && p !== null && f !== null && c !== null && Math.abs(p + f + c - 100) > 0.5) {
+        errors.push('PFC割合の合計を100%にしてください。人類は割合の合計くらいは100にできます。');
+      }
+      if ([p, f, c].some(v => v === null || v < 0) || (p + f + c) <= 0) {
+        errors.push('PFCは0以上で、合計を0より大きくしてください。');
+      }
+
+      const historyValues = [readNumber('#historyCalories'), readNumber('#historyDays'), readNumber('#historyChange')];
+      const historyFilled = historyValues.filter(v => v !== null).length;
+      if (historyFilled > 0 && historyFilled < 3 && readNumber('#measuredTdee') === null) {
+        errors.push('体重履歴による校正は「平均摂取・観測期間・体重変化」の3項目をすべて入力してください。');
+      }
+
+      if (errors.length) return { errors };
+
+      const macro = getMacroData(calories);
+      const bodyFat = readNumber('#bodyFat');
+      const measuredTdee = readNumber('#measuredTdee');
+      const steps = readNumber('#steps');
+      const resistanceSessions = readNumber('#resistanceSessions') ?? 0;
+      const resistanceMinutes = readNumber('#resistanceMinutes') ?? 0;
+      const cardioSessions = readNumber('#cardioSessions') ?? 0;
+      const cardioMinutes = readNumber('#cardioMinutes') ?? 0;
+
+      return {
+        errors: [],
+        sex: $('#sex').value,
+        age,
+        height,
+        weight,
+        calories,
+        months,
+        days: Math.round(months * 30.4375),
+        activityCoefficient: Number($('#activity').value),
+        macro,
+        bodyFat,
+        measuredTdee,
+        historyCalories: historyValues[0],
+        historyDays: historyValues[1],
+        historyChange: historyValues[2],
+        steps,
+        resistanceSessions,
+        resistanceMinutes,
+        resistanceMet: Number($('#resistanceIntensity').value),
+        trainingExperience: $('#trainingExperience').value,
+        cardioSessions,
+        cardioMinutes,
+        cardioMet: Number($('#cardioIntensity').value),
+        sleep: readNumber('#sleep'),
+        currentCarbs: readNumber('#currentCarbs'),
+        sodiumChange: readNumber('#sodiumChange') ?? 0,
+        intakeError: (readNumber('#intakeError') ?? DEFAULT_INTAKE_ERROR * 100) / 100,
+        includeWater: $('#includeWater').checked,
+        macroMode: getMacroMode()
+      };
+    }
+
+    function estimateBodyFatPct(input) {
+      if (input.bodyFat !== null) return input.bodyFat;
+      const heightM = input.height / 100;
+      const bmi = input.weight / (heightM * heightM);
+      const raw = input.sex === 'male'
+        ? 0.14 * input.age + 37.31 * Math.log(bmi) - 103.94
+        : 0.14 * input.age + 39.96 * Math.log(bmi) - 102.01;
+      return clamp(raw, input.sex === 'male' ? 4 : 10, 60);
+    }
+
+    function mifflinRmr(input, weight = input.weight) {
+      return 10 * weight + 6.25 * input.height - 5 * input.age + (input.sex === 'male' ? 5 : -161);
+    }
+
+    function tefFromMacros(calories, macro) {
+      const pKcal = calories * macro.pShare;
+      const fKcal = calories * macro.fShare;
+      const cKcal = calories * macro.cShare;
+      return pKcal * 0.25 + fKcal * 0.025 + cKcal * 0.075;
+    }
+
+    function netMetCalories(weight, met, minutes, sessionsPerWeek) {
+      if (!minutes || !sessionsPerWeek) return 0;
+      return Math.max(0, met - 1) * 3.5 * weight / 200 * minutes * sessionsPerWeek / 7;
+    }
+
+    function resistanceScore(input) {
+      const volume = input.resistanceSessions * input.resistanceMinutes;
+      const intensityFactor = clamp((input.resistanceMet - 2.5) / 3.5, 0.25, 1);
+      return clamp((volume / 150) * intensityFactor, 0, 1);
+    }
+
+    function sleepRecoveryFactor(hours) {
+      if (hours === null) return 0.93;
+      if (hours >= 7) return 1;
+      if (hours >= 6) return 0.93;
+      if (hours >= 5) return 0.82;
+      return 0.72;
+    }
+
+    function buildBaseline(input) {
+      const bfPct = estimateBodyFatPct(input);
+      const fat0 = input.weight * bfPct / 100;
+      const glycogen0 = input.includeWater ? 0.5 : 0;
+      const leanStructural0 = input.weight - fat0 - glycogen0 * 3.7;
+      const rmr0 = mifflinRmr(input);
+      const tef0 = tefFromMacros(input.calories, input.macro);
+      const strengthExercise = netMetCalories(input.weight, input.resistanceMet, input.resistanceMinutes, input.resistanceSessions);
+      const cardioExercise = netMetCalories(input.weight, input.cardioMet, input.cardioMinutes, input.cardioSessions);
+      let incidentalActivity;
+      if (input.steps !== null) {
+        incidentalActivity = 0.12 * rmr0 + 0.00045 * input.weight * input.steps;
+      } else {
+        incidentalActivity = input.activityCoefficient * rmr0;
+      }
+      const equationTdee = rmr0 + tef0 + incidentalActivity + strengthExercise + cardioExercise;
+
+      const p0 = FORBES_C / (FORBES_C + Math.max(fat0, 0.5));
+      const effectiveDensity = 1 / ((1 - p0) / RHO_F + p0 / RHO_L);
+
+      let tdee0 = equationTdee;
+      let tdeeSource = '身体情報・活動量から推定';
+      let sourceKey = 'equation';
+
+      if (input.measuredTdee !== null) {
+        tdee0 = input.measuredTdee;
+        tdeeSource = '入力した実測・推定TDEEを使用';
+        sourceKey = 'measured';
+      } else if (input.historyCalories !== null && input.historyDays !== null && input.historyChange !== null) {
+        tdee0 = input.historyCalories - (input.historyChange * effectiveDensity / input.historyDays);
+        tdeeSource = `${formatNumber(input.historyDays, 0)}日間の体重履歴から校正`;
+        sourceKey = 'history';
+      }
+
+      tdee0 = clamp(tdee0, 700, 8000);
+
+      let tdeeUncertainty = sourceKey === 'measured' ? 0.045 : sourceKey === 'history' ? 0.065 : 0.105;
+      if (input.steps !== null) tdeeUncertainty -= 0.012;
+      if (input.bodyFat !== null) tdeeUncertainty -= 0.005;
+      tdeeUncertainty = clamp(tdeeUncertainty, 0.035, 0.12);
+
+      let conditionScore = 38;
+      if (input.bodyFat !== null) conditionScore += 14;
+      if (input.steps !== null) conditionScore += 13;
+      if (sourceKey === 'measured') conditionScore += 24;
+      else if (sourceKey === 'history') conditionScore += 19;
+      if (input.currentCarbs !== null) conditionScore += 5;
+      if (input.sleep !== null) conditionScore += 3;
+      if (input.resistanceSessions > 0 && input.resistanceMinutes > 0) conditionScore += 3;
+      conditionScore = clamp(conditionScore, 0, 96);
+
+      return {
+        bfPct,
+        fat0,
+        glycogen0,
+        leanStructural0,
+        rmr0,
+        tef0,
+        incidentalActivity,
+        strengthExercise,
+        cardioExercise,
+        equationTdee,
+        tdee0,
+        tdeeSource,
+        sourceKey,
+        tdeeUncertainty,
+        conditionScore,
+        effectiveDensity
+      };
+    }
+
+    function maxLeanGainRate(input, leanStructural0, strengthScoreValue, proteinScore, recovery) {
+      const monthlyRate = {
+        none: 0.0004,
+        beginner: 0.007,
+        intermediate: 0.0035,
+        advanced: 0.0015
+      }[input.trainingExperience] ?? 0.0004;
+      const stimulus = input.trainingExperience === 'none'
+        ? 0.15
+        : clamp(strengthScoreValue, 0.15, 1);
+      return leanStructural0 * monthlyRate * stimulus * (0.65 + 0.35 * proteinScore) * recovery / 30.4375;
+    }
+
+    function simulateScenario(input, base, calorieScale, tdeeScale, scenarioName) {
+      const calories = input.calories * calorieScale;
+      const macro = input.macro;
+      const proteinG = calories * macro.pShare / 4;
+      const carbsG = calories * macro.cShare / 4;
+      const tef = tefFromMacros(calories, macro);
+      const scenarioTdee0 = base.tdee0 * tdeeScale;
+      const initialNonRmr = Math.max(0.05 * base.rmr0, scenarioTdee0 - base.rmr0 - tef);
+      const strength = resistanceScore(input);
+      const recovery = sleepRecoveryFactor(input.sleep);
+      const betaAT = 0.14;
+      const tauAT = 14;
+
+      let fat = base.fat0;
+      let leanStructural = base.leanStructural0;
+      let glycogen = base.glycogen0;
+      let fluid = 0;
+      let adaptiveThermogenesis = 0;
+
+      const baselineCarbKcal = input.includeWater
+        ? Math.max(1, (input.currentCarbs !== null ? input.currentCarbs * 4 : calories * macro.cShare))
+        : 0;
+      const plannedCarbKcal = calories * macro.cShare;
+      const glycogenK = input.includeWater ? baselineCarbKcal / (0.5 ** 2) : 0;
+      const carbRatio = input.includeWater ? plannedCarbKcal / baselineCarbKcal : 1;
+      const fluidTarget = input.includeWater
+        ? clamp((input.sodiumChange - 4000 * (1 - carbRatio)) / 3000, -3, 3)
+        : 0;
+
+      const rows = [];
+      let invalidFromDay = null;
+
+      function currentWeight() {
+        return fat + leanStructural + (input.includeWater ? glycogen * 3.7 + fluid : 0);
+      }
+
+      function record(day, tdee, rmr, energyBalance) {
+        const weight = currentWeight();
+        rows.push({
+          day,
+          weight,
+          fat,
+          ffm: weight - fat,
+          leanStructural,
+          glycogen,
+          fluid,
+          bodyFatPct: fat / Math.max(weight, 1) * 100,
+          tdee,
+          rmr,
+          intake: calories,
+          energyBalance,
+          proteinG,
+          carbsG,
+          adaptiveThermogenesis
+        });
+      }
+
+      const initialRmr = base.rmr0;
+      record(0, scenarioTdee0, initialRmr, calories - scenarioTdee0);
+
+      for (let day = 1; day <= input.days; day += 1) {
+        const weightBefore = currentWeight();
+        const rmr = Math.max(700,
+          base.rmr0 + GAMMA_F * (fat - base.fat0) + GAMMA_L * (leanStructural - base.leanStructural0)
+        );
+        const activity = initialNonRmr * (weightBefore / input.weight);
+        const targetAT = betaAT * (calories - scenarioTdee0);
+        adaptiveThermogenesis += (targetAT - adaptiveThermogenesis) / tauAT;
+        const tdee = Math.max(rmr * 1.04, rmr + tef + activity + adaptiveThermogenesis);
+
+        let dGlycogen = 0;
+        if (input.includeWater) {
+          dGlycogen = (plannedCarbKcal - glycogenK * glycogen * glycogen) / RHO_G;
+          dGlycogen = clamp(dGlycogen, -0.10, 0.10);
+        }
+
+        const tissueEnergy = calories - tdee - RHO_G * dGlycogen;
+        const proteinPerKg = proteinG / Math.max(weightBefore, 1);
+        const proteinScore = clamp((proteinPerKg - 0.8) / 0.8, 0, 1);
+        const baseP = FORBES_C / (FORBES_C + Math.max(fat, 0.5));
+        let pEnergy;
+
+        if (tissueEnergy < 0) {
+          const preservation = clamp(0.57 * proteinScore + 0.43 * strength * recovery, 0, 1);
+          pEnergy = baseP * (1 - 0.68 * preservation);
+        } else {
+          const growthStimulus = clamp(strength * recovery * (0.55 + 0.45 * proteinScore), 0, 1);
+          pEnergy = baseP * (1 + 1.35 * growthStimulus);
+        }
+        pEnergy = clamp(pEnergy, 0.008, 0.34);
+
+        let dFat = (1 - pEnergy) * tissueEnergy / RHO_F;
+        let dLean = pEnergy * tissueEnergy / RHO_L;
+
+        if (dLean > 0) {
+          const maxDailyLean = maxLeanGainRate(input, base.leanStructural0, strength, proteinScore, recovery);
+          if (dLean > maxDailyLean) {
+            const excessEnergy = (dLean - maxDailyLean) * RHO_L;
+            dLean = maxDailyLean;
+            dFat += excessEnergy / RHO_F;
+          }
+        }
+
+        if (fat + dFat < 0.5) {
+          dFat = 0.5 - fat;
+          if (invalidFromDay === null) invalidFromDay = day;
+        }
+        if (leanStructural + dLean < 20) {
+          dLean = 20 - leanStructural;
+          if (invalidFromDay === null) invalidFromDay = day;
+        }
+
+        fat += dFat;
+        leanStructural += dLean;
+        if (input.includeWater) {
+          glycogen = clamp(glycogen + dGlycogen, 0.05, 1.2);
+          fluid += (fluidTarget - fluid) / 2.2;
+        }
+
+        const finalWeightNow = currentWeight();
+        const bmiNow = finalWeightNow / ((input.height / 100) ** 2);
+        const bfNow = fat / finalWeightNow * 100;
+        const essentialThreshold = input.sex === 'male' ? 3 : 10;
+        if ((bmiNow < 14.5 || bfNow < essentialThreshold - 1) && invalidFromDay === null) invalidFromDay = day;
+
+        record(day, tdee, rmr, calories - tdee);
+      }
+
+      return { name: scenarioName, rows, invalidFromDay, calories, proteinG, carbsG };
+    }
+
+    function buildWarnings(input, base, scenarios) {
+      const warnings = [];
+      const median = scenarios.median.rows;
+      const start = median[0];
+      const end = median.at(-1);
+      const initialDeficit = input.calories - base.tdee0;
+      const deficitRatio = initialDeficit / base.tdee0;
+      const proteinGkg = input.macro.proteinG / input.weight;
+      const fatGkg = input.macro.fatG / input.weight;
+      const heightM = input.height / 100;
+      const finalBmi = end.weight / (heightM * heightM);
+      const initialBmi = input.weight / (heightM * heightM);
+
+      if (Math.abs(deficitRatio) > 0.35) {
+        warnings.push({ type: 'danger', text: `開始時のエネルギー収支がTDEEの${formatNumber(Math.abs(deficitRatio) * 100, 0)}%です。急激な設定では、空腹・疲労・活動量低下・継続不能がモデルより先に到着しがちです。` });
+      } else if (Math.abs(deficitRatio) > 0.22) {
+        warnings.push({ type: 'warning', text: `開始時のエネルギー収支は${formatSigned(initialDeficit, 0, ' kcal/日')}です。比較的大きい設定なので、実際の活動量や摂取量の変化で結果がぶれやすくなります。` });
+      }
+
+      if (input.calories < base.rmr0 * 0.85) {
+        warnings.push({ type: 'danger', text: `摂取カロリーが推定安静時消費量（約${formatNumber(base.rmr0, 0)} kcal）の85%未満です。長期運用を自己判断で固定する用途には向きません。` });
+      }
+
+      if (proteinGkg < 0.8) {
+        warnings.push({ type: 'warning', text: `タンパク質は約${formatNumber(proteinGkg, 2)} g/kg/日です。一般的な必要量を下回る可能性があり、除脂肪体重の予測も不利側に補正しています。` });
+      } else if (proteinGkg > 3.2) {
+        warnings.push({ type: 'warning', text: `タンパク質は約${formatNumber(proteinGkg, 2)} g/kg/日です。モデル上の筋量補正は1.6 g/kg付近でほぼ頭打ちにしています。増やした数字ほど筋肉が生える、という都合のよい算数にはしていません。` });
+      }
+
+      if (fatGkg < 0.45) {
+        warnings.push({ type: 'warning', text: `脂質は約${formatNumber(fatGkg, 2)} g/kg/日です。極端に低い脂質設定は栄養面を別途確認してください。` });
+      }
+
+      if (finalBmi < 18.5 && initialBmi >= 18.5) {
+        warnings.push({ type: 'danger', text: `中央値では期間中にBMI 18.5を下回ります。ここから先は「より軽いほど成功」という評価軸自体を疑う場面です。` });
+      }
+
+      const essentialThreshold = input.sex === 'male' ? 5 : 12;
+      if (end.bodyFatPct < essentialThreshold) {
+        warnings.push({ type: 'danger', text: `予測体脂肪率が${formatNumber(end.bodyFatPct, 1)}%まで低下します。低体脂肪域ではモデル誤差と健康リスクが大きくなるため、結果を計画値として扱わないでください。` });
+      }
+
+      if (input.bodyFat === null) {
+        warnings.push({ type: 'info', text: `開始体脂肪率は身長・体重・年齢から約${formatNumber(base.bfPct, 1)}%と推定しました。体脂肪率を任意入力すると、脂肪量と除脂肪量の分け方が改善します。` });
+      }
+
+      if (base.sourceKey === 'equation') {
+        warnings.push({ type: 'info', text: `開始TDEEは式と活動量からの推定です。実測TDEE、または14日以上の平均摂取量と体重変化を入れると、個人差の一部を校正できます。` });
+      }
+
+      if (input.currentCarbs === null && input.includeWater) {
+        warnings.push({ type: 'info', text: '変更前の炭水化物量が未入力なので、食事変更直後のグリコーゲン・水分差は原則ゼロとして開始しています。脂肪変化の予測には影響しません。' });
+      }
+
+      if (input.age < 19 || input.age > 78) {
+        warnings.push({ type: 'warning', text: 'Mifflin–St Jeor式の元データの中心範囲から外れています。安静時消費量の推定誤差が大きくなる可能性があります。' });
+      }
+
+      const invalidDay = Math.min(...Object.values(scenarios).map(s => s.invalidFromDay ?? Infinity));
+      if (Number.isFinite(invalidDay)) {
+        warnings.push({ type: 'danger', text: `${formatNumber(invalidDay / 30.4375, 1)}か月付近から、低体重・低体脂肪または組織量の下限に接近し、数理モデルの有効範囲を外れます。` });
+      }
+
+      if (warnings.length === 0) {
+        warnings.push({ type: 'info', text: '入力範囲内で明確な警告条件は検出されませんでした。ただし、警告がないことと予測が当たることは別問題です。' });
+      }
+      return warnings;
+    }
+
+    function runSimulation(input) {
+      const base = buildBaseline(input);
+      const low = simulateScenario(input, base, 1 - input.intakeError, 1 + base.tdeeUncertainty, '低位');
+      const median = simulateScenario(input, base, 1, 1, '中央値');
+      const high = simulateScenario(input, base, 1 + input.intakeError, 1 - base.tdeeUncertainty, '高位');
+      const scenarios = { low, median, high };
+      const warnings = buildWarnings(input, base, scenarios);
+      return { input, base, scenarios, warnings };
+    }
+
+    function renderResult(result) {
+      lastResult = result;
+      $('#emptyState').hidden = true;
+      $('#resultContent').hidden = false;
+
+      const { input, base, scenarios } = result;
+      const mid = scenarios.median.rows;
+      const low = scenarios.low.rows;
+      const high = scenarios.high.rows;
+      const start = mid[0];
+      const end = mid.at(-1);
+      const endLow = Math.min(low.at(-1).weight, high.at(-1).weight);
+      const endHigh = Math.max(low.at(-1).weight, high.at(-1).weight);
+      const weeks = input.days / 7;
+      const weekly = (end.weight - start.weight) / weeks;
+      const avgBalance = mid.reduce((sum, row) => sum + row.energyBalance, 0) / mid.length;
+      const pGkg = input.macro.proteinG / input.weight;
+      const fGkg = input.macro.fatG / input.weight;
+      const cGkg = input.macro.carbsG / input.weight;
+
+      $('#resultCaption').textContent = `${formatNumber(input.months, 0)}か月・${formatNumber(input.days, 0)}日 ｜ ${base.tdeeSource}`;
+      $('#scoreText').textContent = `${Math.round(base.conditionScore)} / 100`;
+      $('#scoreFill').style.width = `${base.conditionScore}%`;
+
+      $('#finalWeight').textContent = `${formatNumber(end.weight, 1)} kg`;
+      $('#weightRange').textContent = `概算レンジ ${formatNumber(endLow, 1)}〜${formatNumber(endHigh, 1)} kg`;
+      $('#weightDelta').textContent = formatSigned(end.weight - start.weight, 1, ' kg');
+      $('#weeklyRate').textContent = `平均 ${formatSigned(weekly, 2, ' kg/週')}`;
+      $('#finalBodyFat').textContent = `${formatNumber(end.bodyFatPct, 1)}%`;
+      $('#bodyFatDelta').textContent = `${formatNumber(start.bodyFatPct, 1)}% → ${formatNumber(end.bodyFatPct, 1)}%`;
+      $('#fatDelta').textContent = formatSigned(end.fat - start.fat, 1, ' kg');
+      $('#finalFatMass').textContent = `最終 ${formatNumber(end.fat, 1)} kg`;
+      $('#ffmDelta').textContent = formatSigned(end.ffm - start.ffm, 1, ' kg');
+      $('#tdeeValue').textContent = `${formatNumber(start.tdee, 0)} → ${formatNumber(end.tdee, 0)} kcal`;
+      $('#tdeeSource').textContent = base.tdeeSource;
+
+      const balanceDirection = avgBalance < -40 ? '赤字' : avgBalance > 40 ? '黒字' : 'ほぼ均衡';
+      $('#energyInsight').textContent = `期間平均の推定収支は ${formatSigned(avgBalance, 0, ' kcal/日')}（${balanceDirection}）。開始TDEE約${formatNumber(base.tdee0, 0)} kcalに対し、摂取${formatNumber(input.calories, 0)} kcalで計算しています。`;
+
+      const pfcLine = $('#pfcLine');
+      pfcLine.innerHTML = '';
+      [
+        `P ${formatNumber(input.macro.proteinG, 0)}g（${formatNumber(pGkg, 2)}g/kg）`,
+        `F ${formatNumber(input.macro.fatG, 0)}g（${formatNumber(fGkg, 2)}g/kg）`,
+        `C ${formatNumber(input.macro.carbsG, 0)}g（${formatNumber(cGkg, 2)}g/kg）`,
+        `TEF 約${formatNumber(base.tef0, 0)} kcal/日`
+      ].forEach(text => {
+        const chip = document.createElement('span');
+        chip.className = 'pfc-chip';
+        chip.textContent = text;
+        pfcLine.appendChild(chip);
+      });
+
+      const structuralLeanDelta = end.leanStructural - start.leanStructural;
+      const waterDelta = (end.ffm - start.ffm) - structuralLeanDelta;
+      $('#compositionInsight').textContent = `脂肪量は${formatSigned(end.fat - start.fat, 1, ' kg')}、構造的な除脂肪組織は${formatSigned(structuralLeanDelta, 1, ' kg')}、グリコーゲン等の水分差は約${formatSigned(waterDelta, 1, ' kg')}。除脂肪体重は水分込みなので、筋肉量そのものとは一致しません。`;
+
+      renderWarnings(result.warnings);
+      renderMonthlyTable(result);
+      activeChart = 'weight';
+      $$('.chart-tab').forEach(btn => {
+        const active = btn.dataset.chart === activeChart;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', String(active));
+      });
+      requestAnimationFrame(drawChart);
+    }
+
+    function renderWarnings(warnings) {
+      const list = $('#warningList');
+      list.innerHTML = '';
+      warnings.forEach(warning => {
+        const item = document.createElement('div');
+        item.className = `warning-item ${warning.type === 'danger' ? 'danger' : warning.type === 'info' ? 'info' : ''}`;
+        item.textContent = warning.text;
+        list.appendChild(item);
+      });
+    }
+
+    function sampleMonthlyRows(rows, totalDays) {
+      const indices = new Set([0]);
+      for (let month = 1; month <= Math.ceil(totalDays / 30.4375); month += 1) {
+        indices.add(Math.min(totalDays, Math.round(month * 30.4375)));
+      }
+      indices.add(totalDays);
+      return [...indices].sort((a, b) => a - b).map(i => rows[i]);
+    }
+
+    function renderMonthlyTable(result) {
+      const body = $('#monthlyTable');
+      body.innerHTML = '';
+      const { low, median, high } = result.scenarios;
+      const sampled = sampleMonthlyRows(median.rows, result.input.days);
+      sampled.forEach(row => {
+        const idx = row.day;
+        const lowWeight = Math.min(low.rows[idx].weight, high.rows[idx].weight);
+        const highWeight = Math.max(low.rows[idx].weight, high.rows[idx].weight);
+        const monthLabel = idx === 0 ? '開始' : idx === result.input.days ? `${formatNumber(result.input.months, 0)}か月` : `${formatNumber(idx / 30.4375, 1)}か月`;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${monthLabel}</td>
+          <td>${formatNumber(lowWeight, 1)}〜${formatNumber(highWeight, 1)} kg</td>
+          <td>${formatNumber(row.weight, 1)} kg</td>
+          <td>${formatNumber(row.bodyFatPct, 1)}%</td>
+          <td>${formatNumber(row.fat, 1)} kg</td>
+          <td>${formatNumber(row.ffm, 1)} kg</td>
+          <td>${formatNumber(row.tdee, 0)} kcal</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function niceTicks(min, max, target = 5) {
+      const span = Math.max(max - min, 1e-9);
+      const raw = span / target;
+      const power = 10 ** Math.floor(Math.log10(raw));
+      const fraction = raw / power;
+      const niceFraction = fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
+      const step = niceFraction * power;
+      const niceMin = Math.floor(min / step) * step;
+      const niceMax = Math.ceil(max / step) * step;
+      const ticks = [];
+      for (let v = niceMin; v <= niceMax + step * 0.5; v += step) ticks.push(v);
+      return { min: niceMin, max: niceMax, ticks, step };
+    }
+
+    function drawLine(ctx, values, xScale, yScale, color, width = 2.5, dash = []) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.setLineDash(dash);
+      ctx.beginPath();
+      values.forEach((value, i) => {
+        const x = xScale(i);
+        const y = yScale(value);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function renderLegend(items) {
+      const legend = $('#chartLegend');
+      legend.innerHTML = '';
+      items.forEach(item => {
+        const wrap = document.createElement('span');
+        wrap.className = 'legend-item';
+        const swatch = document.createElement('span');
+        swatch.className = item.band ? 'legend-band' : 'legend-line';
+        swatch.style.background = item.color;
+        const label = document.createElement('span');
+        label.textContent = item.label;
+        wrap.append(swatch, label);
+        legend.appendChild(wrap);
+      });
+    }
+
+    function drawChart() {
+      if (!lastResult || $('#resultContent').hidden) return;
+      const canvas = $('#chartCanvas');
+      const shell = $('#chartShell');
+      const cssWidth = Math.max(320, canvas.clientWidth);
+      const cssHeight = canvas.clientHeight || 350;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(cssWidth * dpr);
+      canvas.height = Math.round(cssHeight * dpr);
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+      const margin = { left: 58, right: 20, top: 24, bottom: 43 };
+      const plotW = cssWidth - margin.left - margin.right;
+      const plotH = cssHeight - margin.top - margin.bottom;
+      const days = lastResult.input.days;
+      const xScale = i => margin.left + (i / days) * plotW;
+
+      let series = [];
+      let allValues = [];
+      let yLabel = '';
+      let tooltipFormatter;
+
+      const lowRows = lastResult.scenarios.low.rows;
+      const midRows = lastResult.scenarios.median.rows;
+      const highRows = lastResult.scenarios.high.rows;
+
+      if (activeChart === 'weight') {
+        const lower = midRows.map((_, i) => Math.min(lowRows[i].weight, highRows[i].weight));
+        const upper = midRows.map((_, i) => Math.max(lowRows[i].weight, highRows[i].weight));
+        const median = midRows.map(r => r.weight);
+        series = [{ name: '中央値', values: median, color: '#0b8f76' }];
+        allValues = [...lower, ...upper];
+        yLabel = 'kg';
+        tooltipFormatter = i => [
+          `日数: ${i}日（${formatNumber(i / 30.4375, 1)}か月）`,
+          `中央値: ${formatNumber(median[i], 1)} kg`,
+          `レンジ: ${formatNumber(lower[i], 1)}〜${formatNumber(upper[i], 1)} kg`
+        ];
+        series.band = { lower, upper };
+        renderLegend([
+          { label: '中央値', color: '#0b8f76' },
+          { label: '概算レンジ', color: 'rgba(47,111,237,0.20)', band: true }
+        ]);
+      } else if (activeChart === 'composition') {
+        const fat = midRows.map(r => r.fat);
+        const ffm = midRows.map(r => r.ffm);
+        series = [
+          { name: '脂肪量', values: fat, color: '#d47c1f' },
+          { name: '除脂肪体重', values: ffm, color: '#2f6fed' }
+        ];
+        allValues = [...fat, ...ffm];
+        yLabel = 'kg';
+        tooltipFormatter = i => [
+          `日数: ${i}日（${formatNumber(i / 30.4375, 1)}か月）`,
+          `脂肪量: ${formatNumber(fat[i], 1)} kg`,
+          `除脂肪体重: ${formatNumber(ffm[i], 1)} kg`,
+          `体脂肪率: ${formatNumber(midRows[i].bodyFatPct, 1)}%`
+        ];
+        renderLegend([
+          { label: '脂肪量', color: '#d47c1f' },
+          { label: '除脂肪体重（水分込み）', color: '#2f6fed' }
+        ]);
+      } else {
+        const intake = midRows.map(r => r.intake);
+        const tdee = midRows.map(r => r.tdee);
+        series = [
+          { name: '摂取', values: intake, color: '#2f6fed' },
+          { name: 'TDEE', values: tdee, color: '#0b8f76' }
+        ];
+        allValues = [...intake, ...tdee];
+        yLabel = 'kcal/日';
+        tooltipFormatter = i => [
+          `日数: ${i}日（${formatNumber(i / 30.4375, 1)}か月）`,
+          `摂取: ${formatNumber(intake[i], 0)} kcal`,
+          `TDEE: ${formatNumber(tdee[i], 0)} kcal`,
+          `収支: ${formatSigned(midRows[i].energyBalance, 0, ' kcal')}`
+        ];
+        renderLegend([
+          { label: '摂取カロリー', color: '#2f6fed' },
+          { label: '推定TDEE', color: '#0b8f76' }
+        ]);
+      }
+
+      let minVal = Math.min(...allValues);
+      let maxVal = Math.max(...allValues);
+      const pad = Math.max((maxVal - minVal) * 0.12, activeChart === 'energy' ? 80 : 1);
+      minVal -= pad;
+      maxVal += pad;
+      const scale = niceTicks(minVal, maxVal, 5);
+      const yScale = value => margin.top + (scale.max - value) / (scale.max - scale.min) * plotH;
+
+      ctx.save();
+      ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.fillStyle = '#718095';
+      ctx.strokeStyle = '#e6ebf0';
+      ctx.lineWidth = 1;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+
+      scale.ticks.forEach(tick => {
+        const y = yScale(tick);
+        ctx.beginPath();
+        ctx.moveTo(margin.left, y);
+        ctx.lineTo(cssWidth - margin.right, y);
+        ctx.stroke();
+        ctx.fillText(`${formatNumber(tick, scale.step < 1 ? 1 : 0)}`, margin.left - 9, y);
+      });
+
+      const xTickCount = Math.min(6, Math.max(3, lastResult.input.months));
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      for (let i = 0; i <= xTickCount; i += 1) {
+        const day = Math.round(days * i / xTickCount);
+        const x = xScale(day);
+        ctx.beginPath();
+        ctx.moveTo(x, margin.top);
+        ctx.lineTo(x, margin.top + plotH);
+        ctx.stroke();
+        const month = day / 30.4375;
+        ctx.fillText(i === 0 ? '開始' : `${formatNumber(month, month < 10 ? 1 : 0)}月`, x, margin.top + plotH + 10);
+      }
+
+      ctx.save();
+      ctx.translate(14, margin.top + plotH / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillStyle = '#718095';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(yLabel, 0, 0);
+      ctx.restore();
+      ctx.restore();
+
+      if (activeChart === 'weight' && series.band) {
+        const { lower, upper } = series.band;
+        ctx.save();
+        ctx.fillStyle = 'rgba(47,111,237,0.16)';
+        ctx.beginPath();
+        upper.forEach((value, i) => {
+          const x = xScale(i);
+          const y = yScale(value);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        for (let i = lower.length - 1; i >= 0; i -= 1) ctx.lineTo(xScale(i), yScale(lower[i]));
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      series.forEach(item => drawLine(ctx, item.values, xScale, yScale, item.color, 2.7));
+
+      chartMeta = {
+        shell,
+        margin,
+        plotW,
+        days,
+        xScale,
+        tooltipFormatter,
+        cssWidth,
+        cssHeight
+      };
+    }
+
+    function handleChartPointer(event) {
+      if (!chartMeta || !lastResult) return;
+      const canvas = $('#chartCanvas');
+      const tooltip = $('#chartTooltip');
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const plotStart = chartMeta.margin.left;
+      const plotEnd = chartMeta.margin.left + chartMeta.plotW;
+      if (x < plotStart || x > plotEnd) {
+        tooltip.style.display = 'none';
+        return;
+      }
+      const index = clamp(Math.round((x - plotStart) / chartMeta.plotW * chartMeta.days), 0, chartMeta.days);
+      tooltip.innerHTML = chartMeta.tooltipFormatter(index).map((line, i) => i === 0 ? `<strong>${line}</strong>` : line).join('<br>');
+      tooltip.style.display = 'block';
+      const shellRect = $('#chartShell').getBoundingClientRect();
+      const pointerX = event.clientX - shellRect.left;
+      const pointerY = event.clientY - shellRect.top;
+      const tipWidth = tooltip.offsetWidth;
+      const tipHeight = tooltip.offsetHeight;
+      let left = pointerX + 12;
+      let top = pointerY - tipHeight - 10;
+      if (left + tipWidth > shellRect.width - 8) left = pointerX - tipWidth - 12;
+      if (top < 6) top = pointerY + 12;
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    }
+
+    function serializeForm() {
+      const data = {};
+      $$('input, select', form).forEach(el => {
+        if (!el.name) return;
+        if (el.type === 'radio') {
+          if (el.checked) data[el.name] = el.value;
+        } else if (el.type === 'checkbox') {
+          data[el.name] = el.checked ? '1' : '0';
+        } else {
+          data[el.name] = el.value;
+        }
+      });
+      return data;
+    }
+
+    function restoreForm(data) {
+      if (!data || typeof data !== 'object') return;
+      Object.entries(data).forEach(([name, value]) => {
+        const elements = $$(`[name="${CSS.escape(name)}"]`, form);
+        elements.forEach(el => {
+          if (el.type === 'radio') el.checked = el.value === value;
+          else if (el.type === 'checkbox') el.checked = value === '1' || value === true;
+          else el.value = value;
+        });
+      });
+      macroMode = getMacroMode();
+      switchMacroMode(macroMode, false);
+      updateOptionalCount();
+    }
+
+    function saveInputs() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeForm()));
+        showToast('入力をこの端末に保存しました。');
+      } catch (_) {
+        showToast('保存できませんでした。ブラウザ設定を確認してください。');
+      }
+    }
+
+    async function copyShareUrl() {
+      const params = new URLSearchParams(serializeForm());
+      const url = new URL(location.href);
+      url.hash = params.toString();
+      try {
+        await navigator.clipboard.writeText(url.toString());
+        history.replaceState(null, '', url);
+        showToast('条件入りURLをコピーしました。');
+      } catch (_) {
+        location.hash = params.toString();
+        showToast('URLに条件を反映しました。アドレス欄からコピーしてください。');
+      }
+    }
+
+    function loadInitialState() {
+      let loaded = false;
+      if (location.hash.length > 1) {
+        try {
+          const params = new URLSearchParams(location.hash.slice(1));
+          const data = Object.fromEntries(params.entries());
+          restoreForm(data);
+          loaded = true;
+        } catch (_) { /* ignore malformed hash */ }
+      }
+      if (!loaded) {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) restoreForm(JSON.parse(saved));
+        } catch (_) { /* ignore storage failure */ }
+      }
+    }
+
+    function resetInputs() {
+      localStorage.removeItem(STORAGE_KEY);
+      history.replaceState(null, '', location.pathname + location.search);
+      form.reset();
+      macroMode = 'percent';
+      switchMacroMode('percent', false);
+      updateMacroStatus();
+      updateOptionalCount();
+      $('#formError').classList.remove('show');
+      showToast('初期値に戻しました。');
+    }
+
+    function exportCsv() {
+      if (!lastResult) return;
+      const { low, median, high } = lastResult.scenarios;
+      const lines = [
+        ['day', 'month', 'weight_low_kg', 'weight_median_kg', 'weight_high_kg', 'fat_mass_kg', 'fat_free_mass_kg', 'body_fat_pct', 'structural_lean_kg', 'glycogen_kg', 'fluid_delta_kg', 'intake_kcal', 'tdee_kcal', 'energy_balance_kcal'].join(',')
+      ];
+      median.rows.forEach((row, i) => {
+        const lower = Math.min(low.rows[i].weight, high.rows[i].weight);
+        const upper = Math.max(low.rows[i].weight, high.rows[i].weight);
+        lines.push([
+          row.day,
+          (row.day / 30.4375).toFixed(4),
+          lower.toFixed(4),
+          row.weight.toFixed(4),
+          upper.toFixed(4),
+          row.fat.toFixed(4),
+          row.ffm.toFixed(4),
+          row.bodyFatPct.toFixed(4),
+          row.leanStructural.toFixed(4),
+          row.glycogen.toFixed(4),
+          row.fluid.toFixed(4),
+          row.intake.toFixed(2),
+          row.tdee.toFixed(2),
+          row.energyBalance.toFixed(2)
+        ].join(','));
+      });
+      const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `body-pfc-simulation-${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const parsed = validateAndReadInputs();
+      const errorBox = $('#formError');
+      if (parsed.errors.length) {
+        errorBox.textContent = parsed.errors.join(' ');
+        errorBox.classList.add('show');
+        return;
+      }
+      errorBox.classList.remove('show');
+      const result = runSimulation(parsed);
+      renderResult(result);
+      if (window.innerWidth <= 1040) $('#resultContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    $$('input[name="macroMode"]').forEach(radio => {
+      radio.addEventListener('change', () => switchMacroMode(radio.value, true));
+    });
+
+    macroInputs.forEach(input => input.addEventListener('input', updateMacroStatus));
+    calorieInput.addEventListener('input', updateMacroStatus);
+    optionalIds.forEach(id => $(id).addEventListener('input', updateOptionalCount));
+    $('#includeWater').addEventListener('change', updateOptionalCount);
+
+    $$('.chart-tab').forEach(button => {
+      button.addEventListener('click', () => {
+        activeChart = button.dataset.chart;
+        $$('.chart-tab').forEach(btn => {
+          const active = btn === button;
+          btn.classList.toggle('active', active);
+          btn.setAttribute('aria-selected', String(active));
+        });
+        $('#chartTooltip').style.display = 'none';
+        drawChart();
+      });
+    });
+
+    $('#chartCanvas').addEventListener('mousemove', handleChartPointer);
+    $('#chartCanvas').addEventListener('mouseleave', () => { $('#chartTooltip').style.display = 'none'; });
+    $('#saveButton').addEventListener('click', saveInputs);
+    $('#shareButton').addEventListener('click', copyShareUrl);
+    $('#resetButton').addEventListener('click', resetInputs);
+    $('#csvButton').addEventListener('click', exportCsv);
+    $('#printButton').addEventListener('click', () => window.print());
+
+    if ('ResizeObserver' in window) {
+      const observer = new ResizeObserver(() => requestAnimationFrame(drawChart));
+      observer.observe($('#chartShell'));
+    } else {
+      window.addEventListener('resize', () => requestAnimationFrame(drawChart));
+    }
+
+    loadInitialState();
+    macroMode = getMacroMode();
+    switchMacroMode(macroMode, false);
+    updateMacroStatus();
+    updateOptionalCount();
+  </script>
+</body>
+</html>

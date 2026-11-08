@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="google-site-verification" content="282HWwFqX5MAEmjMUQXGFlpHvfHdCSs5btSxB52O1vA" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>短期記憶チェックツール</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f4f5;
+      color: #222;
+    }
+
+    header {
+      padding: 16px 20px;
+      background: #222;
+      color: white;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      padding: 16px 20px;
+      background: white;
+      border-bottom: 1px solid #ddd;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+    }
+
+    input {
+      width: 80px;
+      padding: 6px 8px;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 8px 14px;
+      font-size: 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #2563eb;
+      color: white;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    button.secondary {
+      background: #555;
+    }
+
+    button.secondary:hover {
+      background: #333;
+    }
+
+    .info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 12px 20px;
+      font-size: 15px;
+      background: #fafafa;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #status {
+      font-weight: 600;
+    }
+
+    .game-area-wrap {
+      padding: 20px;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      max-height: calc(100vh - 190px);
+      min-height: 420px;
+      background: white;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .ball {
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #38bdf8;
+      border: 3px solid #0284c7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: #111827;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
+    }
+
+    .ball:hover {
+      transform: scale(1.06);
+    }
+
+    .ball.hidden-number {
+      color: transparent;
+    }
+
+    .ball.done {
+      background: #86efac;
+      border-color: #16a34a;
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .ball.wrong {
+      background: #fca5a5;
+      border-color: #dc2626;
+    }
+
+    .ball.disabled {
+      pointer-events: none;
+    }
+
+    @media (max-width: 640px) {
+      #gameArea {
+        height: 500px;
+        min-height: 360px;
+      }
+
+      .ball {
+        width: 48px;
+        height: 48px;
+        font-size: 19px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>短期記憶チェックツール</h1>
+  </header>
+
+  <section class="controls">
+    <label>
+      表示秒数 n:
+      <input id="secondsInput" type="number" min="0.3" max="30" step="0.1" value="3">
+    </label>
+
+    <label>
+      玉の数 m:
+      <input id="countInput" type="number" min="1" max="50" step="1" value="6">
+    </label>
+
+    <button id="startBtn">開始</button>
+    <button id="stopBtn" class="secondary">停止</button>
+  </section>
+
+  <section class="info">
+    <div>状態: <span id="status">待機中</span></div>
+    <div>ラウンド: <span id="roundText">0</span></div>
+    <div>次に押す数字: <span id="nextText">-</span></div>
+    <div>残り表示時間: <span id="timerText">-</span></div>
+  </section>
+
+  <main class="game-area-wrap">
+    <div id="gameArea"></div>
+  </main>
+
+  <script>
+    const gameArea = document.getElementById("gameArea");
+    const secondsInput = document.getElementById("secondsInput");
+    const countInput = document.getElementById("countInput");
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+
+    const statusText = document.getElementById("status");
+    const roundText = document.getElementById("roundText");
+    const nextText = document.getElementById("nextText");
+    const timerText = document.getElementById("timerText");
+
+    let phase = "idle"; // idle, memorize, answer
+    let round = 0;
+    let expectedNumber = 1;
+    let timerId = null;
+    let autoNextId = null;
+    let currentSeconds = 3;
+    let currentCount = 6;
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function readSettings() {
+      const seconds = parseFloat(secondsInput.value);
+      const count = parseInt(countInput.value, 10);
+
+      currentSeconds = clamp(Number.isFinite(seconds) ? seconds : 3, 0.3, 30);
+      currentCount = clamp(Number.isFinite(count) ? count : 6, 1, 50);
+
+      secondsInput.value = currentSeconds;
+      countInput.value = currentCount;
+    }
+
+    function clearTimers() {
+      if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+
+      if (autoNextId !== null) {
+        clearTimeout(autoNextId);
+        autoNextId = null;
+      }
+    }
+
+    function clearGameArea() {
+      gameArea.innerHTML = "";
+    }
+
+    function getBallSize() {
+      return window.innerWidth <= 640 ? 48 : 56;
+    }
+
+    function createPositions(count) {
+      const rect = gameArea.getBoundingClientRect();
+      const ballSize = getBallSize();
+      const padding = 12;
+      const minDistance = ballSize + 8;
+
+      const width = rect.width;
+      const height = rect.height;
+
+      const positions = [];
+
+      for (let i = 0; i < count; i++) {
+        let placed = false;
+
+        for (let attempt = 0; attempt < 500; attempt++) {
+          const x = padding + Math.random() * Math.max(1, width - ballSize - padding * 2);
+          const y = padding + Math.random() * Math.max(1, height - ballSize - padding * 2);
+
+          const overlaps = positions.some(pos => {
+            const dx = pos.x - x;
+            const dy = pos.y - y;
+            return Math.sqrt(dx * dx + dy * dy) < minDistance;
+          });
+
+          if (!overlaps) {
+            positions.push({ x, y });
+            placed = true;
+            break;
+          }
+        }
+
+        // 玉が多すぎてきれいに置けない場合の保険。
+        // 完璧主義で停止するより、多少近くても置いたほうが道具としてはマシ。
+        if (!placed) {
+          const x = padding + Math.random() * Math.max(1, width - ballSize - padding * 2);
+          const y = padding + Math.random() * Math.max(1, height - ballSize - padding * 2);
+          positions.push({ x, y });
+        }
+      }
+
+      return positions;
+    }
+
+    function createBalls(count) {
+      clearGameArea();
+
+      const positions = createPositions(count);
+
+      for (let i = 1; i <= count; i++) {
+        const ball = document.createElement("div");
+        ball.className = "ball disabled";
+        ball.textContent = i;
+        ball.dataset.number = String(i);
+
+        ball.style.left = `${positions[i - 1].x}px`;
+        ball.style.top = `${positions[i - 1].y}px`;
+
+        ball.addEventListener("click", () => handleBallClick(ball));
+
+        gameArea.appendChild(ball);
+      }
+    }
+
+    function hideNumbersAndEnableClick() {
+      phase = "answer";
+      expectedNumber = 1;
+
+      const balls = document.querySelectorAll(".ball");
+      balls.forEach(ball => {
+        ball.classList.add("hidden-number");
+        ball.classList.remove("disabled");
+      });
+
+      statusText.textContent = "数字が消えました。1から順番にクリックしてください";
+      nextText.textContent = expectedNumber;
+      timerText.textContent = "-";
+    }
+
+    function startCountdown(seconds) {
+      let remaining = seconds;
+      timerText.textContent = remaining.toFixed(1) + "秒";
+
+      const startedAt = performance.now();
+
+      timerId = setInterval(() => {
+        const elapsed = (performance.now() - startedAt) / 1000;
+        remaining = Math.max(0, seconds - elapsed);
+
+        timerText.textContent = remaining.toFixed(1) + "秒";
+
+        if (remaining <= 0) {
+          clearInterval(timerId);
+          timerId = null;
+          hideNumbersAndEnableClick();
+        }
+      }, 50);
+    }
+
+    function startRound() {
+      clearTimers();
+      readSettings();
+
+      phase = "memorize";
+      expectedNumber = 1;
+      round += 1;
+
+      roundText.textContent = round;
+      nextText.textContent = "-";
+      statusText.textContent = "数字を覚えてください";
+      timerText.textContent = currentSeconds.toFixed(1) + "秒";
+
+      createBalls(currentCount);
+      startCountdown(currentSeconds);
+    }
+
+    function handleBallClick(ball) {
+      if (phase !== "answer") return;
+
+      const clickedNumber = Number(ball.dataset.number);
+
+      if (clickedNumber === expectedNumber) {
+        ball.classList.add("done");
+        ball.classList.remove("hidden-number");
+        ball.textContent = clickedNumber;
+
+        expectedNumber += 1;
+
+        if (expectedNumber > currentCount) {
+          clearRound();
+        } else {
+          nextText.textContent = expectedNumber;
+          statusText.textContent = "正解。そのまま続けてください";
+        }
+      } else {
+        failRound(ball, clickedNumber);
+      }
+    }
+
+    function clearRound() {
+      phase = "idle";
+
+      document.querySelectorAll(".ball").forEach(ball => {
+        ball.classList.add("disabled");
+        ball.classList.remove("hidden-number");
+      });
+
+      statusText.textContent = "クリア。次のラウンドへ進みます";
+      nextText.textContent = "-";
+
+      autoNextId = setTimeout(() => {
+        startRound();
+      }, 1000);
+    }
+
+    function failRound(ball, clickedNumber) {
+      phase = "idle";
+
+      ball.classList.add("wrong");
+      ball.classList.remove("hidden-number");
+      ball.textContent = clickedNumber;
+
+      document.querySelectorAll(".ball").forEach(b => {
+        b.classList.add("disabled");
+        b.classList.remove("hidden-number");
+      });
+
+      statusText.textContent = `失敗。${expectedNumber} を押すべきところで ${clickedNumber} を押しました`;
+      nextText.textContent = "-";
+
+      autoNextId = setTimeout(() => {
+        startRound();
+      }, 1400);
+    }
+
+    function stopGame() {
+      clearTimers();
+      phase = "idle";
+      expectedNumber = 1;
+      nextText.textContent = "-";
+      timerText.textContent = "-";
+      statusText.textContent = "停止中";
+      clearGameArea();
+    }
+
+    startBtn.addEventListener("click", () => {
+      round = 0;
+      startRound();
+    });
+
+    stopBtn.addEventListener("click", () => {
+      stopGame();
+    });
+
+    window.addEventListener("resize", () => {
+      // プレイ中に画面サイズが変わると座標が崩れるので、
+      // 次ラウンドを開始し直す。ブラウザという気まぐれな板の上なので仕方ない。
+      if (phase !== "idle") {
+        startRound();
+      }
+    });
+  </script>
+</body>
+</html>

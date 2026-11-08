@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mynostr</title>
+    <link rel="stylesheet" href="style.css?20260821v2">
+    <script type="module" src="main.js?20260831-relay-v2"></script>
+  </head>
+  <body>
+    <div class="app-container">
+      <nav class="sidebar">
+        <div class="sidebar-inner">
+          <div class="logo">mynostr</div>
+          <ul class="nav-links">
+            <li id="nav-public" class="active"><a href="?view=global" onclick="return app.handleRouteLink(event, 'global')"><span class="icon">🌍</span> グローバル</a></li>
+            <li id="nav-home"><a href="?view=home" onclick="return app.handleRouteLink(event, 'home')"><span class="icon">🏠</span> ホーム</a></li>
+            <li id="nav-notifications"><a href="?view=notifications" onclick="return app.handleRouteLink(event, 'notifications')"><span class="icon">🔔</span> 通知</a></li>
+            <li id="nav-setting"><a href="?view=settings" onclick="return app.handleRouteLink(event, 'settings')"><span class="icon">⚙️</span> 設定</a></li>
+          </ul>
+          <div class="user-info">
+            <button id="login-btn" class="btn-primary" onclick="app.login()">NIP-07 ログイン</button>
+            <div id="profile-display" class="hidden" onclick="app.openProfile(app.myPubkey)">
+              <img id="my-pic" src="" class="avatar-sm">
+              <div class="my-info">
+                <span id="my-name"></span>
+                <!--<span class="user-id">プロフィールを表示</span>-->
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main class="main-content">
+        <header class="sticky-controls">
+          <div id="header-title" class="header-title">グローバル</div>
+          <div id="feed-controls" class="control-group">
+            <button class="btn-primary" onclick="app.fetchFeed('latest')">⬆ 最新</button>
+            <button class="btn-secondary" onclick="app.fetchFeed('newer')">🔼 <span class="batch-num">30</span>件</button>
+            <button class="btn-secondary" onclick="app.fetchFeed('older')">🔽 <span class="batch-num">30</span>件</button>
+          </div>
+        </header>
+
+        <div class="feed-container">
+          <section id="post-area" class="hidden">
+            <div class="post-box">
+              <img id="post-avatar" src="" class="avatar-sm hidden">
+              <div class="post-input-wrapper">
+                <textarea id="post-input" placeholder="いまどうしてる？"></textarea>
+                <div class="post-actions-row">
+                  <button class="btn-primary" onclick="app.submitPost()">Post</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div id="timeline-public" class="timeline"></div>
+          <div id="timeline-home" class="timeline hidden"></div>
+          <div id="timeline-notifications" class="timeline hidden"></div>
+          <section id="page-thread" class="hidden">
+            <a id="thread-back-link" class="btn-secondary back-btn" href="?view=global" onclick="return app.handleBackLink(event)">← 戻る</a>
+            
+            <div id="thread-parent-post"></div>
+            
+            <div id="thread-main-post"></div>
+            
+            <div class="post-box reply-box">
+              <div class="post-input-wrapper">
+                <textarea id="reply-input" placeholder="返信"></textarea>
+                <div class="post-actions-row">
+                  <button class="btn-primary" onclick="app.submitReply()">返信</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="timeline-thread" class="timeline"></div>
+
+          </section>
+          
+
+          <section id="page-setting" class="hidden">
+            <div class="setting-content">
+              <h2>設定</h2>
+              <div class="setting-item">
+                <label>リレー (1行に1つ)</label>
+                <textarea id="relay-input" rows="7"></textarea>
+              </div>
+              <div class="setting-item">
+                <label>一度に読み込む件数 (N)</label>
+                <input type="number" id="batch-input" value="30">
+              </div>
+              <div class="setting-item">
+                <label>ミュートワード(display_name) 正規表現・1行に1つ</label>
+                <textarea id="mute-display-name-input" rows="5"></textarea>
+              </div>
+              <div class="setting-item">
+                <label>ミュートワード(投稿内容) 正規表現・1行に1つ</label>
+                <textarea id="mute-content-input" rows="5"></textarea>
+              </div>
+              <div class="setting-item">
+                <label>ミュート公開鍵hex・1行に1つ</label>
+                <textarea id="mute-pubkey-input" rows="5"></textarea>
+              </div>
+              <div class="setting-actions">
+                <button class="btn-primary" onclick="app.saveSettings()">保存してリロード</button>
+                <button class="btn-secondary" onclick="app.exportSettings()">JSONエクスポート</button>
+                <button class="btn-secondary" onclick="app.importSettings()">JSONインポート</button>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </main>
+      
+      <aside class="right-sidebar"></aside>
+    </div>
+  </body>
+</html>

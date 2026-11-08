@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>神経衰弱</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --panel2: #1f2937;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --card: #f8fafc;
+    --edge: #cbd5e1;
+    --accent: #38bdf8;
+    --ok: #22c55e;
+    --bad: #ef4444;
+    --warn: #f59e0b;
+    --shadow: rgba(0,0,0,.34);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    background:
+      radial-gradient(circle at top left, rgba(56,189,248,.20), transparent 36%),
+      radial-gradient(circle at bottom right, rgba(34,197,94,.12), transparent 32%),
+      var(--bg);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  header {
+    padding: 18px 20px 10px;
+    display: flex;
+    gap: 14px;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(22px, 3vw, 34px);
+    letter-spacing: .04em;
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 5px;
+  }
+
+  .controls {
+    margin: 0 20px 12px;
+    padding: 14px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    background: rgba(17,24,39,.86);
+    box-shadow: 0 14px 30px var(--shadow);
+    display: grid;
+    grid-template-columns: repeat(7, minmax(130px, 1fr));
+    gap: 12px;
+  }
+
+  label {
+    display: grid;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  input, select, button {
+    border: 1px solid rgba(255,255,255,.15);
+    background: var(--panel2);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 9px 10px;
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+    font-weight: 700;
+    letter-spacing: .03em;
+    background: linear-gradient(135deg, #0284c7, #16a34a);
+    border: 0;
+  }
+
+  button:hover { filter: brightness(1.08); }
+  .card:hover { filter: drop-shadow(0 0 10px rgba(56,189,248,.55)); }
+  button:disabled { cursor: not-allowed; opacity: .55; }
+
+  .scoreboard {
+    margin: 0 20px 12px;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .player {
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(31,41,55,.86);
+    border: 1px solid rgba(255,255,255,.08);
+    color: var(--muted);
+  }
+
+  .player strong {
+    display: block;
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  .player.active {
+    outline: 2px solid var(--accent);
+    color: var(--text);
+    box-shadow: 0 0 0 4px rgba(56,189,248,.12);
+  }
+
+  .player .small {
+    font-size: 12px;
+    margin-top: 2px;
+  }
+
+  .status {
+    margin: 0 20px 10px;
+    min-height: 26px;
+    color: var(--text);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 999px;
+    padding: 4px 9px;
+    color: var(--muted);
+    background: rgba(15,23,42,.7);
+    font-size: 12px;
+  }
+
+  main {
+    padding: 0 20px 24px;
+  }
+
+  .board {
+    width: 100%;
+    display: grid;
+    gap: var(--gap, 10px);
+    justify-content: center;
+    align-content: start;
+    perspective: 1200px;
+  }
+
+  .card {
+    width: var(--cw, 82px);
+    height: var(--ch, 118px);
+    border: 0;
+    padding: 0;
+    margin: 0;
+    border-radius: 13px;
+    background: transparent;
+    position: relative;
+    transform-style: preserve-3d;
+    display: block;
+    line-height: 0;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .card:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    transition: transform .23s ease;
+    transform-style: preserve-3d;
+    position: relative;
+    display: block;
+  }
+
+  .card.open .card-inner,
+  .card.matched .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .face {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 13px;
+    overflow: hidden;
+    box-shadow: 0 8px 18px var(--shadow);
+  }
+
+  .front {
+    transform: rotateY(180deg);
+    background: var(--card);
+    border: 1px solid var(--edge);
+  }
+
+  .back {
+    background: linear-gradient(135deg, #1d4ed8, #0f766e);
+    border: 1px solid rgba(255,255,255,.18);
+  }
+
+  .card.matched {
+    opacity: .55;
+    transform: scale(.98);
+  }
+
+  .card.cpu-peek {
+    filter: drop-shadow(0 0 8px rgba(245,158,11,.85));
+  }
+
+  .card-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .red { fill: #dc2626; color: #dc2626; }
+  .black { fill: #111827; color: #111827; }
+
+  .legend {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    place-items: center;
+    background: rgba(2,6,23,.72);
+    z-index: 10;
+    padding: 20px;
+  }
+
+  .modal.show { display: grid; }
+
+  .dialog {
+    width: min(520px, 100%);
+    background: #0b1220;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  }
+
+  .dialog h2 {
+    margin: 0 0 10px;
+  }
+
+  .dialog pre {
+    white-space: pre-wrap;
+    color: var(--muted);
+    background: rgba(255,255,255,.04);
+    padding: 12px;
+    border-radius: 12px;
+    overflow: auto;
+  }
+
+  @media (max-width: 860px) {
+    .controls { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+    .scoreboard { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+  }
+
+  @media (max-width: 480px) {
+    header, .controls, .scoreboard, .status, main { margin-left: 10px; margin-right: 10px; padding-left: 0; padding-right: 0; }
+    .controls { grid-template-columns: 1fr; }
+    .scoreboard { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    appearance: none;
+  }
+
+  .card:hover:not(:disabled) {
+    transform: translateY(-3px);
+    filter: drop-shadow(0 0 10px rgba(56,189,248,.55));
+  }
+
+  .card:hover:not(:disabled)::after {
+    content: "☝";
+    position: absolute;
+    right: -9px;
+    top: -13px;
+    z-index: 4;
+    font-size: 24px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,.45));
+    pointer-events: none;
+  }
+
+  .card:active:not(:disabled) {
+    transform: translateY(-1px) scale(.985);
+    filter: drop-shadow(0 0 14px rgba(245,158,11,.75));
+  }
+
+  .card:active:not(:disabled)::before {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    z-index: 3;
+    border-radius: 17px;
+    border: 3px solid rgba(245,158,11,.92);
+    pointer-events: none;
+  }
+
+  .card.open:not(.matched) {
+    cursor: default;
+  }
+
+  .card.open:not(.matched)::before {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    z-index: 3;
+    border-radius: 17px;
+    border: 3px solid rgba(34,197,94,.82);
+    box-shadow: 0 0 12px rgba(34,197,94,.28);
+    pointer-events: none;
+  }
+
+  .card.open:not(.matched)::after {
+    content: "選択中";
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 4px);
+    bottom: auto;
+    z-index: 4;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: 800;
+    color: #dcfce7;
+    background: rgba(22,101,52,.92);
+    border: 1px solid rgba(187,247,208,.65);
+    border-radius: 999px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .card.open:not(.matched):hover::after {
+    top: calc(100% + 6px);
+  }
+
+  .card.matched::before,
+  .card.matched::after {
+    content: none;
+  }
+
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>神経衰弱</h1>
+  </div>
+</header>
+
+<section class="controls">
+  <label>
+    プレイヤー人数
+    <select id="playerCount">
+      <option value="1">1人</option>
+      <option value="2">2人（CPU 1）</option>
+      <option value="3">3人（CPU 2）</option>
+      <option value="4">4人（CPU 3）</option>
+      <option value="5">5人（CPU 4）</option>
+    </select>
+  </label>
+
+  <label>
+    CPU短期記憶能力
+    <input id="cpuMemory" type="number" min="0" step="1" value="6">
+  </label>
+
+  <label>
+    CPU直前記憶能力(0〜2)
+    <input id="cpuRecentMemory" type="number" min="0" max="2" step="1" value="1">
+  </label>
+
+  <label>
+    CPU思考速度(ms)
+    <input id="cpuDelay" type="number" min="80" step="20" value="450">
+  </label>
+
+  <label>
+    閉じるまでの時間(ms)
+    <input id="closeDelay" type="number" min="200" step="100" value="1200">
+  </label>
+
+  <label>
+    難易度係数
+    <select id="cpuRisk">
+      <option value="0.55">探索多め</option>
+      <option value="0.80" selected>標準</option>
+      <option value="1.15">活用多め</option>
+    </select>
+  </label>
+
+  <label>
+    操作
+    <button id="startBtn">ゲーム開始</button>
+  </label>
+</section>
+
+<section id="scoreboard" class="scoreboard"></section>
+
+<div class="status">
+  <span id="message">設定して「ゲーム開始」。カード数は開始時の画面サイズから決まります。</span>
+  <span class="pill" id="sizeInfo">カード数: -</span>
+  <span class="pill" id="turnInfo">手番: -</span>
+</div>
+
+<main>
+  <div id="board" class="board" aria-label="神経衰弱の盤面"></div>
+  <div class="legend">CPUは見たカードの数字と位置を短期記憶に保存します。容量満杯なら新規カードは覚えません。同じ数字を2枚知っていれば優先して取りに行き、マッチした当該カードだけ記憶から消えます。</div>
+</main>
+
+<div id="modal" class="modal">
+  <div class="dialog">
+    <h2>ゲーム終了</h2>
+    <pre id="resultText"></pre>
+    <button id="againBtn">もう一度</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+
+  const els = {
+    playerCount: document.getElementById("playerCount"),
+    cpuMemory: document.getElementById("cpuMemory"),
+    cpuRecentMemory: document.getElementById("cpuRecentMemory"),
+    cpuDelay: document.getElementById("cpuDelay"),
+    closeDelay: document.getElementById("closeDelay"),
+    cpuRisk: document.getElementById("cpuRisk"),
+    startBtn: document.getElementById("startBtn"),
+    againBtn: document.getElementById("againBtn"),
+    scoreboard: document.getElementById("scoreboard"),
+    board: document.getElementById("board"),
+    message: document.getElementById("message"),
+    sizeInfo: document.getElementById("sizeInfo"),
+    turnInfo: document.getElementById("turnInfo"),
+    modal: document.getElementById("modal"),
+    resultText: document.getElementById("resultText")
+  };
+
+  let state = null;
+
+  function clamp(n, lo, hi) {
+    return Math.max(lo, Math.min(hi, n));
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function randInt(n) {
+    return Math.floor(Math.random() * n);
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = randInt(i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function svgText(x, y, text, size, fill, anchor = "middle", weight = "700") {
+    return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="Georgia, serif" font-size="${size}" font-weight="${weight}" fill="${fill}">${text}</text>`;
+  }
+
+  function suitPath(suitName) {
+    if (suitName === "heart") {
+      return "M0 10 C-22 -8 -28 -26 -13 -35 C-4 -40 3 -36 0 -25 C-3 -36 4 -40 13 -35 C28 -26 22 -8 0 10 Z";
+    }
+    if (suitName === "diamond") {
+      return "M0 -38 L24 0 L0 38 L-24 0 Z";
+    }
+    if (suitName === "club") {
+      return "M0 -10 C-10 -30 12 -39 22 -24 C31 -9 18 2 7 -1 C14 11 24 10 26 23 C28 39 5 42 0 27 C-5 42 -28 39 -26 23 C-24 10 -14 11 -7 -1 C-18 2 -31 -9 -22 -24 C-12 -39 10 -30 0 -10 Z M-7 27 L7 27 L12 39 L-12 39 Z";
+    }
+    return "M0 -38 C18 -13 30 -4 28 12 C26 27 8 31 3 18 C6 30 10 34 16 39 L-16 39 C-10 34 -6 30 -3 18 C-8 31 -26 27 -28 12 C-30 -4 -18 -13 0 -38 Z";
+  }
+
+
+  function cardFrontSvg(card) {
+    const fill = "#111827";
+    const r = escapeHtml(card.rank);
+
+    const centerSize =
+      card.rank === "10" ? 42 :
+      ["J", "Q", "K", "A"].includes(card.rank) ? 50 : 54;
+
+    return `
+      <svg class="card-svg" viewBox="0 0 100 140" role="img" aria-label="${card.rank}">
+        <rect x="1.5" y="1.5" width="97" height="137" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="3"/>
+        <text
+          x="50"
+          y="76"
+          text-anchor="middle"
+          dominant-baseline="middle"
+          font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="${centerSize}"
+          font-weight="900"
+          fill="${fill}"
+        >${r}</text>
+      </svg>
+    `;
+  }
+
+  function cardBackSvg() {
+    return `
+      <svg class="card-svg" viewBox="0 0 100 140" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="97" height="137" rx="10" fill="#1d4ed8" stroke="#bae6fd" stroke-width="3"/>
+        <rect x="8" y="8" width="84" height="124" rx="8" fill="#0f766e" opacity=".82" stroke="rgba(255,255,255,.65)" stroke-width="2"/>
+        <g opacity=".35" stroke="#e0f2fe" stroke-width="1">
+          <path d="M-10 18 H110 M-10 34 H110 M-10 50 H110 M-10 66 H110 M-10 82 H110 M-10 98 H110 M-10 114 H110"/>
+          <path d="M10 -10 V150 M26 -10 V150 M42 -10 V150 M58 -10 V150 M74 -10 V150 M90 -10 V150"/>
+        </g>
+        <circle cx="50" cy="70" r="25" fill="none" stroke="#ecfeff" stroke-width="4" opacity=".9"/>
+        <path d="M50 39 L60 62 L85 65 L66 81 L71 106 L50 93 L29 106 L34 81 L15 65 L40 62 Z" fill="#ecfeff" opacity=".72"/>
+      </svg>
+    `;
+  }
+
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, ch => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[ch]));
+  }
+
+  function calculateLayout() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const reserved = 255;
+    const usableH = Math.max(220, h - reserved);
+    const baseW = w < 460 ? 58 : w < 800 ? 66 : 82;
+    const baseH = Math.round(baseW * 1.4);
+    const gap = w < 460 ? 7 : 10;
+    const cols = clamp(Math.floor((w - 40) / (baseW + gap)), 3, 12);
+    const rows = clamp(Math.floor(usableH / (baseH + gap)), 2, 8);
+    const maxCards = cols * rows;
+    const evenCards = Math.max(8, Math.floor(maxCards / 2) * 2);
+    const cards = clamp(evenCards, 8, 60);
+    const pairs = cards / 2;
+    return { cols: Math.min(cols, cards), rows, cards, pairs, cw: baseW, ch: baseH, gap };
+  }
+
+  function buildDeck(pairCount) {
+    const deck = [];
+
+    for (let i = 0; i < pairCount; i++) {
+      const rank = RANKS[i % RANKS.length];
+      const pairKey = `rank-${rank}`;
+
+      deck.push(makeCard(deck.length, pairKey, { rank }));
+      deck.push(makeCard(deck.length, pairKey, { rank }));
+    }
+
+    return shuffle(deck);
+  }
+
+  function makeCard(id, pairKey, template) {
+    return {
+      id,
+      pairKey,
+      rank: template.rank,
+      open: false,
+      matched: false,
+      seenCount: 0
+    };
+  }
+
+  function newPlayers(count, memoryLimit, recentMemoryLimit) {
+    const players = [];
+    players.push({ name: "あなた", cpu: false, score: 0, memory: [], recentMemory: [], memoryLimit, recentMemoryLimit });
+    for (let i = 2; i <= count; i++) {
+      players.push({ name: `CPU ${i - 1}`, cpu: true, score: 0, memory: [], recentMemory: [], memoryLimit, recentMemoryLimit });
+    }
+    return players;
+  }
+
+  function startGame() {
+    const playerCount = clamp(Number(els.playerCount.value) || 1, 1, 5);
+    const memoryLimit = Math.max(0, Math.floor(Number(els.cpuMemory.value) || 0));
+    const recentMemoryLimit = clamp(Math.floor(Number(els.cpuRecentMemory.value) || 0), 0, 2);
+    const layout = calculateLayout();
+
+    state = {
+      layout,
+      deck: buildDeck(layout.pairs),
+      players: newPlayers(playerCount, memoryLimit, recentMemoryLimit),
+      current: 0,
+      selected: [],
+      locked: false,
+      matchedPairs: 0,
+      totalFlips: 0,
+      turnNumber: 1,
+      openedThisTurn: [],
+      cpuDelay: clamp(Number(els.cpuDelay.value) || 450, 80, 2000),
+      closeDelay: clamp(Number(els.closeDelay.value) || 1200, 200, 5000),
+      cpuRisk: Number(els.cpuRisk.value) || .8
+    };
+
+    els.modal.classList.remove("show");
+    renderBoard();
+    renderScoreboard();
+    setMessage(`開始。${layout.cards}枚、${layout.pairs}ペア。数字が揃えば成功です。`);
+    maybeCpuTurn();
+  }
+
+  function renderBoard() {
+    const { cols, cw, ch, gap, cards } = state.layout;
+    els.board.style.setProperty("--cw", `${cw}px`);
+    els.board.style.setProperty("--ch", `${ch}px`);
+    els.board.style.setProperty("--gap", `${gap}px`);
+    els.board.style.gridTemplateColumns = `repeat(${Math.min(cols, cards)}, ${cw}px)`;
+    els.board.innerHTML = "";
+
+    state.deck.forEach((card, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "card" + (card.open ? " open" : "") + (card.matched ? " matched" : "");
+      btn.type = "button";
+      btn.dataset.index = String(idx);
+      btn.disabled = card.matched;
+      btn.setAttribute("aria-label", card.matched ? `取得済み ${card.rank}` : "裏向きのカード");
+      btn.innerHTML = `
+        <span class="card-inner">
+          <span class="face back">${cardBackSvg()}</span>
+          <span class="face front">${cardFrontSvg(card)}</span>
+        </span>
+      `;
+      btn.addEventListener("click", () => humanPick(idx));
+      els.board.appendChild(btn);
+    });
+
+    els.sizeInfo.textContent = `カード数: ${state.layout.cards}`;
+    updateTurnInfo();
+  }
+
+  function renderScoreboard() {
+    els.scoreboard.innerHTML = "";
+    state.players.forEach((p, i) => {
+      const div = document.createElement("div");
+      div.className = "player" + (i === state.current ? " active" : "");
+      const memoryText = p.cpu ? `短期 ${p.memory.length}/${p.memoryLimit} / 直前 ${p.recentMemory.length}/${p.recentMemoryLimit}` : "手動操作";
+      div.innerHTML = `<strong>${escapeHtml(p.name)}: ${p.score}ペア</strong><div class="small">${memoryText}</div>`;
+      els.scoreboard.appendChild(div);
+    });
+    updateTurnInfo();
+  }
+
+  function updateTurnInfo() {
+    if (!state) return;
+    els.turnInfo.textContent = `手番: ${state.players[state.current].name}`;
+  }
+
+  function setMessage(msg) {
+    els.message.textContent = msg;
+  }
+
+  function humanPick(idx) {
+    if (!state || state.locked) return;
+    if (state.players[state.current].cpu) return;
+    reveal(idx);
+  }
+
+  async function reveal(idx) {
+    const card = state.deck[idx];
+    if (!card || card.open || card.matched || state.selected.includes(idx)) return false;
+
+    card.open = true;
+    card.seenCount += 1;
+    state.totalFlips += 1;
+    state.selected.push(idx);
+    state.openedThisTurn.push(idx);
+    rememberAll(idx);
+    updateCardDom(idx);
+
+    if (state.selected.length === 1) {
+      return true;
+    }
+
+    state.locked = true;
+    await sleep(240);
+
+    const [a, b] = state.selected;
+    const c1 = state.deck[a];
+    const c2 = state.deck[b];
+
+    if (c1.pairKey === c2.pairKey) {
+      c1.matched = true;
+      c2.matched = true;
+      state.players[state.current].score += 1;
+      state.matchedPairs += 1;
+      removeMatchedFromCpuMemory(a, b);
+      state.selected = [];
+      state.openedThisTurn = [];
+      updateCardDom(a);
+      updateCardDom(b);
+      setMessage(`${state.players[state.current].name} が ${c1.rank} を揃えました。もう一手。`);
+      renderScoreboard();
+
+      if (state.matchedPairs >= state.layout.pairs) {
+        endGame();
+        return true;
+      }
+
+      state.locked = false;
+      maybeCpuTurn();
+      return true;
+    }
+
+    setMessage(`${state.players[state.current].name} は外しました。${state.closeDelay}ms後に閉じます。`);
+    await sleep(state.closeDelay);
+    c1.open = false;
+    c2.open = false;
+    state.selected = [];
+    updateCardDom(a);
+    updateCardDom(b);
+    updateRecentMemoryForAll(state.openedThisTurn);
+    nextTurn();
+    state.locked = false;
+    renderScoreboard();
+    maybeCpuTurn();
+    return true;
+  }
+
+  function updateCardDom(idx) {
+    const btn = els.board.querySelector(`[data-index="${idx}"]`);
+    if (!btn) return;
+    const card = state.deck[idx];
+    btn.classList.toggle("open", card.open);
+    btn.classList.toggle("matched", card.matched);
+    btn.disabled = card.matched;
+    btn.setAttribute("aria-label", card.open || card.matched ? `${card.rank}` : "裏向きのカード");
+  }
+
+  function rememberAll(idx) {
+    // 全CPUが盤面で開かれたカードを見る。
+    // ただし「直前記憶」はここでは更新しない。
+    // 直前記憶は、前プレイヤーのターン終了時に、そのターンで最後に開かれたカードだけで上書きする。
+    for (const p of state.players) {
+      if (!p.cpu) continue;
+      rememberOne(p, idx);
+    }
+    renderScoreboard();
+  }
+
+  function makeMemoryItem(idx, source) {
+    const card = state.deck[idx];
+    return {
+      index: idx,
+      pairKey: card.pairKey,
+      rank: card.rank,
+      label: `${card.rank}`,
+      seenAt: state.turnNumber,
+      confidence: source === "recent" ? 1.25 : 1,
+      source
+    };
+  }
+
+  function rememberOne(player, idx) {
+    const card = state.deck[idx];
+    if (!card || card.matched) return;
+    if (player.memory.some(m => m.index === idx)) return;
+    if (player.memory.length >= player.memoryLimit) return;
+    player.memory.push(makeMemoryItem(idx, "short"));
+  }
+
+  function updateRecentMemoryForAll(openedIndexes) {
+    // 「直前」とは、前のプレイヤーの最後に開いたカード。
+    // 設定値が2なら、そのターンで最後に開いた2枚を覚える。
+    // 設定値が1なら最後の1枚だけ。0なら何も覚えない。
+    if (!openedIndexes || openedIndexes.length === 0) return;
+
+    for (const p of state.players) {
+      if (!p.cpu) continue;
+
+      const limit = clamp(Math.floor(p.recentMemoryLimit || 0), 0, 2);
+      p.recentMemory = [];
+
+      if (limit <= 0) continue;
+
+      const recentIndexes = openedIndexes
+        .slice(-limit)
+        .filter(idx => {
+          const card = state.deck[idx];
+          return card && !card.matched;
+        });
+
+      p.recentMemory = recentIndexes.map(idx => makeMemoryItem(idx, "recent"));
+    }
+  }
+
+  function allCpuMemories(cpu) {
+    // 短期記憶と直前記憶を統合して判断する。
+    // 同じカードが両方にある場合は直前記憶を優先する。
+    const byIndex = new Map();
+    for (const m of cpu.memory) byIndex.set(m.index, m);
+    for (const m of cpu.recentMemory) byIndex.set(m.index, m);
+    return [...byIndex.values()];
+  }
+
+  function removeMatchedFromCpuMemory(indexA, indexB) {
+    // マッチして盤面から消えた「当該カード」だけを、全CPUの短期記憶から消す。
+    // 数字一致ルールなので pairKey 単位で消すと、同じ数字の未取得カードまで忘れてしまう。
+    // 要件は「マッチしたカードが記憶から消える」なので、カード位置 index 単位で消す。
+    const removed = new Set([indexA, indexB]);
+
+    for (const p of state.players) {
+      if (!p.cpu) continue;
+      p.memory = p.memory.filter(m => !removed.has(m.index));
+      p.recentMemory = p.recentMemory.filter(m => !removed.has(m.index));
+    }
+  }
+
+  function nextTurn() {
+    state.openedThisTurn = [];
+    state.current = (state.current + 1) % state.players.length;
+    state.turnNumber += 1;
+  }
+
+  function playableIndexes() {
+    const selected = new Set(state.selected);
+    return state.deck
+      .map((card, index) => ({ card, index }))
+      .filter(x => !x.card.matched && !x.card.open && !selected.has(x.index))
+      .map(x => x.index);
+  }
+
+  function cpuKnownPairs(cpu) {
+    // pairKey は現在 `rank-A`, `rank-7` のような数字ベース。
+    // つまりCPUも「スート無視、数字一致」で既知ペアを探す。
+    const groups = new Map();
+    for (const m of allCpuMemories(cpu)) {
+      const card = state.deck[m.index];
+      if (!card || card.matched || card.open) continue;
+      if (!groups.has(m.pairKey)) groups.set(m.pairKey, []);
+      groups.get(m.pairKey).push(m.index);
+    }
+    return [...groups.values()].filter(g => g.length >= 2);
+  }
+
+  function chooseCpuFirst(cpu) {
+    const known = cpuKnownPairs(cpu);
+    if (known.length) return known[randInt(known.length)][0];
+
+    const playable = playableIndexes();
+    if (!playable.length) return null;
+
+    const memorySet = new Set(allCpuMemories(cpu).map(m => m.index));
+    const total = Math.max(1, state.totalFlips);
+    let best = playable[0];
+    let bestScore = -Infinity;
+
+    for (const idx of playable) {
+      const card = state.deck[idx];
+      const inMemory = memorySet.has(idx);
+      const novelty = 1 / Math.sqrt(1 + card.seenCount);
+      const exploration = Math.sqrt(Math.log(total + 2) / (card.seenCount + 1));
+      const memoryBonus = inMemory ? 0.38 * state.cpuRisk : 0;
+      const noise = Math.random() * 0.16;
+      const score = novelty + exploration + memoryBonus + noise;
+      if (score > bestScore) {
+        bestScore = score;
+        best = idx;
+      }
+    }
+    return best;
+  }
+
+  function chooseCpuSecond(cpu, firstIdx) {
+    const first = state.deck[firstIdx];
+
+    // 1枚目と同じ数字を記憶していれば、それを即座に選ぶ。
+    // m.pairKey === first.pairKey は「同じ数字」という意味。
+    const knownMatch = allCpuMemories(cpu).find(m => {
+      const card = state.deck[m.index];
+      return m.index !== firstIdx && m.pairKey === first.pairKey && card && !card.matched && !card.open;
+    });
+    if (knownMatch) return knownMatch.index;
+
+    const playable = playableIndexes();
+    if (!playable.length) return null;
+
+    const memoryIndexes = allCpuMemories(cpu)
+      .map(m => m.index)
+      .filter(idx => {
+        const card = state.deck[idx];
+        return idx !== firstIdx && card && !card.matched && !card.open;
+      });
+
+    const total = Math.max(1, state.totalFlips);
+    let candidates = playable;
+    if (memoryIndexes.length && Math.random() < 0.35 * state.cpuRisk) {
+      candidates = memoryIndexes;
+    }
+
+    let best = candidates[0];
+    let bestScore = -Infinity;
+    for (const idx of candidates) {
+      const card = state.deck[idx];
+      const exploration = Math.sqrt(Math.log(total + 2) / (card.seenCount + 1));
+      const unknownBonus = allCpuMemories(cpu).some(m => m.index === idx) ? 0.10 : 0.28;
+      const risk = Math.random() * (0.24 / Math.max(.2, state.cpuRisk));
+      const score = exploration + unknownBonus + risk;
+      if (score > bestScore) {
+        bestScore = score;
+        best = idx;
+      }
+    }
+    return best;
+  }
+
+  async function maybeCpuTurn() {
+    if (!state || state.locked) return;
+    const cpu = state.players[state.current];
+    if (!cpu.cpu) {
+      setMessage(`${cpu.name}の番です。カードを2枚選んでください。`);
+      return;
+    }
+
+    state.locked = true;
+    setMessage(`${cpu.name} が考えています。短期 ${cpu.memory.length}/${cpu.memoryLimit}、直前 ${cpu.recentMemory.length}/${cpu.recentMemoryLimit}。`);
+    renderScoreboard();
+
+    await sleep(state.cpuDelay);
+
+    const first = chooseCpuFirst(cpu);
+    if (first === null) return;
+
+    markCpuPeek(first);
+    state.locked = false;
+    await reveal(first);
+    await sleep(state.cpuDelay);
+
+    if (!state || !state.players[state.current].cpu || state.selected.length !== 1) return;
+
+    state.locked = true;
+    const second = chooseCpuSecond(cpu, first);
+    if (second === null) return;
+
+    markCpuPeek(second);
+    state.locked = false;
+    await reveal(second);
+  }
+
+  function markCpuPeek(idx) {
+    const btn = els.board.querySelector(`[data-index="${idx}"]`);
+    if (!btn) return;
+    btn.classList.add("cpu-peek");
+    setTimeout(() => btn.classList.remove("cpu-peek"), Math.max(150, state.cpuDelay));
+  }
+
+  function endGame() {
+    state.locked = true;
+    renderScoreboard();
+
+    const max = Math.max(...state.players.map(p => p.score));
+    const winners = state.players.filter(p => p.score === max).map(p => p.name);
+    const lines = [
+      `勝者: ${winners.join(" / ")}`,
+      "",
+      ...state.players
+        .slice()
+        .sort((a, b) => b.score - a.score)
+        .map((p, i) => `${i + 1}. ${p.name}: ${p.score}ペア`)
+    ];
+
+    els.resultText.textContent = lines.join("\n");
+    els.modal.classList.add("show");
+    setMessage("終了。スコアを確認してください。");
+  }
+
+  els.startBtn.addEventListener("click", startGame);
+  els.againBtn.addEventListener("click", startGame);
+
+  startGame();
+})();
+</script>
+</body>
+</html>

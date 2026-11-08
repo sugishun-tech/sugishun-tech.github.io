@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Market Monitor</title>
+    <style>
+     :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --accent: #58a6ff; }
+     body { margin: 0; background: var(--bg); color: #c9d1d9; font-family: sans-serif; }
+     header { padding: 15px; text-align: center; background: var(--card); border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 100; }
+     h1 { margin: 0; font-size: 1.2rem; color: var(--accent); }
+     
+     .container { 
+       display: flex; 
+       flex-direction: column; 
+       align-items: center; 
+       gap: 25px; 
+       padding: 20px; 
+       max-width: 1000px; 
+       margin: 0 auto;
+     }
+
+     .card { 
+       width: 100%; 
+       height: 650px; /* さらに少し大きくしました */
+       background: var(--card); 
+       border: 1px solid var(--border); 
+       border-radius: 12px; 
+       overflow: hidden; 
+       display: flex; 
+       flex-direction: column; 
+     }
+
+     .card-header { 
+       padding: 12px 18px; 
+       background: #21262d; 
+       font-size: 1rem; 
+       font-weight: bold; 
+       border-bottom: 1px solid var(--border);
+     }
+
+     .chart { flex: 1; min-height: 0; }
+     .solactive-card { height: 820px; }
+     .card-note { margin: 0; padding: 10px 18px; font-size: 0.85rem; line-height: 1.6; border-bottom: 1px solid var(--border); }
+     .card-note a { color: var(--accent); }
+     .solactive-frame { display: block; width: 100%; flex: 1; min-height: 0; border: 0; background: white; }
+     
+     .fg-wrap { display: flex; justify-content: center; align-items: center; background: white; height: 100%; }
+     .fg-img { width: 100%; max-width: 500px; height: auto; }
+    </style>
+  </head>
+  <body>
+
+    <header><h1>📊 市場監視ダッシュボード</h1></header>
+
+    <div class="container">
+      <!-- 1. オルカン -->
+      <div class="card">
+        <div class="card-header">🌍 全世界株式 (ACWI)</div>
+        <div id="c_acwi" class="chart"></div>
+      </div>
+
+      <!-- Solactive: 公式サイトのTR版チャートを表示 -->
+      <div class="card solactive-card">
+        <div class="card-header">💻 Solactive US Mega Technology Focus 12 Index TR</div>
+        <p class="card-note">
+          米ドル建て・配当込み（TR）。枠内をスクロールすると最新値・更新日も確認できます。<br>
+          表示されない場合は <a href="https://legacy2.solactive.com/indices/gbs/?index=DE000SL0U0J0#chart" target="_blank" rel="noopener noreferrer">公式チャートを別タブで開く</a>。
+        </p>
+        <iframe
+          class="solactive-frame"
+          src="https://legacy2.solactive.com/indices/gbs/?index=DE000SL0U0J0#chart"
+          title="Solactive US Mega Technology Focus 12 Index TR の公式チャート（USD・配当込み）"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+
+      <!-- 2. VIX -->
+      <div class="card">
+        <div class="card-header">😨 VIX (恐怖指数)</div>
+        <div id="c_vix" class="chart"></div>
+      </div>
+
+      <!-- 3. ドル円 -->
+      <div class="card">
+        <div class="card-header">💴 ドル円 (USD/JPY)</div>
+        <div id="c_usdjpy" class="chart"></div>
+      </div>
+
+      <!-- 4. 米10年債利回り -->
+      <!--
+      <div class="card">
+        <div class="card-header">📈 米10年債利回り (US10Y)</div>
+        <div id="c_us10y" class="chart"></div>
+      </div>-->
+
+      <!-- 5. ゴールド -->
+      <div class="card">
+        <div class="card-header">✨ ゴールド (XAU/USD)</div>
+        <div id="c_gold" class="chart"></div>
+      </div>
+
+      <!-- 6. 原油 -->
+      <div class="card">
+        <div class="card-header">🛢️ 原油 WTI</div>
+        <div id="c_oil" class="chart"></div>
+      </div>
+
+      <!-- Bitcoin -->
+      <div class="card">
+        <div class="card-header">₿ Bitcoin (BTC/USD)</div>
+        <div id="c_btc" class="chart"></div>
+      </div>
+
+      <!-- 7. Fear & Greed -->
+      <div class="card">
+        <div class="card-header">🔥 Fear & Greed Index</div>
+        <div class="fg-wrap">
+          <img src="https://alternative.me/crypto/fear-and-greed-index.png" alt="F&G Index" class="fg-img">
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+     function loadChart(id, symbol) {
+       new TradingView.widget({
+         "autosize": true,
+         "symbol": symbol,
+         "interval": "D",
+         "timezone": "Asia/Tokyo",
+         "theme": "dark",
+         "style": "1",
+         "locale": "ja",
+         "enable_publishing": false,
+         "hide_top_toolbar": false,
+         "withdateranges": true,
+         "container_id": id
+       });
+     }
+
+     // SolactiveやFear & Greedの読み込み完了を待たずにチャートを初期化
+     document.addEventListener("DOMContentLoaded", function() {
+       if (!window.TradingView) {
+         document.querySelectorAll(".chart").forEach(function(chart) {
+           chart.textContent = "チャートを読み込めませんでした。インターネット接続を確認し、再読み込みしてください。";
+         });
+         return;
+       }
+       // TradingViewの市場データで各チャートを表示
+       loadChart("c_acwi", "CAPITALCOM:ACWI");
+       loadChart("c_vix", "CAPITALCOM:VIX");
+       loadChart("c_usdjpy", "FX:USDJPY");
+       //loadChart("c_us10y", "TVC:US10Y");
+       loadChart("c_gold", "OANDA:XAUUSD");
+       loadChart("c_oil", "OANDA:WTICOUSD");
+       loadChart("c_btc", "BITSTAMP:BTCUSD");
+     });
+    </script>
+
+  </body>
+</html>

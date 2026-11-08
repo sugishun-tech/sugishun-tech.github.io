@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta name="google-site-verification" content="282HWwFqX5MAEmjMUQXGFlpHvfHdCSs5btSxB52O1vA" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="p進弦理論とp進AdS/CFTを、p進数・Bruhat–Tits木・タキオン作用・境界相関関数・テンソルネットワークまで数式付きで解説する日本語ノート。">
+  <title>p進弦理論と p進 AdS/CFT</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true,
+        tags: 'ams'
+      },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #fafafa;
+      --fg: #171717;
+      --muted: #666;
+      --line: #d9d9d9;
+      --panel: #f2f2f2;
+      --link: #2456a6;
+      --code: #ececec;
+      --max: 860px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111;
+        --fg: #e8e8e8;
+        --muted: #aaa;
+        --line: #333;
+        --panel: #181818;
+        --link: #86aef2;
+        --code: #202020;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      line-height: 1.85;
+      font-size: 17px;
+    }
+    a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    header, main, footer { width: min(var(--max), calc(100% - 36px)); margin-inline: auto; }
+    header { padding: 72px 0 36px; border-bottom: 1px solid var(--line); }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.03em; }
+    .subtitle { font-size: 1.1rem; color: var(--muted); margin: 0 0 20px; }
+    .meta { color: var(--muted); font-size: .9rem; }
+    nav { padding: 28px 0 8px; }
+    nav ol { columns: 2; column-gap: 40px; padding-left: 1.4em; }
+    nav li { break-inside: avoid; margin-bottom: .3em; }
+    main { padding: 20px 0 80px; }
+    section { padding-top: 52px; }
+    h2 { font-size: 1.8rem; line-height: 1.35; margin: 0 0 22px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+    h3 { font-size: 1.25rem; margin: 32px 0 12px; }
+    p { margin: 0 0 1.1em; }
+    .lead { font-size: 1.1rem; }
+    .note, .warning {
+      border-left: 4px solid var(--line);
+      background: var(--panel);
+      padding: 14px 18px;
+      margin: 22px 0;
+    }
+    .warning { border-left-width: 6px; }
+    .eq {
+      overflow-x: auto;
+      padding: 10px 4px;
+      margin: 18px 0 22px;
+    }
+    code { background: var(--code); padding: .12em .35em; border-radius: 3px; font-size: .92em; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0 26px; font-size: .96rem; }
+    th, td { border: 1px solid var(--line); padding: 9px 11px; vertical-align: top; text-align: left; }
+    th { background: var(--panel); }
+    ul, ol { padding-left: 1.4em; }
+    li { margin-bottom: .45em; }
+    .ref-list li { margin-bottom: .8em; }
+    .back { text-align: right; font-size: .9rem; }
+    footer { border-top: 1px solid var(--line); padding: 28px 0 50px; color: var(--muted); font-size: .9rem; }
+    @media (max-width: 680px) { nav ol { columns: 1; } body { font-size: 16px; } header { padding-top: 46px; } }
+    @media print {
+      nav, .back { display: none; }
+      body { color: #000; background: #fff; font-size: 11pt; }
+      header, main, footer { width: 100%; }
+      section { break-inside: avoid-page; }
+      a { color: #000; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+<header id="top">
+  <h1>p進弦理論と p進 AdS/CFT</h1>
+  <p class="subtitle">p進数から非局所タキオン作用、Bruhat–Tits木、離散ホログラフィーまで</p>
+  <p class="meta">日本語ノート / 数式あり / 図なし / 調査基準日 2026-08-19</p>
+  <nav aria-label="目次">
+    <ol>
+      <li><a href="#overview">二つの理論を混同しない</a></li>
+      <li><a href="#padics">p進数と超距離</a></li>
+      <li><a href="#strings">p進弦理論</a></li>
+      <li><a href="#tachyon">非局所タキオン作用</a></li>
+      <li><a href="#branes">タキオン凝縮とDブレーン</a></li>
+      <li><a href="#tree">Bruhat–Tits木</a></li>
+      <li><a href="#cft">p進CFT</a></li>
+      <li><a href="#bulk">木上のバルク理論</a></li>
+      <li><a href="#correlators">境界相関関数</a></li>
+      <li><a href="#tensor">テンソルネットワークと重力</a></li>
+      <li><a href="#thermal">有限温度と2026年の前線</a></li>
+      <li><a href="#limits">何が分かり、何が分からないか</a></li>
+      <li><a href="#references">主要文献</a></li>
+    </ol>
+  </nav>
+</header>
+
+<main>
+  <section id="overview">
+    <h2>1. 二つの理論を混同しない</h2>
+    <p class="lead">「p進弦理論」と「p進 AdS/CFT」は近縁だが、同じものではない。違いは、何をp進化しているかにある。</p>
+    <table>
+      <thead><tr><th></th><th>p進弦理論</th><th>p進 AdS/CFT</th></tr></thead>
+      <tbody>
+        <tr><td>主対象</td><td>弦の散乱振幅・タキオン場</td><td>境界CFTとバルク場</td></tr>
+        <tr><td>p進化されるもの</td><td>主に世界面境界の解析・積分</td><td>境界の数体系とバルク幾何</td></tr>
+        <tr><td>Bruhat–Tits木</td><td>世界面の内部</td><td>ホログラフィーのバルク時空</td></tr>
+        <tr><td>代表的成果</td><td>厳密な非局所タキオン作用、lump解</td><td>伝播関数、境界相関関数、テンソルネットワーク</td></tr>
+      </tbody>
+    </table>
+    <p>歴史的には1987年のp進弦研究が先行し、その後、Bruhat–Tits木上の世界面理論、タキオン凝縮の可解模型へ発展した。2016年以降、同じ非アルキメデス幾何を使って、境界をp進数体、バルクを木とするホログラフィーが体系化された。</p>
+    <div class="warning">同じ木が出てくるため混同しやすいが、前者では「世界面」、後者では「時空のバルク」である。この区別を外すと、理論の階層が丸ごと一段ずれる。</div>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="padics">
+    <h2>2. p進数と超距離</h2>
+    <h3>2.1 p進ノルム</h3>
+    <p>素数 \(p\) を固定する。有理数 \(x\neq0\) を \(x=p^{v_p(x)}u\) と書き、\(u\) がpで割れない単元であるとする。p進ノルムは</p>
+    <div class="eq">\[
+      |x|_p=p^{-v_p(x)},\qquad |0|_p=0
+    \]</div>
+    <p>で定義される。したがってpで何度も割れる数ほど、p進的には小さい。例えば \(75=3\cdot5^2\) なので \(|75|_5=5^{-2}\) である。</p>
+    <p>非ゼロのp進数は、概念的には</p>
+    <div class="eq">\[
+      x=p^{v_p(x)}\sum_{m=0}^{\infty}a_m p^m,
+      \qquad a_m\in\{0,1,\ldots,p-1\},\quad a_0\neq0
+    \]</div>
+    <p>と展開できる。通常の実数展開とは異なり、高いp冪の方向へ無限に桁が伸びる。</p>
+
+    <h3>2.2 超距離</h3>
+    <p>p進ノルムは通常の三角不等式より強い超距離不等式を満たす。</p>
+    <div class="eq">\[
+      |x+y|_p\le \max\{|x|_p,|y|_p\}
+    \]</div>
+    <p>このためp進空間の球は、二つが交われば一方が他方を含む。近傍が入れ子状になり、空間は自然に階層構造を持つ。Bruhat–Tits木が突然の思いつきではなく、p進距離の幾何から自然に現れる理由がここにある。</p>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="strings">
+    <h2>3. p進弦理論</h2>
+    <p>初期のp進弦理論では、通常の開いたボソン弦の樹木レベル散乱振幅に現れる実数積分を、p進数体上の積分へ置き換える。標的時空まで自動的にp進化されるわけではない。古典的構成では、標的時空と運動量は通常の実数時空として扱われる。</p>
+
+    <h3>3.1 p進ベータ積分</h3>
+    <p>四点振幅の核となる代表的な積分は、運動学に対応するパラメータ \(a,b\) を用いて</p>
+    <div class="eq">\[
+      B_p(a,b)=\int_{\mathbb Q_p}|x|_p^{a-1}|1-x|_p^{b-1}\,dx
+    \]</div>
+    <p>の形に書ける。Mandelstam変数との対応や結合定数の規格化には複数の慣習があるため、ここでは積分構造そのものを示している。</p>
+
+    <h3>3.2 局所ゼータ関数とアデール</h3>
+    <p>p進側では、幾何級数に由来する局所ゼータ関数</p>
+    <div class="eq">\[
+      \zeta_p(s)=\frac{1}{1-p^{-s}}
+    \]</div>
+    <p>が頻繁に現れる。FreundとWittenは、実数の場所とすべての素数の場所を一つのアデール的構造として扱うと、適切な規格化の下で四点振幅に象徴的な積関係が現れることを示した。</p>
+    <div class="eq">\[
+      A_{\infty}(s,t)\prod_{p}A_p(s,t)=\text{constant}
+    \]</div>
+    <div class="note">この無限積は、収束領域・規格化・正則化を無視して機械的に扱ってよい式ではない。現代的な議論では、無限積の定義域を明示する必要がある。</div>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="tachyon">
+    <h2>4. 厳密な非局所タキオン作用</h2>
+    <p>p進開弦の重要な特徴は、樹木レベルのタキオン部門について、散乱振幅を再現する時空作用を閉じた形で書けることである。Ghoshal–Senが用いた規約では</p>
+    <div class="eq">\[
+      S=\frac{1}{g_p^2}\frac{p^2}{p-1}
+      \int d^d x\left[
+      -\frac12\,\phi\,p^{-\frac12\Box}\phi
+      +\frac{1}{p+1}\phi^{p+1}
+      \right]
+    \]</div>
+    <p>となる。ここで \(\Box\) は時空の波動作用素、\(\phi\) はタキオン場である。運動方程式は</p>
+    <div class="eq">\[
+      p^{-\frac12\Box}\phi=\phi^p
+    \]</div>
+    <p>である。</p>
+    <p>作用素 \(p^{-\Box/2}=\exp[-(\ln p)\Box/2]\) は微分作用素の指数関数である。有限階の微分作用ではないため、理論は非局所的になる。この非局所性が、通常の局所場理論とは異なる直観を要求する一方、タキオン凝縮を厳密に解析できる理由にもなる。</p>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="branes">
+    <h2>5. タキオン凝縮とDブレーン降下</h2>
+    <p>運動方程式には二つの重要な定数解がある。\(\phi=1\) は元の空間充填Dブレーン背景、\(\phi=0\) は摂動的な開弦励起を持たない真空として解釈される。</p>
+    <div class="eq">\[
+      \phi=1 \quad\longrightarrow\quad \phi=0
+    \]</div>
+    <p>さらに、一方向に局在するガウス型解</p>
+    <div class="eq">\[
+      f(\eta)=p^{\frac{1}{2(p-1)}}
+      \exp\!\left[-\frac12\frac{p-1}{p\ln p}\eta^2\right]
+    \]</div>
+    <p>が存在する。複数の横方向に対して積を取ることで、余次元の高いlump解が得られる。</p>
+    <div class="eq">\[
+      \phi(x)=\prod_{i=q+1}^{d-1}f(x^i)
+    \]</div>
+    <p>これらのlumpの張力比と励起スペクトルは低次元Dブレーンの降下関係を再現し、Senのタキオン凝縮予想を可解模型の中で具体化する。</p>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="tree">
+    <h2>6. Bruhat–Tits木</h2>
+    <p>\(\mathbb Q_p\) に対応するBruhat–Tits木 \(T_p\) は、各頂点が \(p+1\) 本の辺を持つ無限正則木である。群論的には</p>
+    <div class="eq">\[
+      T_p\simeq \mathrm{PGL}(2,\mathbb Q_p)/\mathrm{PGL}(2,\mathbb Z_p)
+    \]</div>
+    <p>と表され、その無限遠境界は</p>
+    <div class="eq">\[
+      \partial T_p\simeq \mathbb P^1(\mathbb Q_p)=\mathbb Q_p\cup\{\infty\}
+    \]</div>
+    <p>である。木の深さは、p進数をどの桁まで区別したかという「p進精度」に対応する。ホログラフィーではこの深さを繰り込み群のスケールとして読むことができる。</p>
+
+    <h3>6.1 木の内部を消去すると境界に非局所作用が残る</h3>
+    <p>Zabrodin型の構成では、木上の局所的な自由度を積分消去すると、境界に非局所な作用が誘導される。2026年のHuang–Jepsen論文で用いられている規約の一例は</p>
+    <div class="eq">\[
+      S_1=\int_{\mathbb Q_p}\phi(x)D_1\phi(x)\,dx
+    \]</div>
+    <div class="eq">\[
+      D_1\phi(x)=\int_{\mathbb Q_p}
+      \frac{\phi(z)-\phi(x)}{|z-x|_p^2}\,dz
+    \]</div>
+    <p>である。これはVladimirov型の擬微分作用素で、局所的な木のバルクから非局所な境界理論が生まれる最も分かりやすい例の一つである。</p>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="cft">
+    <h2>7. p進CFT</h2>
+    <p>p進CFTでは、通常の二次元CFTのような無限次元局所共形代数を中心に据えるのではなく、\(\mathrm{PGL}(2,\mathbb Q_p)\) の全球作用、スケーリング次元、OPE係数などを中心に理論を組み立てる。</p>
+    <p>全球共形変換は分数線形変換</p>
+    <div class="eq">\[
+      x\mapsto \frac{ax+b}{cx+d},
+      \qquad ad-bc\neq0
+    \]</div>
+    <p>で与えられる。スカラー一次演算子の二点関数は</p>
+    <div class="eq">\[
+      \langle \mathcal O(x_1)\mathcal O(x_2)\rangle
+      =\frac{C_{\mathcal O}}{|x_1-x_2|_p^{2\Delta}}
+    \]</div>
+    <p>の形を持ち、三点関数も通常のCFTと同様にスケーリング次元で固定される。</p>
+    <div class="eq">\[
+      \langle \mathcal O_1(x_1)\mathcal O_2(x_2)\mathcal O_3(x_3)\rangle
+      =\frac{C_{123}}
+      {|x_{12}|_p^{\Delta_1+\Delta_2-\Delta_3}
+       |x_{23}|_p^{\Delta_2+\Delta_3-\Delta_1}
+       |x_{13}|_p^{\Delta_1+\Delta_3-\Delta_2}}
+    \]</div>
+    <p>一方、p進数上の複素数値関数は局所的に一定になりやすいため、通常の微分から作る局所descendantや標準的な局所ストレステンソルは弱い役割しか持たない。ここでは「共形場理論の何が本質か」がかなり露骨に切り分けられる。</p>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="bulk">
+    <h2>8. 木上のバルク理論</h2>
+    <p>p進 AdS/CFTの最小模型では、Bruhat–Tits木の各頂点 \(a\) に実スカラー場 \(\phi_a\) を置く。隣接頂点の差を運動項にすると、離散バルク作用は</p>
+    <div class="eq">\[
+      S=\sum_{\langle ab\rangle}\frac12(\phi_a-\phi_b)^2
+      +\sum_a\left(\frac12m_p^2\phi_a^2-J_a\phi_a\right)
+    \]</div>
+    <p>となる。グラフ・ラプラシアンを</p>
+    <div class="eq">\[
+      \Box\phi_a=\sum_{b\sim a}(\phi_a-\phi_b)
+    \]</div>
+    <p>と定めれば、場の方程式は</p>
+    <div class="eq">\[
+      (\Box+m_p^2)\phi_a=J_a
+    \]</div>
+    <p>となる。</p>
+
+    <h3>8.1 バルク・バルク伝播関数</h3>
+    <p>二頂点間のグラフ距離を \(d(a,b)\) とすると、伝播関数は単純な指数減衰になる。</p>
+    <div class="eq">\[
+      G(a,b)=\frac{\zeta_p(2\Delta)}{p^{\Delta}}\,
+      p^{-\Delta d(a,b)}
+    \]</div>
+    <p>境界演算子のスケーリング次元 \(\Delta\) とバルク質量は</p>
+    <div class="eq">\[
+      m_p^2=-\frac{1}{\zeta_p(\Delta-n)\,\zeta_p(-\Delta)}
+    \]</div>
+    <p>で関係づけられる。これは通常のAdSにおける \(m^2L^2=\Delta(\Delta-n)\) のp進版にあたる。</p>
+
+    <h3>8.2 バルク・境界伝播関数</h3>
+    <p>境界を非分岐拡大 \(\mathbb Q_q\) とし、\(q=p^n\) とする一般化では、Gubserらの規約で</p>
+    <div class="eq">\[
+      K(z_0,z;x)=
+      \frac{\zeta_p(2\Delta)}{\zeta_p(2\Delta-n)}
+      \frac{|z_0|_p^{\Delta}}
+      {|(z_0,z-x)|_s^{2\Delta}}
+    \]</div>
+    <div class="eq">\[
+      |(z_0,z-x)|_s=\max\{|z_0|_p,|z-x|_q\}
+    \]</div>
+    <p>と書ける。連続AdSで特殊関数が必要になる箇所が、木では距離と局所ゼータ関数に還元される。</p>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="correlators">
+    <h2>9. 境界相関関数と可解性</h2>
+    <p>木上の古典作用を境界ソースでオンシェル評価すると、境界CFTの相関関数を生成できる。二点関数の位置依存性は</p>
+    <div class="eq">\[
+      \langle \mathcal O(x_1)\mathcal O(x_2)\rangle_p
+      \propto \frac{1}{|x_1-x_2|_q^{2\Delta}}
+    \]</div>
+    <p>となる。三点関数も</p>
+    <div class="eq">\[
+      \langle \mathcal O(x_1)\mathcal O(x_2)\mathcal O(x_3)\rangle_p
+      \propto
+      \frac{1}{|x_{12}x_{23}x_{13}|_q^{\Delta}}
+    \]</div>
+    <p>という通常のCFTに対応した形になる。同一次元の場合は特に簡潔で、係数は局所ゼータ関数の組合せとして整理される。</p>
+
+    <h3>9.1 なぜ計算が簡単なのか</h3>
+    <ol>
+      <li>p進球は入れ子か互いに素なので、積分領域を階層的に分割できる。</li>
+      <li>木の二頂点間の測地線は一意である。</li>
+      <li>境界点から伸びる測地線の合流点が一意に決まり、Witten図の幾何が単純化する。</li>
+      <li>頂点和が幾何級数へ還元され、\(\zeta_p(s)=1/(1-p^{-s})\) にまとまる。</li>
+    </ol>
+    <p>つまり「雑に離散化したから簡単」なのではない。非アルキメデス幾何そのものが、厳密な階層性を持っているため簡単になる。</p>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="tensor">
+    <h2>10. テンソルネットワーク、スピン、創発重力</h2>
+    <h3>10.1 p進CFTはホログラフィック・テンソルネットワーク</h3>
+    <p>Hung、Li、Melby-Thompsonは、適切に公理化されたp進CFTについて、その経路積分をBruhat–Tits木上のテンソルネットワークとして表し、全ての局所相関関数を再現できることを示した。</p>
+    <p>各頂点のテンソルはOPEデータから構成され、辺に沿って演算子ラベルを縮約する。これは単なる説明用の絵ではなく、p進CFTの相関関数を再現する代数的構成である。</p>
+
+    <h3>10.2 辺長ダイナミクス</h3>
+    <p>固定された正則木から一歩進み、辺長を動力学変数として扱い、グラフ上の曲率とEinstein–Hilbert型作用を定義する研究もある。境界CFTの変形からバルク幾何を逆算することが狙いである。</p>
+
+    <h3>10.3 スピンとWilson線</h3>
+    <p>p進場の符号指標を「スピン」に相当するデータとして扱う場合、木の線グラフ上に非動的 \(U(1)\) ゲージ場を導入し、Wilson線で境界の符号指標を再現できる。</p>
+    <div class="eq">\[
+      W(\gamma)=\exp\!\left(i\int_{\gamma}A\right)
+    \]</div>
+    <p>連続時空のスピン接続をそのまま移植するのではなく、境界相関関数に必要な変換性からバルクのゲージ構造を決める点が特徴である。</p>
+
+    <h3>10.4 創発Einstein方程式</h3>
+    <p>テンソルネットワークの境界条件を変形し、その変形から辺長・距離・曲率を定義すると、摂動的にグラフ版Einstein方程式が現れるという結果も得られている。これは完成した量子重力理論ではないが、「境界の情報からバルク幾何がどう制約されるか」を計算できる小型実験室になっている。</p>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="thermal">
+    <h2>11. 有限温度と2026年の前線</h2>
+    <h3>11.1 Tate曲線と熱的商空間</h3>
+    <p>Bruhat–Tits木の一本の無限経路を周期的に同一視すると、中心に閉路を持つ商グラフが得られる。境界はTate曲線</p>
+    <div class="eq">\[
+      E_q=\mathbb Q_p^{\ast}/q^{\mathbb Z},\qquad |q|_p<1
+    \]</div>
+    <p>となる。ここでの \(q\) はTateパラメータであり、\(q=p^n\) と書く残差体の大きさとは別の記号である。</p>
+    <p>HuangとJepsenは有限温度p進AdS/CFTにおいて、自由massive bulk theoryの境界双対を明示し、相互作用を入れた二点関数を一ループ、三点関数を樹木レベルで計算した。</p>
+
+    <h3>11.2 一ループp進弦とNéron局所高さ</h3>
+    <p>2026年のプレプリントでは、種数1のSchottky群でBruhat–Tits木を商にしたp進弦世界面を扱い、その境界作用の二点関数がTate曲線のNéron–Tate局所高さ関数と一致することが示されている。</p>
+    <p>\(q=p^m\) と置いた場合、論文で使われる局所高さ関数は</p>
+    <div class="eq">\[
+      h(x)=v(x-1)+\frac{v_x(v_x-m)}{2m}+\frac{m}{12}
+    \]</div>
+    <p>である。境界作用のGreen関数 \(G(x,y)\) は、加法定数を除いてこの高さ関数と一致する。</p>
+    <div class="eq">\[
+      G(x,y)=h(x/y)+\text{constant}
+    \]</div>
+    <div class="note">この2026年の結果は、2026年8月19日時点ではarXivプレプリントである。査読済み結果と同じ確度として扱わない。</div>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="limits">
+    <h2>12. この理論が教えること、教えないこと</h2>
+    <h3>教えること</h3>
+    <ul>
+      <li>非局所タキオン作用とタキオン凝縮を、かなり厳密に追える。</li>
+      <li>RGの階層が木の深さという幾何に変換される仕組みを明示できる。</li>
+      <li>相関関数、テンソルネットワーク、グラフ重力を共通のデータで比較できる。</li>
+      <li>局所ゼータ関数、Tate曲線、局所高さ関数と物理の接続を具体的に計算できる。</li>
+      <li>AdS/CFTのどの部分が連続性や通常の局所性に依存していないかを検査できる。</li>
+    </ul>
+    <h3>教えないこと</h3>
+    <ul>
+      <li>観測宇宙を直接記述する完成した模型ではない。</li>
+      <li>通常のローレンツ時間と因果構造の標準的実現は確立していない。</li>
+      <li>歴史的p進弦の中心は開いたボソン弦のタキオン部門であり、閉弦・超弦の完全な構成ではない。</li>
+      <li>可解であること自体は、現実の基礎理論である証拠ではない。</li>
+      <li>アデール無限積は収束・正則化の問題を無視できない。</li>
+    </ul>
+    <p><strong>要するに、p進弦理論とp進AdS/CFTは「現実の代用品」というより、弦理論とホログラフィーの論理構造を分解して検査する算術的な実験室である。</strong></p>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+
+  <section id="references">
+    <h2>13. 主要文献</h2>
+    <ol class="ref-list">
+      <li>I. V. Volovich, “p-Adic String,” <em>Class. Quantum Grav.</em> 4, L83–L87 (1987).</li>
+      <li>P. G. O. Freund and M. Olson, “Non-Archimedean Strings,” <em>Phys. Lett. B</em> 199, 186–190 (1987).</li>
+      <li>P. G. O. Freund and E. Witten, “Adelic String Amplitudes,” <em>Phys. Lett. B</em> 199, 191–194 (1987).</li>
+      <li>L. Brekke, P. G. O. Freund, M. Olson and E. Witten, “Non-Archimedean String Dynamics,” <em>Nucl. Phys. B</em> 302, 365–402 (1988).</li>
+      <li>A. V. Zabrodin, “Non-Archimedean Strings and Bruhat–Tits Trees,” <em>Commun. Math. Phys.</em> 123, 463–483 (1989).</li>
+      <li>D. Ghoshal and A. Sen, “Tachyon Condensation and Brane Descent Relations in p-adic String Theory,” <em>Nucl. Phys. B</em> 584, 300–312 (2000), <a href="https://arxiv.org/abs/hep-th/0003278">arXiv:hep-th/0003278</a>.</li>
+      <li>C. B. Jepsen, “Adelic Amplitudes and Intricacies of Infinite Products,” <em>Nucl. Phys. B</em> 987, 116094 (2023).</li>
+      <li>S. S. Gubser, J. Knaute, S. Parikh, A. Samberg and P. Witaszczyk, “p-Adic AdS/CFT,” <em>Commun. Math. Phys.</em> 352, 1019–1059 (2017), <a href="https://arxiv.org/abs/1605.01061">arXiv:1605.01061</a>.</li>
+      <li>M. Heydeman, M. Marcolli, I. Saberi and B. Stoica, “Tensor Networks, p-adic Fields, and Algebraic Curves,” <em>Adv. Theor. Math. Phys.</em> 22, 93–176 (2018), <a href="https://arxiv.org/abs/1605.07639">arXiv:1605.07639</a>.</li>
+      <li>S. S. Gubser et al., “Edge Length Dynamics on Graphs with Applications to p-adic AdS/CFT,” <em>JHEP</em> 06 (2017) 157, <a href="https://arxiv.org/abs/1612.09580">arXiv:1612.09580</a>.</li>
+      <li>L.-Y. Hung, W. Li and C. M. Melby-Thompson, “p-adic CFT is a Holographic Tensor Network,” <em>JHEP</em> 04 (2019) 170, <a href="https://arxiv.org/abs/1902.01411">arXiv:1902.01411</a>.</li>
+      <li>S. S. Gubser, C. Jepsen and B. Trundy, “Spin in p-adic AdS/CFT,” <em>J. Phys. A</em> 52, 144004 (2019), <a href="https://arxiv.org/abs/1811.02538">arXiv:1811.02538</a>.</li>
+      <li>L. Chen, X. Liu and L.-Y. Hung, “Emergent Einstein Equation in p-adic CFT Tensor Networks,” <a href="https://arxiv.org/abs/2102.12022">arXiv:2102.12022</a>; “Bending the Bruhat–Tits Tree I,” <a href="https://arxiv.org/abs/2102.12023">arXiv:2102.12023</a>.</li>
+      <li>A. Huang and C. B. Jepsen, “Finite Temperature at Finite Places,” <a href="https://arxiv.org/abs/2408.04199">arXiv:2408.04199</a>.</li>
+      <li>A. Huang and C. B. Jepsen, “One-loop p-adic String Theory and the Néron Local Height Function,” <a href="https://arxiv.org/abs/2604.00970">arXiv:2604.00970</a> (2026, preprint).</li>
+    </ol>
+    <p class="note">数式の規格化、とくに散乱振幅・結合定数・伝播関数の前係数は文献ごとに慣習が異なる。このページでは、式の出典を示した上で代表的な規約を採用した。</p>
+    <p class="back"><a href="#top">↑ 目次へ</a></p>
+  </section>
+</main>
+
+<footer>
+  <p>Static HTML for GitHub Pages. No images, no build step. Math is rendered client-side by MathJax.</p>
+</footer>
+</body>
+</html>

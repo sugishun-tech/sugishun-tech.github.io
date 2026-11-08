@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta name="google-site-verification" content="282HWwFqX5MAEmjMUQXGFlpHvfHdCSs5btSxB52O1vA" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b111b">
+<meta name="description" content="同じ感覚情報、異なる意思決定。Fitness Beats Truth の数値例とMoran過程を遊びながら実験する、依存ライブラリなしの進化ゲーム。">
+<title>fitness_beats_truth — Evolution Lab</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b111b'/%3E%3Ccircle cx='25' cy='32' r='15' fill='none' stroke='%235ce8bf' stroke-width='5'/%3E%3Cpath d='M36 17 52 43H20Z' fill='none' stroke='%23ff8095' stroke-width='4'/%3E%3C/svg%3E">
+<style>
+:root{color-scheme:dark;--bg:#0b111b;--panel:#101a27;--panel2:#142131;--line:#233248;--muted:#94a6bc;--fg:#edf3f9;--f:#5ce8bf;--t:#ff8095;--h:#b6a2ff;--gold:#f0cd83;--radius:16px;--mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace}
+*{box-sizing:border-box}body{margin:0;color:var(--fg);background:radial-gradient(ellipse at 30% 0,#192936 0,transparent 48%),var(--bg);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;font-size:14px;line-height:1.65}button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:#192637;color:var(--fg);border-radius:9px;padding:9px 13px;transition:background .15s,transform .15s,border-color .15s;line-height:1.35}button:hover:not(:disabled){border-color:#64778f;background:#24364b}button:active:not(:disabled){transform:translateY(1px)}button:disabled{opacity:.42;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible,canvas:focus-visible{outline:2px solid var(--f);outline-offset:3px}.primary{background:var(--f);border-color:var(--f);color:#0b211b;font-weight:750}.primary:hover:not(:disabled){background:#8aefd2;color:#0b211b;border-color:#8aefd2}.ghost{background:transparent}.danger{color:var(--t)}.small{font-size:12px;padding:7px 10px}.tiny{font-size:11px}.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}.muted{color:var(--muted)}.f{color:var(--f)}.t{color:var(--t)}.h{color:var(--h)}a{color:#99decf;text-underline-offset:3px}h1,h2,h3,p{margin:0}h2{font-size:17px;letter-spacing:-.2px}h3{font-size:14px}code{font-family:var(--mono);color:#cee9ed}hr{border:0;border-top:1px solid var(--line);margin:18px 0}.wrap{max-width:1580px;margin:auto;padding:22px 30px 40px}.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:18px;gap:16px}.identity{display:flex;align-items:center;gap:11px}.logo{height:37px;width:37px}.brand{font:600 15px var(--mono);letter-spacing:-.5px}.eyebrow{font:10px var(--mono);letter-spacing:2.5px;color:var(--muted)}.top-actions{display:flex;gap:8px;align-items:center}.tag{font:10px var(--mono);letter-spacing:1px;border:1px solid var(--line);border-radius:20px;padding:5px 10px;color:var(--muted);white-space:nowrap}.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:25px 0 22px}.hero h1{font-size:clamp(24px,2.5vw,38px);font-weight:750;line-height:1.2;letter-spacing:-1.1px}.hero h1 span{color:var(--f)}.hero p{margin-top:9px;color:var(--muted);font-size:13px}.hero .note{font-size:11px;max-width:310px;text-align:right;color:var(--muted)}.layout{display:grid;grid-template-columns:284px minmax(0,1fr);gap:20px;align-items:start}.sidebar{border:1px solid var(--line);background:#0f1926;border-radius:var(--radius);overflow:hidden}.side-head{padding:16px 17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.side-body{padding:15px 17px}.side-body>label{display:block;font-size:12px;margin-bottom:5px;color:var(--muted)}select,input[type=number],input[type=text],textarea{border:1px solid #314359;background:#0b1420;color:var(--fg);border-radius:7px;padding:8px 9px;width:100%;min-width:0}select{padding-right:22px;font-size:12px}input:disabled,select:disabled{opacity:.4}input[type=range]{width:100%;accent-color:var(--f);cursor:pointer}input[type=checkbox]{accent-color:var(--f)}textarea{font:12px/1.6 var(--mono);resize:vertical;min-height:140px;tab-size:2}.preset-info{margin-top:9px;font-size:11px;color:var(--muted);min-height:51px}.side-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:13px 0 0}.side-actions .primary{grid-column:1/-1}details{border-top:1px solid var(--line)}summary{cursor:pointer;padding:12px 17px;font-size:12px;font-weight:650;list-style:none;display:flex;justify-content:space-between;align-items:center}summary::-webkit-details-marker{display:none}summary::after{content:'+';font:18px var(--mono);color:var(--muted)}details[open]>summary::after{content:'−'}details .detail-body{padding:0 17px 16px}.field{display:grid;grid-template-columns:1fr 82px;gap:6px 10px;align-items:center;margin:10px 0}.field label{font-size:12px}.field small{grid-column:1/-1;font-size:10.5px;line-height:1.5;color:var(--muted)}.field input,.field select{font-size:12px;padding:6px}.field.wide{grid-template-columns:1fr}.field.wide label{font-size:12px}.field input[type=checkbox]{justify-self:end}.side-foot{padding:13px 17px;font-size:10.5px;color:var(--muted);border-top:1px solid var(--line)}.main{min-width:0}.metrics{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px}.metric{background:#111d2b;border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:0}.metric .label{font-size:10px;color:var(--muted);letter-spacing:.5px}.metric .value{font:500 25px/1.4 var(--mono);white-space:nowrap}.metric .sub{font-size:10px;color:var(--muted)}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}.toolbar-group{display:flex;gap:7px;align-items:center}.speed{width:112px}.speed label{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}.status{font:11px var(--mono);display:flex;align-items:center;gap:7px;color:var(--muted)}.status::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold)}.status.running::before{background:var(--f);box-shadow:0 0 10px var(--f)}.arena-panel{border:1px solid var(--line);background:#0b1520;border-radius:var(--radius);overflow:hidden;position:relative}.arena-head{display:flex;align-items:center;justify-content:space-between;padding:12px 17px;gap:8px;border-bottom:1px solid var(--line)}.arena-head b{font-size:12px}.legend{display:flex;gap:15px;font:11px var(--mono)}.legend span::before{content:'';display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:currentColor}.arena-wrap{position:relative;isolation:isolate}.arena-wrap>canvas{display:block;width:100%;height:405px;touch-action:manipulation}.arena-overlay{position:absolute;top:16px;left:18px;pointer-events:none}.arena-overlay .eyebrow{color:#728ba6;font-size:9px}.arena-overlay strong{display:block;font:12px var(--mono);color:#b2c6d6;margin-top:3px}.arena-tip #seedLabel{max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.arena-tip{position:absolute;bottom:13px;left:18px;right:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:none;font-size:10px;color:#8299b0}.winner-banner{display:none;position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);min-width:245px;text-align:center;background:#0a1728eb;border:1px solid #52647b;backdrop-filter:blur(9px);padding:20px 25px;border-radius:14px;pointer-events:none}.winner-banner.active{display:block}.winner-banner strong{font-size:22px;display:block}.winner-banner small{font-size:11px;color:var(--muted)}.population-bar{height:5px;display:flex;background:#122033}.population-bar i{display:block;transition:width .15s linear}.population-bar i:nth-child(1){background:var(--f)}.population-bar i:nth-child(2){background:var(--t)}.population-bar i:nth-child(3){background:var(--h)}.arena-foot{padding:10px 17px;display:flex;align-items:center;justify-content:space-between;gap:10px}.arena-foot p{color:var(--muted);font-size:10.5px}.arena-foot button{font-size:11px}.inspector{padding:9px 17px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);min-height:37px}.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:23px 0 16px;overflow:auto}.tab{border:0;border-bottom:2px solid transparent;border-radius:0;padding:10px 13px;background:transparent;color:var(--muted);font-size:12px;white-space:nowrap}.tab[aria-selected=true]{border-color:var(--f);color:var(--fg);background:transparent}.tab-content[hidden]{display:none}.twocol{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}.card{border:1px solid var(--line);background:#101b29;border-radius:var(--radius);padding:17px;min-width:0}.card-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:11px}.card-head h2{font-size:14px}.card canvas{display:block;width:100%}.card-note{font-size:11px;color:var(--muted);line-height:1.7;margin-top:8px}.chart{height:185px}.duelcanvas{height:190px}.payoff-table{width:100%;border-collapse:collapse;font:12px var(--mono);text-align:right}.payoff-table th,.payoff-table td{padding:9px 6px;border-bottom:1px solid var(--line)}.payoff-table th{font-weight:400;color:var(--muted)}.payoff-table td:first-child,.payoff-table th:first-child{text-align:left}.matrix-note{font-size:11px;line-height:1.75;color:var(--muted);margin-top:11px}.events{height:150px;overflow:auto;font-size:11px}.event{display:grid;grid-template-columns:53px 1fr;gap:9px;padding:6px 0;border-bottom:1px solid #23324866}.event time{color:var(--muted);font-family:var(--mono)}.lower-row{margin-top:14px}.signal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.signal-card{padding:13px;background:#132334;border:1px solid #2b4057;border-radius:10px}.signal-card h3{font:13px var(--mono);margin-bottom:8px}.signal-card .scores{display:flex;justify-content:space-between;gap:7px;font:13px var(--mono)}.signal-card .posterior{height:5px;display:flex;gap:1px;margin-top:10px;overflow:hidden;border-radius:4px}.signal-card small{font-size:10px;color:var(--muted)}.worldcanvas{height:180px}.scroller{overflow-x:auto}.data-table{width:100%;border-collapse:collapse;font:11px var(--mono);text-align:right;white-space:nowrap}.data-table th,.data-table td{padding:8px;border-bottom:1px solid var(--line)}.data-table th{color:var(--muted);font-weight:400}.data-table td:first-child,.data-table th:first-child{text-align:left}.explainer{font-size:12px;color:#b7c6d6;line-height:1.9}.explainer p+p{margin-top:12px}.explainer h3{margin:18px 0 8px;color:var(--fg)}.formula{padding:12px;border:1px solid var(--line);background:#0b1521;border-radius:8px;font:12px/1.85 var(--mono);overflow-wrap:anywhere;margin:10px 0;color:#d4e5e9}.badge{display:inline-block;font-size:9px;border:1px solid #3b5069;border-radius:4px;padding:2px 5px;color:#b0c3d5;margin-left:5px}.batch-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}.batch-controls label{font-size:11px;color:var(--muted);display:block}.batch-controls input{width:100px}.progress-track{height:7px;border-radius:5px;background:#203044;margin:18px 0 8px;overflow:hidden}.progress-track>div{height:100%;background:var(--f);width:0}.batch-result{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.batch-result div{padding:16px;border:1px solid var(--line);border-radius:10px}.batch-result b{display:block;font:25px var(--mono)}.batch-result span{font-size:11px;color:var(--muted)}.challenge-head{display:flex;justify-content:space-between;gap:10px}.challenge-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}.choice{padding:25px 10px 18px;background:linear-gradient(#162c3d,#102131);border:1px solid #375369;min-height:146px}.choice .glyph{font:38px var(--mono);display:block;color:#add9e8}.choice span{display:block;margin:6px 0;font-size:13px}.choice small{font-size:10px;color:var(--muted)}.choice.selected{border:2px solid var(--f)}.challenge-feedback{min-height:100px;padding:15px;border:1px solid var(--line);border-radius:10px;font-size:12px;color:#c1d3e3;background:#0d1724}.challenge-actions{display:flex;justify-content:space-between;gap:10px;margin-top:15px;align-items:center}.challenge-score{display:flex;gap:20px;flex-wrap:wrap;font:12px var(--mono);margin-top:15px}.callout{padding:12px 14px;border-left:2px solid var(--gold);background:#211f1a50;font-size:11px;color:#cec3aa;border-radius:0 8px 8px 0;margin:14px 0}.modal{max-width:760px;width:calc(100% - 28px);max-height:88vh;border:1px solid #3b5069;border-radius:16px;background:#111c2b;color:var(--fg);padding:24px;box-shadow:0 20px 120px #000a}.modal::backdrop{background:#030912c7;backdrop-filter:blur(4px)}.modal .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.modal p{font-size:12px;color:var(--muted);margin:10px 0}.modal .buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.modal pre{font:11px/1.8 var(--mono);white-space:pre-wrap;word-break:break-word}.error{color:var(--t);font-size:12px;white-space:pre-wrap}.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);padding:11px 18px;background:#26384d;border:1px solid #48637e;border-radius:10px;font-size:12px;z-index:20;max-width:90vw;box-shadow:0 6px 35px #0008;display:none}.toast.active{display:block}footer{border-top:1px solid var(--line);margin-top:24px;padding-top:15px;display:flex;justify-content:space-between;gap:15px;font-size:10px;color:#7890a7}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}.dirty{color:var(--gold)}.mobile-only{display:none}.source-links{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;margin-top:12px}
+@media(min-width:1440px){.arena-wrap>canvas{height:455px}}
+@media(max-width:1080px){.wrap{padding:18px}.layout{grid-template-columns:246px minmax(0,1fr);gap:14px}.metrics{gap:6px}.metric{padding:9px 10px}.metric .value{font-size:21px}.twocol{grid-template-columns:1fr}.hero .note{display:none}.toolbar-group{gap:5px}.toolbar button{font-size:11px;padding:8px 10px}.legend{gap:10px}.arena-wrap>canvas{height:380px}}
+@media(max-width:760px){.mobile-only{display:block}.wrap{padding:14px 12px 24px}.layout{display:flex;flex-direction:column}.main{width:100%;order:0}.sidebar{width:100%;order:1;margin-top:8px}.top{padding-bottom:12px}.brand{font-size:12px}.eyebrow{font-size:8px}.top-actions .tag{display:none}.hero{padding:19px 0}.hero h1{font-size:28px}.hero p{font-size:11px}.metrics{grid-template-columns:repeat(4,1fr);gap:5px}.metric{padding:8px}.metric .value{font-size:18px}.metric .label{font-size:9px}.metric .sub{font-size:8px}.arena-head{padding:11px}.arena-head b{font-size:10px}.legend{font-size:9px;gap:8px}.arena-foot{align-items:flex-start;padding:10px;flex-wrap:wrap}.arena-wrap>canvas{height:345px}.arena-overlay{left:12px}.arena-tip{left:12px;font-size:9px}.speed{width:105px}.card{padding:14px}.tabs{margin-top:18px}.tab{font-size:11px;padding:10px}.challenge-cards{gap:7px}.choice{padding:15px 5px;min-height:130px}.choice small{font-size:9px}.challenge-head{flex-direction:column}.batch-result{gap:6px}.batch-result div{padding:10px}.batch-result b{font-size:20px}footer{flex-direction:column;gap:3px}.top-actions button{font-size:10px;padding:7px}.inspector{font-size:10px}.side-body .side-actions{grid-template-columns:1fr 1fr 1fr}.side-actions .primary{grid-column:auto}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+ <div class="identity"><svg class="logo" viewBox="0 0 42 42" aria-hidden="true"><circle cx="16" cy="21" r="12" fill="none" stroke="#5ce8bf" stroke-width="2"/><path d="M26 8 40 32H12Z" fill="none" stroke="#ff8095" stroke-width="2"/></svg><div><div class="brand">fitness_beats_truth</div><div class="eyebrow">EVOLUTION LAB / 01</div></div></div>
+ <div class="top-actions"><span class="tag">OFFLINE · NO DEPENDENCIES</span><button id="shareBtn" class="small ghost">設定を共有</button><button id="helpBtn" class="small ghost">遊び方 / ?</button></div>
+</header>
+<section class="hero"><div><div class="eyebrow" style="margin-bottom:8px">SAME SENSES. DIFFERENT SURVIVAL.</div><h1>真実を見るか。<span>生き残るか。</span></h1><p>同じ情報から、違う選択が生まれる。知覚の戦略を競わせる進化実験室。</p></div><div class="note">Prakash et al. (2021) の数値例と資源ゲームに基づく。<br>この実験だけで「現実は存在しない」とは言えません。</div></section>
+<div class="layout">
+<aside class="sidebar" id="settingsPanel" aria-label="実験設定">
+ <div class="side-head"><h2 style="font-size:14px">実験を設計</h2><span class="eyebrow" id="configStatus">CONFIG</span></div>
+ <div class="side-body"><label for="preset">シナリオ</label><select id="preset"><option value="paper">01 / 論文の数値例</option><option value="ambiguous">02 / 曖昧な世界</option><option value="perfect">03 / 完全情報の対照実験</option><option value="neutral">04 / 無選択・遺伝的浮動</option><option value="mutation">05 / 突然変異と三戦略</option><option value="cost">06 / 高コストのFitness</option><option value="custom">07 / 自由設定</option></select><div class="preset-info" id="presetInfo"></div><div class="side-actions"><button id="applyBtn" class="primary">設定を適用して開始</button><button id="resetBtn" class="small">同じ種でリセット</button><button id="shuffleSeed" class="small">乱数種を変える</button></div><p class="tiny muted" style="margin-top:9px">設定の変更は「適用」まで実験に影響しません。</p></div>
+ <div id="fields"></div>
+ <div class="side-foot"><button id="jsonBtn" class="small ghost" style="width:100%;margin-bottom:8px">全設定 / 世界データをJSONで編集</button><button id="exportConfig" class="small ghost">設定保存</button> <button id="importConfig" class="small ghost">読込</button><input type="file" id="configFile" accept=".json,application/json" hidden><p style="margin-top:9px">疑似乱数種を固定すると、同じ出生・死亡系列を再現します。描画・音・採餌デモの乱数は独立。</p></div>
+</aside>
+<main class="main">
+ <section class="metrics" aria-label="現在の状態">
+  <div class="metric"><div class="label">GENERATION</div><div class="value" id="genValue">0.00</div><div class="sub" id="eventValue">0 birth–death events</div></div>
+  <div class="metric"><div class="label">FITNESS-ONLY</div><div class="value f" id="fValue">50.0<span style="font-size:12px">%</span></div><div class="sub" id="countValue">80 / 160</div></div>
+  <div class="metric"><div class="label">F − T 期待利得差</div><div class="value" id="gapValue">+0.800</div><div class="sub">現在の集団構成・費用控除前</div></div>
+  <div class="metric"><div class="label">MAP 状態正答率</div><div class="value" id="accuracyValue">64.3<span style="font-size:12px">%</span></div><div class="sub">両戦略に共通の感覚チャネル</div></div>
+ </section>
+ <div class="toolbar"><div class="toolbar-group"><button id="playBtn" class="primary" aria-label="実験を開始">▶ 開始</button><button id="stepBtn" title="出生・死亡を1イベント進める">1イベント</button><button id="fastBtn" title="表示演出を省いて100世代先まで進める">+100世代</button><button id="soundBtn" class="ghost" aria-pressed="false" title="効果音を切り替える">音 OFF</button></div><div class="toolbar-group"><div class="speed"><label for="speed"><span>世代 / 秒</span><span class="mono" id="speedValue">0.5</span></label><input id="speed" type="range" min="0.05" max="5" step="0.05" value="0.5"></div><span id="runStatus" class="status">READY</span><button id="settingsJump" class="small ghost mobile-only">設定 ↓</button></div></div>
+ <section class="arena-panel">
+  <div class="arena-head"><b>POPULATION ARENA <span class="badge">実際のMoran過程</span></b><div class="legend"><span class="f">F <b id="legendF">80</b></span><span class="t">T <b id="legendT">80</b></span><span class="h" id="legendHybrid" hidden>H <b id="legendH">0</b></span></div></div>
+  <div class="arena-wrap"><canvas id="arena" tabindex="0" aria-label="個体群のアニメーション。緑の丸はFitness-only、桃色の三角はTruth、紫の六角はHybrid。個体をクリックすると詳細を表示します。"></canvas><div class="arena-overlay"><div class="eyebrow">BIRTH → REPLACEMENT → EVOLUTION</div><strong id="arenaLabel">160 organisms / well-mixed population</strong></div><div class="arena-tip"><span>光の軌跡＝子孫による置換。位置・距離は選択に影響しません。</span><span id="seedLabel" class="mono">seed: hoffman-2021</span></div><div class="winner-banner" id="winnerBanner"><div class="eyebrow">FIXATION</div><strong id="winnerTitle"></strong><small id="winnerSub"></small></div></div>
+  <div class="population-bar" aria-hidden="true"><i id="barF" style="width:50%"></i><i id="barT" style="width:50%"></i><i id="barH" style="width:0%"></i></div>
+  <div class="arena-foot"><p id="arenaCaption">有限集団では、期待利得が高い側でも偶然に絶滅する可能性があります。</p><div class="toolbar-group"><button id="flipBtn" class="ghost" title="現在の適応度配列を反転。論文の固定環境にはない介入です。">環境を反転 ↔</button><button id="rescueBtn" class="ghost" title="少数派を設定数だけ再導入。進化ではなく外部介入です。">少数派を再導入 +</button></div></div><div class="inspector" id="inspector">個体をクリックして、戦略・生まれた世代・子孫による置換を調べる。</div>
+ </section>
+ <nav class="tabs" role="tablist" aria-label="実験パネル"><button class="tab" role="tab" id="tab-live" aria-selected="true" aria-controls="panel-live" data-tab="live">01 ライブ観察</button><button class="tab" role="tab" id="tab-world" aria-selected="false" aria-controls="panel-world" data-tab="world">02 知覚を解剖</button><button class="tab" role="tab" id="tab-player" aria-selected="false" aria-controls="panel-player" data-tab="player">03 自分で選ぶ</button><button class="tab" role="tab" id="tab-batch" aria-selected="false" aria-controls="panel-batch" data-tab="batch">04 反復実験</button><button class="tab" role="tab" id="tab-method" aria-selected="false" aria-controls="panel-method" data-tab="method">05 論文と実装</button></nav>
+ <section id="panel-live" class="tab-content" role="tabpanel" aria-labelledby="tab-live">
+  <div class="twocol"><div class="card"><div class="card-head"><h2>生存戦略の勢力図</h2><button id="csvBtn" class="small ghost">CSV</button></div><canvas id="historyChart" class="chart" aria-label="各戦略の個体数比率の履歴"></canvas><p class="card-note">1世代＝N回の出生・死亡イベント。総個体数Nは一定です。</p></div><div class="card"><div class="card-head"><h2>採餌をスローモーションで</h2><span class="badge">独立デモ</span></div><canvas id="duel" class="duelcanvas" aria-label="TruthとFitness-onlyが資源を選ぶデモ"></canvas><p class="card-note" id="duelText">同じ信号を見て、違う選択をする。デモの偶然の得点は集団更新に使いません。</p></div></div>
+  <div class="twocol lower-row"><div class="card"><div class="card-head"><h2>対戦の期待利得</h2><span class="tiny muted">行＝自分 / 列＝相手</span></div><div id="matrix"></div><p id="dominance" class="matrix-note"></p><p class="matrix-note" id="fixationNote"></p></div><div class="card"><div class="card-head"><h2>観察ログ</h2><button id="runJsonBtn" class="small ghost">実験記録 JSON</button></div><div class="events" id="events" aria-label="実験イベント記録"></div></div></div>
+ </section>
+ <section id="panel-world" class="tab-content" role="tabpanel" aria-labelledby="tab-world" hidden>
+  <div class="card"><div class="card-head"><h2>世界は何を隠しているか</h2><button id="worldJsonBtn" class="small ghost">この世界を編集</button></div><canvas id="worldChart" class="worldcanvas" aria-label="各世界状態の適応度と出現確率"></canvas><p class="card-note">棒＝世界の適応度 f(w)、線＝事前確率 μ(w)。状態番号の近さに物理的意味はありません。各資源は信号ごとに1個ずつ提示されます。</p></div>
+  <div class="card lower-row"><div class="card-head"><h2>同じ感覚から、二つの評価</h2><span id="worldDimensions" class="tiny mono muted"></span></div><div class="signal-grid" id="signals"></div><p class="card-note">Truth：最もありそうな状態を1つ推定し、その適応度で評価。Fitness-only：候補となる全状態の適応度を確率で平均。両者とも同じ事後分布を利用できます。</p></div>
+  <details class="card lower-row" style="padding:0"><summary>事前確率・感覚チャネル P(x|w)・適応度をすべて表示</summary><div class="detail-body scroller" id="worldTable"></div></details>
+ </section>
+ <section id="panel-player" class="tab-content" role="tabpanel" aria-labelledby="tab-player" hidden>
+  <div class="card"><div class="challenge-head"><div><div class="eyebrow">THE PERCEPTION CHALLENGE</div><h2 style="margin-top:5px">あなたなら、どれを食べる？</h2><p class="card-note">毎回変わる曖昧な世界。<span id="challengeRoundsNote">12</span>問で期待利得の最大化を目指す、集団実験とは独立したミニゲーム。</p></div><button id="challengeReset" class="small ghost">最初から</button></div><div class="challenge-score"><span id="challengeRound">ROUND 01 / 12</span><span class="f" id="challengePoints">期待効率 －</span><span id="challengeStreak">連続最適 0</span></div><label class="tiny muted" style="display:block;margin-top:16px"><input type="checkbox" id="hintToggle"> 計算ヒント：期待利得を表示する</label><div class="challenge-cards" id="challengeCards"></div><div class="challenge-feedback" id="challengeFeedback"></div><div class="challenge-actions"><span id="challengeActual" class="tiny muted"></span><button id="challengeNext" class="primary" disabled>次の世界 →</button></div></div>
+ </section>
+ <section id="panel-batch" class="tab-content" role="tabpanel" aria-labelledby="tab-batch" hidden>
+  <div class="card"><div class="card-head"><h2>一度の勝利を、結論にしない。</h2><span class="badge">独立乱数種</span></div><p class="card-note" style="margin-bottom:16px">現在の環境・コスト・初期比率で反復。ライブ個体群や乱数系列は変更しません。実行中はライブを一時停止します。</p><div class="batch-controls"><div><label for="batchRuns">反復回数</label><input id="batchRuns" type="number" min="1" max="1000" value="100"></div><div><label for="batchHorizon">上限世代</label><input id="batchHorizon" type="number" min="1" max="10000" value="300"></div><button id="batchStart" class="primary">反復実験を開始</button><button id="batchCancel" disabled>中止</button><button id="batchCsv" class="ghost" disabled>結果 CSV</button></div><div class="progress-track"><div id="batchProgress"></div></div><p id="batchStatus" class="tiny muted">未実行。大きな個体数・反復回数は時間がかかります。</p><div class="batch-result"><div><b class="f" id="batchF">－</b><span>F が吸収固定</span></div><div><b class="t" id="batchT">－</b><span>T が吸収固定</span></div><div><b id="batchOther">－</b><span>未吸収 / H固定</span></div></div><p class="card-note" id="batchSummary">上限まで共存した試行は「未吸収」として区別します。突然変異がある場合、一時的な単一化を吸収固定と呼びません。</p><div class="callout">ここでの固定率は、この環境における有限集団の測定値です。「すべての適応度関数にわたる確率」でも、FBT定理の確率下限の推定でもありません。</div></div>
+ </section>
+ <section id="panel-method" class="tab-content" role="tabpanel" aria-labelledby="tab-method" hidden>
+  <div class="card explainer"><div class="card-head"><h2>再現したもの / 追加したもの</h2><button id="testBtn" class="small ghost">内蔵テストを実行</button></div><p>中心資料は Prakash, Stephens, Hoffman, Singh &amp; Fields, <em>Fitness Beats Truth in the Evolution of Perception</em>, Acta Biotheoretica 69, 319–341 (2021)。オンライン公開は2020年です。著者公開稿の戦略定義・資源選択と、出版社に掲載された付録の数値を参照しています。著者の元ソースコードや原論文全図の完全再現ではありません。</p><div class="source-links"><a href="https://pubmed.ncbi.nlm.nih.gov/33231784/" target="_blank" rel="noopener noreferrer">PubMed / 指定論文 ↗</a><a href="https://doi.org/10.1007/s10441-020-09400-0" target="_blank" rel="noopener noreferrer">出版社 / 付録 ↗</a><a href="https://sites.socsci.uci.edu/~ddhoff/FitnessBeatsTruth_apa_PBR.pdf" target="_blank" rel="noopener noreferrer">著者公開稿 ↗</a><a href="https://pubmed.ncbi.nlm.nih.gov/20659478/" target="_blank" rel="noopener noreferrer">先行シミュレーション / 2010 ↗</a></div>
+  <h3>1. 情報量ではなく、意思決定則を比べる</h3><div class="formula">P(w | x) = μ(w) P(x | w) / Σᵥ μ(v) P(x | v)<br>Truth: S_T(x) = f(argmax_w P(w | x))<br>Fitness-only: S_F(x) = Σ_w P(w | x) f(w)<br>Hybrid: S_H(x) = α S_T(x) + (1 − α) S_F(x)</div><p>「真実を知るあらゆる知性」と「無知」を競わせたものではありません。Truth はMAP点推定に縮約する特定の戦略です。事後分布全体を保ち期待利得を計算する、現実を重視した推論も同じ選択をできます。感覚ノイズ・解像度は両戦略に共通です。MAP同率時は最小の状態番号を採用し、行動評価が同率なら資源間で等確率に選びます。</p>
+  <h3>2. 資源ゲームと実際の個体群更新</h3><p>正の出現確率を持つ各信号の資源を1個ずつ提示します。先手は等確率。先手が最も高く評価する資源を取り、後手は残りから選びます。事後分布と同率選択を厳密に平均し、対戦利得行列 A を作ります。実現した食事の得点ではなく、期待利得が出生重みを決めます。独占をOFFにすると、双方が独立に資源を選ぶ拡張になります。</p><div class="formula">πᵢ = Σⱼ (nⱼ − 1{i=j}) Aᵢⱼ / (N − 1)<br>bᵢ = max(0, 1 − s + s (πᵢ − cᵢ))<br>P(parent type=i) = nᵢ bᵢ / Σⱼ nⱼ bⱼ<br>P(death type=j) = nⱼ / N</div><p>式は存在する戦略についてのものです。個体数0の戦略は出生確率0で、表示用の反実仮想利得のみN個体を対戦相手として平均します。出生と死亡は独立に選びます。子は原則として親の戦略を継ぎ、設定確率で別の有効戦略へ変異します。重みが全て0なら一様な出生に戻します。突然変異・戦略別費用・Hybrid・人為的再導入は本アプリの拡張です。標準の費用は全て0。座標、移動速度、見た目、音はこの計算に参加しません。</p>
+  <h3>3. 数値例の照合</h3><p>初期シナリオでは E[f|x₁]=5、E[f|x₂]=6.6、MAPによる評価はそれぞれ4、3です。資源を独占する二者ゲームの期待利得は F対F=5.8、F対T=6.6、T対F=5、T対T=5.8。これは付録の数値から本アプリが計算した行列です。最大の実現利得20を得られるかは、その1回の幸運に左右されます。</p>
+  <h3>4. 結論の限界</h3><p>完全情報では二戦略の評価が一致します。同じ利得でも有限集団は遺伝的浮動で固定し得ます。さらにFに十分な費用を課せばTが有利にもなります。固定環境・既知の確率と適応度という仮定があり、学習過程はモデル化していません。環境反転では両者が変更後の適応度を即座に利用します。空間的な生態系や人間の視覚の実測モデルではなく、外界の不存在、意識の根源性、科学的知識の無効を実証するものでもありません。</p><p>FBT定理の一般的な確率主張を、この有限の一環境に無条件で当てはめません。ここでは数値例、意思決定則、明示した集団更新だけを検証可能な形で実装しています。</p><pre id="testResult" class="tiny mono" style="white-space:pre-wrap;margin-top:15px"></pre></div>
+ </section>
+</main>
+</div>
+<footer><span>fitness_beats_truth / v1.0.0 · Vanilla JavaScript + Canvas 2D · No network required</span><span>見た目ではなく、ルールを変えて確かめる。</span></footer>
+</div>
+<dialog id="helpDialog" class="modal"><div class="modal-head"><h2>実験室の使い方</h2><button data-close="helpDialog" class="ghost small" aria-label="閉じる">✕</button></div><div class="explainer"><p><strong>最初は「開始」を押すだけ。</strong> 緑の丸Fと桃色の三角Tが同じ情報から資源を選び、その期待利得に応じて子孫を残します。光の軌跡は、実際に選ばれた出生と置換です。一定数の個体が入れ替わり続けます。</p><h3>観察 → 介入 → 対照 → 反復</h3><p>「知覚を解剖」で、なぜ両者の選択が違うのか確認。「環境を反転」で適応度を並べ替え、「少数派を再導入」で絶滅後も実験に介入できます。いずれもログに記録される外部操作です。設定のシナリオ03は完全情報、04は選択なしの対照実験です。</p><p>「自分で選ぶ」では標準12問の採餌ゲーム（問題数は変更可能）。「反復実験」では同じ設定を別の乱数種で繰り返し、1回の幸運と統計的傾向を分けられます。設定とCSVはブラウザから保存できます。</p><h3>ショートカット</h3><p><code>Space</code> 開始 / 停止　<code>N</code> 1イベント　<code>R</code> リセット　<code>?</code> この説明<br>アリーナ内の個体をクリックすると個体情報。入力欄にフォーカス中は無効です。</p><div class="callout">Fは現実の正解を直接見る「チート」ではありません。Tと共通の信号から期待値を計算します。完全情報で差が消えることも確認してください。</div></div><div class="buttons"><button data-close="helpDialog" class="primary">実験室へ</button></div></dialog>
+<dialog id="jsonDialog" class="modal"><div class="modal-head"><h2>すべてのパラメータ</h2><button data-close="jsonDialog" class="ghost small" aria-label="閉じる">✕</button></div><p>任意の μ・P(x|w)・f(w) を使うには model="custom" にし、customWorld を編集します。確率は非負で行和1、適応度は非負。未知のキー、不正な世界データ、範囲外はエラーにします。省略した設定キーにはデフォルト値を補います。ここで反映後、実験への適用は左の「設定を適用して開始」です。</p><textarea id="jsonEditor" rows="20" spellcheck="false" aria-label="全設定JSON"></textarea><p id="jsonError" class="error"></p><div class="buttons"><button id="jsonApply" class="primary">設定欄へ反映</button><button id="copyWorld" class="ghost">現在の世界をcustomとして挿入</button><button data-close="jsonDialog">閉じる</button></div></dialog>
+<dialog id="shareDialog" class="modal"><div class="modal-head"><h2>設定を共有</h2><button data-close="shareDialog" class="ghost small" aria-label="閉じる">✕</button></div><p>現在の環境と実行設定をURL末尾に格納します。集団の途中状態・介入履歴は含みません。ローカルファイルのURLは他の端末では開けないため、GitHub Pagesで共有するか「設定保存」を使ってください。</p><textarea id="shareUrl" rows="5" readonly aria-label="設定を含むURL"></textarea><div class="buttons"><button id="copyShare" class="primary">コピー</button><button data-close="shareDialog">閉じる</button></div></dialog>
+<div class="toast" id="toast" role="status"></div>
+<script>
+'use strict';
+/* fitness_beats_truth v1.0.0
+ * Model: finite world Bayesian decisions + fair sequential resource game + Moran process.
+ * Core RNG never participates in rendering, sound, challenge, or illustrative foraging.
+ * All parameters are specified in SCHEMA; JSON is data, never executable code.
+ */
+const VERSION='1.0.0';
+const EPS=1e-10;
+const COLORS=['#5ce8bf','#ff8095','#b6a2ff'];
+const NAMES=['Fitness-only','Truth / MAP','Hybrid'];
+const SHORT=['F','T','H'];
+const $=id=>document.getElementById(id);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fmt=(v,d=3)=>Number.isFinite(v)?v.toFixed(d):'—';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function hashSeed(s){let h=2166136261;for(const c of String(s)){h^=c.codePointAt(0);h=Math.imul(h,16777619)}return h>>>0}
+class RNG{constructor(seed){this.state=typeof seed==='number'?seed>>>0:hashSeed(seed)}next(){let t=this.state=(this.state+0x6D2B79F5)>>>0;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296}int(n){return Math.floor(this.next()*n)}}
+function weighted(weights,r){let total=0;for(const w of weights)total+=w;let target=r*total;for(let i=0;i<weights.length;i++){target-=weights[i];if(target<0)return i}for(let i=weights.length-1;i>=0;i--)if(weights[i]>0)return i;return 0}
+function normalize(a){const s=a.reduce((x,y)=>x+y,0);if(!(s>0)||!Number.isFinite(s))throw Error('重みの合計は正である必要があります。');return a.map(v=>v/s)}
+const PAPER_WORLD={prior:[1/7,3/7,3/7],likelihood:[[1/4,3/4],[3/4,1/4],[1/4,3/4]],fitness:[20,4,3]};
+const SCHEMA=[
+ {key:'seed',label:'乱数種',type:'string',default:'hoffman-2021',group:'基本設定',desc:'文字列。世界生成・出生死亡・デモで別々の乱数系列に分けます。'},
+ {key:'population',label:'個体数 N',type:'int',min:10,max:1200,step:10,default:160,group:'基本設定',desc:'Moran過程の一定個体数。描画は最大1200個体。'},
+ {key:'initialF',label:'初期F比率 (%)',type:'number',min:0,max:100,step:1,default:50,group:'基本設定',desc:'残りはT。初期Hとの合計は100%以下。整数個体数へ最大剰余法で配分。'},
+ {key:'hybridEnabled',label:'Hybridを有効化',type:'bool',default:false,group:'基本設定',desc:'OFFでは変異先もF/Tだけ。Hは本アプリの拡張。'},
+ {key:'initialH',label:'初期H比率 (%)',type:'number',min:0,max:100,step:1,default:0,group:'基本設定',desc:'Hybrid有効時のみ。F=0, H=0なら全個体T。'},
+ {key:'alpha',label:'HのMAP依存率 α',type:'number',min:0,max:1,step:.05,default:.5,group:'基本設定',desc:'0=Fと同じ評価、1=Tと同じ評価。真実が見える確率ではありません。'},
+ {key:'model',label:'世界の作り方',type:'select',options:[['paper','論文の3状態・2信号'],['generated','パラメータから生成'],['custom','任意の世界JSON']],default:'paper',group:'世界と感覚',desc:'paperではデータを固定。任意行列は全設定JSONから編集。'},
+ {key:'worldStates',label:'世界状態数 |W|',type:'int',min:2,max:64,step:1,default:12,group:'世界と感覚',generated:true,desc:'生成世界の隠れた状態の数。'},
+ {key:'signals',label:'感覚信号数 |X|',type:'int',min:2,max:32,step:1,default:4,group:'世界と感覚',generated:true,desc:'同じ数・同じチャネルを全戦略に与えます。'},
+ {key:'channel',label:'感覚チャネル',type:'select',options:[['bands','状態を帯状に圧縮'],['scrambled','対応をランダム化'],['identity','完全情報 (W=X)']],default:'bands',group:'世界と感覚',generated:true,desc:'identityではW=Xかつノイズ0で完全情報。'},
+ {key:'noise',label:'感覚ノイズ ε',type:'number',min:0,max:1,step:.05,default:.25,group:'世界と感覚',generated:true,desc:'P(x|w)=(1−ε)1{x=map(w)}+ε/|X|。同一ノイズは両者に既知。'},
+ {key:'priorKind',label:'事前確率の形',type:'select',options:[['uniform','一様'],['random','ランダムな重み']],default:'random',group:'世界と感覚',generated:true,desc:'randomはU(0,1)のべき乗を正規化。'},
+ {key:'priorPower',label:'事前重みの指数',type:'number',min:0,max:6,step:.1,default:1,group:'世界と感覚',generated:true,desc:'ランダム事前の重み U^p。p=0で一様、増やすと偏りが強まる。'},
+ {key:'landscape',label:'適応度関数',type:'select',options:[['rugged','ランダム'],['hump','中央付近にピーク'],['linear','単調増加'],['flat','一定']],default:'rugged',group:'適応度と競争',generated:true,desc:'wを0〜1に等間隔配置してfを生成。'},
+ {key:'payoffFloor',label:'適応度の下限',type:'number',min:0,max:1000000,step:.1,default:0,group:'適応度と競争',generated:true,desc:'生成関数の加算定数。'},
+ {key:'payoffScale',label:'適応度の振幅',type:'number',min:0,max:1000000,step:.1,default:20,group:'適応度と競争',generated:true,desc:'下限と振幅の合計は1000000以下。flatでは下限+振幅。'},
+ {key:'peakCenter',label:'ピーク位置',type:'number',min:0,max:1,step:.05,default:.5,group:'適応度と競争',generated:true,desc:'humpの中心。'},
+ {key:'peakWidth',label:'ピーク幅 σ',type:'number',min:.01,max:2,step:.01,default:.16,group:'適応度と競争',generated:true,desc:'hump = 下限+振幅 exp(−(w−中心)²/(2σ²))。'},
+ {key:'exclusive',label:'資源を独占する',type:'bool',default:true,group:'適応度と競争',desc:'ON：公平な先手順で取り合う。OFF：両者が独立に選ぶ拡張。'},
+ {key:'selection',label:'選択強度 s',type:'number',min:0,max:1,step:.05,default:1,group:'進化と費用',desc:'出生重み max(0,1−s+s(期待利得−費用))。0なら中立な浮動。'},
+ {key:'mutation',label:'出生時の変異確率',type:'number',min:0,max:1,step:.001,default:0,group:'進化と費用',desc:'有効な別戦略に等確率で変異。学習や知覚の進化ではなく戦略ラベルの変異。'},
+ {key:'costF',label:'Fの費用',type:'number',min:0,max:1000000,step:.1,default:0,group:'進化と費用',desc:'期待利得から控除。標準0でFを優遇しません。'},
+ {key:'costT',label:'Tの費用',type:'number',min:0,max:1000000,step:.1,default:0,group:'進化と費用',desc:'期待利得と同じ単位。'},
+ {key:'costH',label:'Hの費用',type:'number',min:0,max:1000000,step:.1,default:0,group:'進化と費用',desc:'Hybrid有効時の控除額。'},
+ {key:'maxGenerations',label:'ライブ上限世代',type:'int',min:1,max:100000,step:100,default:1000,group:'実行と表示',desc:'上限で自動停止。+100世代もこの上限を超えません。'},
+ {key:'stopAtFixation',label:'無変異の固定で停止',type:'bool',default:true,group:'実行と表示',desc:'変異0かつ一戦略のみになったとき停止。変異ありでは吸収状態ではないため継続。'},
+ {key:'speed',label:'世代 / 秒',type:'number',min:.05,max:5,step:.05,default:.5,group:'実行と表示',desc:'実行中は上の速度スライダーで変更可能。系列自体は変わりません。'},
+ {key:'effectLimit',label:'同時演出数上限',type:'int',min:0,max:300,step:10,default:75,group:'実行と表示',desc:'描画の負荷制限。0では置換アニメーションなし。計算は省略しません。'},
+ {key:'effectSeconds',label:'置換演出の秒数',type:'number',min:.1,max:2,step:.1,default:.65,group:'実行と表示',desc:'出生の軌跡・消滅・発光が残る時間。'},
+ {key:'motion',label:'個体のゆらぎ',type:'bool',default:true,group:'実行と表示',desc:'位置は演出のみ。OSの動きを減らす設定も尊重します。'},
+ {key:'glow',label:'発光を有効化',type:'bool',default:true,group:'実行と表示',desc:'影の描画負荷が高い環境ではOFF。'},
+ {key:'sound',label:'効果音',type:'bool',default:false,group:'実行と表示',desc:'ブラウザで合成。開始などの操作後に有効化。外部音源なし。'},
+ {key:'volume',label:'効果音音量',type:'number',min:0,max:1,step:.05,default:.12,group:'実行と表示',desc:'マスター音量。'},
+ {key:'duelSeconds',label:'採餌デモの周期(秒)',type:'number',min:1,max:15,step:.5,default:4,group:'実行と表示',desc:'選択ルールの独立した視覚デモ。集団の乱数・選択に影響しません。'},
+ {key:'historyEvery',label:'履歴の記録間隔(世代)',type:'int',min:1,max:100,step:1,default:1,group:'実行と表示',desc:'初期・終了・介入時は間隔によらず記録。'},
+ {key:'historyLimit',label:'履歴行数の上限',type:'int',min:100,max:100000,step:100,default:10000,group:'実行と表示',desc:'超過すると最も古い行から削除。CSVにも保持分のみ出力。'},
+ {key:'rescueCount',label:'再導入する個体数',type:'int',min:1,max:1200,step:1,default:12,group:'介入と反復',desc:'最多戦略の個体を少数派へ置換。Nを超える設定は不可。'},
+ {key:'batchRuns',label:'反復回数',type:'int',min:1,max:1000,step:10,default:100,group:'介入と反復',desc:'反復パネルからも変更できます。'},
+ {key:'batchHorizon',label:'反復の上限世代',type:'int',min:1,max:10000,step:100,default:300,group:'介入と反復',desc:'上限で未固定なら未吸収として集計。'},
+ {key:'challengeRounds',label:'ミニゲーム問題数',type:'int',min:1,max:100,step:1,default:12,group:'介入と反復',desc:'ゲームは常に6状態3信号、現在設定とは別のランダムな世界を使用。'},
+ {key:'customWorld',label:'任意世界',type:'object',default:null,group:null}
+];
+const DEFAULTS=Object.fromEntries(SCHEMA.map(s=>[s.key,clone(s.default)]));
+const PRESETS={
+ paper:{desc:'論文の3状態・2信号。Tはx₁、Fはx₂を好む。同じ感覚・追加費用なしで比較。',patch:{model:'paper'}},
+ ambiguous:{desc:'12状態→4信号。差を観察しやすい例示用の乱数種です。種やノイズを変えて対照を試す。',patch:{seed:'ambiguous-21',model:'generated',worldStates:12,signals:4,channel:'bands',noise:.25}},
+ perfect:{desc:'感覚が世界状態を完全に区別。FとTの評価は一致し、固定が起きてもそれは浮動。',patch:{model:'generated',worldStates:8,signals:8,channel:'identity',noise:0}},
+ neutral:{desc:'選択強度s=0。期待利得を出生に反映させず、純粋な遺伝的浮動を見る。',patch:{model:'paper',selection:0,population:80,rescueCount:8}},
+ mutation:{desc:'F・T・中間のHが競争。出生時の1%の突然変異で、少数戦略も再出現する。',patch:{model:'paper',hybridEnabled:true,initialF:34,initialH:33,mutation:.01,alpha:.5}},
+ cost:{desc:'Fの費用を1.5に設定。期待利得の利点を費用が打ち消す対照。Tも勝ち得る。',patch:{model:'paper',costF:1.5}},
+ custom:{desc:'各パラメータを自由に変更。任意の確率行列・適応度配列はJSONで直接指定。',patch:{}}
+};
+function validateWorld(w){
+ if(!w||typeof w!=='object'||Array.isArray(w))throw Error('customWorld は prior, likelihood, fitness を持つオブジェクトにしてください。');
+ if(Object.keys(w).some(k=>!['prior','likelihood','fitness'].includes(k)))throw Error('世界データに未知のキーがあります。');
+ const {prior:p,likelihood:K,fitness:f}=w;
+ if(!Array.isArray(p)||p.length<2||p.length>64)throw Error('世界状態数は2〜64です。');
+ if(!Array.isArray(K)||K.length!==p.length||!Array.isArray(f)||f.length!==p.length)throw Error('prior / likelihood / fitness の状態数が一致しません。');
+ const m=Array.isArray(K[0])?K[0].length:0;
+ if(m<2||m>32)throw Error('感覚信号数は2〜32です。');
+ const prob=(a,name)=>{if(a.some(v=>typeof v!=='number'||!Number.isFinite(v)||v<0||v>1))throw Error(name+' は0〜1の有限数のみ。');if(Math.abs(a.reduce((x,y)=>x+y,0)-1)>1e-9)throw Error(name+' の合計を1にしてください。');};
+ prob(p,'prior');for(let i=0;i<K.length;i++){if(!Array.isArray(K[i])||K[i].length!==m)throw Error('likelihood は長方形の配列にしてください。');prob(K[i],'likelihood['+i+']')}
+ if(f.some(v=>typeof v!=='number'||!Number.isFinite(v)||v<0||v>1000000))throw Error('fitness は0〜1000000の有限数のみ。');
+ const px=Array.from({length:m},(_,j)=>p.reduce((s,v,i)=>s+v*K[i][j],0));
+ if(px.filter(v=>v>0).length<2)throw Error('正の出現確率を持つ信号が2つ以上必要です。');
+ return clone(w);
+}
+function validateConfig(input){
+ if(!input||typeof input!=='object'||Array.isArray(input))throw Error('設定はJSONオブジェクトにしてください。');
+ const keys=new Set(SCHEMA.map(s=>s.key));for(const k of Object.keys(input))if(!keys.has(k))throw Error('未知のパラメータ: '+k);
+ const c=clone(DEFAULTS);for(const s of SCHEMA){if(!(s.key in input))continue;const v=input[s.key];if(s.type==='object'){c[s.key]=v===null?null:validateWorld(v);continue}if(s.type==='string'){if(typeof v!=='string'||v.length<1||v.length>128)throw Error(s.label+' は1〜128文字です。')}else if(s.type==='bool'){if(typeof v!=='boolean')throw Error(s.label+' はtrue/falseです。')}else if(s.type==='select'){if(!s.options.some(o=>o[0]===v))throw Error(s.label+' の選択肢が不正です。')}else{if(typeof v!=='number'||!Number.isFinite(v)||v<s.min||v>s.max||(s.type==='int'&&!Number.isInteger(v)))throw Error(s.label+' は'+s.min+'〜'+s.max+(s.type==='int'?'の整数':'の数値')+'です。')}c[s.key]=v}
+ if(c.initialF+c.initialH>100+EPS)throw Error('初期F比率と初期H比率の合計は100%以下です。');
+ if(!c.hybridEnabled&&c.initialH!==0)throw Error('初期H比率を使うにはHybridを有効にしてください。');
+ if(c.model==='generated'&&c.channel==='identity'&&c.worldStates!==c.signals)throw Error('identityチャネルでは世界状態数と信号数を一致させてください。');
+ if(c.payoffFloor+c.payoffScale>1000000)throw Error('適応度の下限＋振幅は1000000以下です。');
+ if(c.rescueCount>c.population)throw Error('再導入数は個体数N以下にしてください。');
+ if(c.model==='custom'&&c.customWorld===null)throw Error('model="custom" にはcustomWorldが必要です。');
+ return c;
+}
+function makeWorld(c){
+ if(c.model==='paper')return clone(PAPER_WORLD);
+ if(c.model==='custom')return validateWorld(c.customWorld);
+ const r=new RNG(c.seed+'|world'),n=c.worldStates,m=c.signals;
+ const prior=c.priorKind==='uniform'?Array(n).fill(1/n):normalize(Array.from({length:n},()=>Math.pow(1-r.next(),c.priorPower)));
+ const likelihood=Array.from({length:n},(_,i)=>{const bin=c.channel==='identity'?i:c.channel==='scrambled'?r.int(m):Math.min(m-1,Math.floor(i*m/n));return Array.from({length:m},(_,j)=>(j===bin?1-c.noise:0)+c.noise/m)});
+ const fitness=Array.from({length:n},(_,i)=>{const z=i/(n-1);let v=c.landscape==='rugged'?r.next():c.landscape==='hump'?Math.exp(-.5*((z-c.peakCenter)/c.peakWidth)**2):c.landscape==='linear'?z:1;return c.payoffFloor+c.payoffScale*v});
+ return validateWorld({prior,likelihood,fitness});
+}
+function inferWorld(world,alpha){
+ const n=world.prior.length,m=world.likelihood[0].length,px=[],post=[],map=[],F=[],T=[],active=[];
+ for(let x=0;x<m;x++){const raw=world.prior.map((p,w)=>p*world.likelihood[w][x]);const z=raw.reduce((a,b)=>a+b,0);px.push(z);const pp=z>0?raw.map(v=>v/z):Array(n).fill(0);post.push(pp);let k=0;for(let w=1;w<n;w++)if(pp[w]>pp[k])k=w;map.push(k);F.push(pp.reduce((s,p,w)=>s+p*world.fitness[w],0));T.push(world.fitness[k]);if(z>0)active.push(x)}
+ const H=F.map((v,x)=>(1-alpha)*v+alpha*T[x]);
+ return {px,post,map,F,T,H,active,scores:[F,T,H],accuracy:px.reduce((s,p,x)=>s+p*post[x][map[x]],0)};
+}
+function bestChoices(scores,available){let max=-Infinity;for(const x of available)max=Math.max(max,scores[x]);const tol=EPS*Math.max(1,Math.abs(max));return available.filter(x=>Math.abs(scores[x]-max)<=tol)}
+function expectedMatrix(inf,c){
+ const k=c.hybridEnabled?3:2,A=Array.from({length:k},()=>Array(k).fill(0)),av=inf.active;
+ for(let i=0;i<k;i++)for(let j=0;j<k;j++){
+  const first=bestChoices(inf.scores[i],av);let ownFirst=0,ownSecond=0;
+  for(const x of first)ownFirst+=inf.F[x]/first.length;
+  if(!c.exclusive){A[i][j]=ownFirst;continue}
+  const opponentFirst=bestChoices(inf.scores[j],av);
+  for(const x of opponentFirst){const remaining=av.filter(v=>v!==x);const choices=bestChoices(inf.scores[i],remaining);for(const y of choices)ownSecond+=inf.F[y]/choices.length/opponentFirst.length}
+  A[i][j]=(ownFirst+ownSecond)/2;
+ }
+ return A;
+}
+function initialCounts(c){const props=c.hybridEnabled?[c.initialF,100-c.initialF-c.initialH,c.initialH]:[c.initialF,100-c.initialF];const raw=props.map(x=>x*c.population/100),out=raw.map(Math.floor);let remain=c.population-out.reduce((a,b)=>a+b,0);const order=raw.map((v,i)=>({i,r:v-out[i]})).sort((a,b)=>b.r-a.r||a.i-b.i);for(let i=0;i<remain;i++)out[order[i].i]++;return out}
+function payoffs(counts,A,N){return counts.map((count,i)=>A[i].reduce((v,a,j)=>v+a*Math.max(0,counts[j]-(i===j&&count>0?1:0)),0)/(N-(count>0?1:0)))}
+function birthWeights(counts,A,c){const pi=payoffs(counts,A,c.population),cost=[c.costF,c.costT,c.costH];return {pi,weights:pi.map((p,i)=>Math.max(0,1-c.selection+c.selection*(p-cost[i])))} }
+class Engine{
+ constructor(c,A,seed=c.seed+'|evolution'){this.c=clone(c);this.A=A.map(r=>r.slice());this.rng=new RNG(seed);this.counts=initialCounts(c);this.tick=0;this.k=this.counts.length;this.last=null;this.births=Array(this.k).fill(0);this.replacements=Array(this.k).fill(0)}
+ step(){
+  const c=this.c,{weights}=birthWeights(this.counts,this.A,c);const mass=weights.map((v,i)=>v*this.counts[i]);if(mass.reduce((a,b)=>a+b,0)===0)for(let i=0;i<this.k;i++)mass[i]=this.counts[i];
+  const parent=weighted(mass,this.rng.next());const mut=this.rng.next()<c.mutation;const mutationDraw=this.rng.next();let child=parent;if(mut){child=Math.floor(mutationDraw*(this.k-1));if(child>=parent)child++}
+  const dead=weighted(this.counts,this.rng.next());this.counts[dead]--;this.counts[child]++;this.tick++;this.births[child]++;if(child!==dead)this.replacements[child]++;
+  this.last={parent,child,dead,mutation:mut};return this.last;
+ }
+ fixed(){return this.counts.findIndex(n=>n===this.c.population)}
+ absorbing(){return this.c.mutation===0&&this.fixed()>=0}
+}
+function analyticalFixation(c,A,count){
+ if(c.hybridEnabled||c.mutation!==0)return null;const N=c.population;if(count===0)return 0;if(count===N)return 1;
+ const logs=[0];let acc=0;
+ for(let n=1;n<N;n++){const w=birthWeights([n,N-n],A,c).weights;if(!(w[0]>0&&w[1]>0))return null;acc+=Math.log(w[1])-Math.log(w[0]);logs.push(acc)}
+ const max=Math.max(...logs);let numerator=0,denominator=0;for(let k=0;k<N;k++){const v=Math.exp(logs[k]-max);denominator+=v;if(k<count)numerator+=v}return numerator/denominator;
+}
+function simulateDuel(inf,c,rng,types=[0,1]){
+ const order=rng.next()<.5?[0,1]:[1,0],available=inf.active.slice(),choice=[0,0];
+ for(const side of order){const candidates=bestChoices(inf.scores[types[side]],available);const x=candidates[rng.int(candidates.length)];choice[side]=x;if(c.exclusive)available.splice(available.indexOf(x),1)}
+ const states=inf.active.map(x=>weighted(inf.post[x],rng.next()));const worldByX=Object.fromEntries(inf.active.map((x,i)=>[x,states[i]]));
+ return {choice,order,types,worldByX};
+}
+/* ---------- Configuration UI and experiment state ---------- */
+let draft=clone(DEFAULTS),config=clone(DEFAULTS),world,inf,matrix,engine;
+let running=false,fastTarget=null,batchBusy=false,batchCancel=false,wasHiddenRunning=false;
+let visualTime=0,lastFrame=0,accumulator=0,lastUI=0,history=[],droppedHistory=0,events=[],actions=[],worldVersion=0,milestones=new Set();
+let visualRng,duelRng,agents=[],groups=[],effects=[],selectedSlot=-1,duelState=null,duelStart=0;
+let sessionStart='',initialWorld=null,batchResults=[],batchMeta=null,challenge=null,audio=null,lastSound=-10,toastTimeout;
+const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function toast(message){$('toast').textContent=message;$('toast').classList.add('active');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>$('toast').classList.remove('active'),4200)}
+function createFields(){
+ const groupNames=[...new Set(SCHEMA.filter(s=>s.group).map(s=>s.group))];
+ for(const name of groupNames){const d=document.createElement('details');if(name==='基本設定')d.open=true;const summary=document.createElement('summary');summary.textContent=name;d.append(summary);const body=document.createElement('div');body.className='detail-body';
+  for(const s of SCHEMA.filter(s=>s.group===name)){const wrap=document.createElement('div');wrap.className='field'+(['string','select'].includes(s.type)?' wide':'');const label=document.createElement('label');label.htmlFor='cfg-'+s.key;label.textContent=s.label;let input;
+   if(s.type==='select'){input=document.createElement('select');for(const [value,text] of s.options){const o=document.createElement('option');o.value=value;o.textContent=text;input.append(o)}}else{input=document.createElement('input');input.type=s.type==='bool'?'checkbox':s.type==='string'?'text':'number';if(s.min!==undefined){input.min=s.min;input.max=s.max;input.step=s.type==='int'?1:'any'}if(s.type==='string')input.maxLength=128}
+   input.id='cfg-'+s.key;input.dataset.key=s.key;const small=document.createElement('small');small.textContent=s.desc;small.id='desc-'+s.key;input.setAttribute('aria-describedby',small.id);wrap.append(label,input,small);body.append(wrap);
+   input.addEventListener('input',()=>{draft[s.key]=s.type==='bool'?input.checked:['number','int'].includes(s.type)?(input.value===''?NaN:Number(input.value)):input.value;markDirty();if(s.key==='model'||s.key==='hybridEnabled')refreshDisabled()});
+  }d.append(body);$('fields').append(d)
+ }
+}
+function markDirty(){const t=$('configStatus');t.textContent='未適用';t.classList.add('dirty');$('preset').value='custom';$('presetInfo').textContent=PRESETS.custom.desc}
+function setDraft(c,preset='custom'){
+ draft=clone(c);for(const s of SCHEMA){const el=$('cfg-'+s.key);if(!el)continue;if(s.type==='bool')el.checked=c[s.key];else el.value=c[s.key]}
+ $('preset').value=preset;$('presetInfo').textContent=PRESETS[preset].desc;refreshDisabled();
+}
+function refreshDisabled(){for(const s of SCHEMA){const el=$('cfg-'+s.key);if(!el)continue;el.disabled=!!(s.generated&&draft.model!=='generated')||(['initialH','alpha','costH'].includes(s.key)&&!draft.hybridEnabled)}}
+function addEvent(text,kind='info'){events.push({tick:engine?engine.tick:0,generation:engine?engine.tick/config.population:0,text,kind});if(events.length>600)events.shift();renderEvents()}
+function renderEvents(){const el=$('events');el.replaceChildren();for(const e of events.slice(-50).reverse()){const row=document.createElement('div');row.className='event';const time=document.createElement('time');time.textContent=fmt(e.generation,1);const text=document.createElement('span');text.textContent=e.text;if(e.kind==='F')text.className='f';if(e.kind==='T')text.className='t';if(e.kind==='H')text.className='h';row.append(time,text);el.append(row)}}
+function recordHistory(reason='sample'){
+ const n=config.population,{pi,weights}=birthWeights(engine.counts,engine.A,config);
+ const row={tick:engine.tick,generation:engine.tick/n,counts:engine.counts.slice(),shares:engine.counts.map(v=>v/n),payoffs:pi,weights,meanPayoff:pi.reduce((s,v,i)=>s+v*engine.counts[i]/n,0),worldVersion,reason};
+ if(history.length&&history[history.length-1].tick===row.tick&&reason==='sample')return;
+ history.push(row);if(history.length>config.historyLimit){const drop=history.length-config.historyLimit;history.splice(0,drop);droppedHistory+=drop}
+}
+function resetVisuals(){
+ visualRng=new RNG(config.seed+'|render');duelRng=new RNG(config.seed+'|duel');effects=[];agents=[];groups=Array.from({length:engine.k},()=>[]);selectedSlot=-1;
+ const types=[];engine.counts.forEach((n,t)=>{for(let i=0;i<n;i++)types.push(t)});for(let i=types.length-1;i>0;i--){const j=visualRng.int(i+1);[types[i],types[j]]=[types[j],types[i]]}
+ types.forEach((type,i)=>{const a={slot:i,type,groupIndex:groups[type].length,phase:visualRng.next()*Math.PI*2,born:0,offspring:0,serial:i+1,lineage:i+1,changed:-10,x:0,y:0};groups[type].push(i);agents.push(a)});
+ $('inspector').textContent='個体をクリックして、戦略・生まれた世代・子孫による置換を調べる。';newDuel();
+}
+function newDuel(){duelState=simulateDuel(inf,config,duelRng);duelStart=visualTime}
+function moveAgentType(slot,to){const a=agents[slot],from=a.type;if(from===to)return;const last=groups[from].pop();if(last!==slot){groups[from][a.groupIndex]=last;agents[last].groupIndex=a.groupIndex}a.type=to;a.groupIndex=groups[to].length;groups[to].push(slot)}
+function visualEvent(ev,animate=true){
+ const parentGroup=groups[ev.parent],deadGroup=groups[ev.dead];
+ if(!parentGroup.length||!deadGroup.length)throw Error('Visual population invariant failed');
+ const parentSlot=parentGroup[visualRng.int(parentGroup.length)],deadSlot=deadGroup[visualRng.int(deadGroup.length)];
+ const p=agents[parentSlot],a=agents[deadSlot],lineage=p.lineage;
+ p.offspring++;const old=a.type;moveAgentType(deadSlot,ev.child);a.born=engine.tick/config.population;a.serial=config.population+engine.tick;a.lineage=lineage;a.offspring=0;a.changed=animate?visualTime:-10;
+ if(animate&&config.effectLimit>0&&(ev.child!==old||visualRng.next()<.12)){
+  effects.push({from:parentSlot,to:deadSlot,type:ev.child,old,birth:visualTime,mutation:ev.mutation,curve:visualRng.next()-.5});if(effects.length>config.effectLimit)effects.splice(0,effects.length-config.effectLimit);
+  if(ev.child!==old)tone(ev.mutation?'mutation':ev.child,visualTime);
+ }
+}
+function checkMilestones(before){
+ for(let i=0;i<engine.k;i++){
+  if(before[i]>0&&engine.counts[i]===0)addEvent(SHORT[i]+' が消失'+(config.mutation>0?'。突然変異で再出現し得る。':'。'),SHORT[i]);
+  if(before[i]===0&&engine.counts[i]>0)addEvent(SHORT[i]+' が突然変異で再出現。',SHORT[i]);
+  if(engine.tick%config.population===0)for(const threshold of [.75,.9]){const key=i+':'+threshold;if(engine.counts[i]>=config.population*threshold&&!milestones.has(key)){milestones.add(key);addEvent(SHORT[i]+' が '+threshold*100+'% に到達。',SHORT[i])}}
+ }
+}
+function advanceOne(animate=true){
+ if(engine.tick>=config.population*config.maxGenerations||(config.stopAtFixation&&engine.absorbing())){running=false;fastTarget=null;return false}
+ const before=engine.counts.slice(),ev=engine.step();visualEvent(ev,animate);checkMilestones(before);
+ if(engine.tick%(config.population*config.historyEvery)===0)recordHistory();
+ const atLimit=engine.tick>=config.population*config.maxGenerations,atFix=config.stopAtFixation&&engine.absorbing();
+ if(atLimit||atFix){running=false;fastTarget=null;recordHistory('stop');if(atFix&&!milestones.has('fixed:'+engine.tick)){milestones.add('fixed:'+engine.tick);addEvent(SHORT[engine.fixed()]+' が吸収固定。これは1本の確率的な軌跡です。',SHORT[engine.fixed()]);tone('win',visualTime)}return false}
+ return true;
+}
+function resetExperiment(c,autoStart=false){
+ if(batchBusy){toast('反復実験を中止してから設定を変更してください。');return}
+ const valid=validateConfig(c),w=makeWorld(valid),inference=inferWorld(w,valid.alpha),A=expectedMatrix(inference,valid);
+ config=valid;world=w;initialWorld=clone(w);inf=inference;matrix=A;engine=new Engine(config,matrix);worldVersion=0;sessionStart=new Date().toISOString();actions=[];history=[];events=[];milestones=new Set();droppedHistory=0;accumulator=0;fastTarget=null;running=autoStart&&!(config.stopAtFixation&&engine.absorbing());
+ setDraft(config,$('preset').value||'custom');$('configStatus').textContent='適用済';$('configStatus').classList.remove('dirty');$('speed').value=config.speed;$('speedValue').textContent=fmt(config.speed,2).replace(/0+$/,'').replace(/\.$/,'');$('batchRuns').value=config.batchRuns;$('batchHorizon').value=config.batchHorizon;
+ batchResults=[];batchMeta=null;batchCancel=false;$('batchCsv').disabled=true;$('batchProgress').style.width='0%';for(const id of ['batchF','batchT','batchOther'])$(id).textContent='－';$('batchStatus').textContent='未実行。大きな個体数・反復回数は時間がかかります。';$('batchSummary').textContent='上限まで共存した試行は未吸収として区別します。変異がある場合、一時的な単一化を吸収固定と呼びません。';resetVisuals();recordHistory('initial');addEvent('実験開始。N='+config.population+'、seed='+config.seed);renderWorld();renderMatrix();initChallenge();updateUI();
+ if(config.sound&&autoStart)ensureAudio();
+}
+function updateUI(){
+ const N=config.population,n=engine.counts,{pi}=birthWeights(n,engine.A,config),gen=engine.tick/N;
+ $('genValue').textContent=fmt(gen,2);$('eventValue').textContent=engine.tick.toLocaleString()+' birth–death events';$('fValue').innerHTML=fmt(n[0]/N*100,1)+'<span style="font-size:12px">%</span>';$('countValue').textContent=n[0]+' / '+N;
+ const gap=pi[0]-pi[1];$('gapValue').textContent=(gap>=0?'+':'')+fmt(gap,3);$('gapValue').style.color=Math.abs(gap)<EPS?'var(--fg)':gap>0?'var(--f)':'var(--t)';$('accuracyValue').innerHTML=fmt(inf.accuracy*100,1)+'<span style="font-size:12px">%</span>';
+ ['F','T','H'].forEach((s,i)=>{$('legend'+s).textContent=n[i]||0;$('bar'+s).style.width=((n[i]||0)/N*100)+'%'});$('legendHybrid').hidden=!config.hybridEnabled;
+ $('arenaLabel').textContent=N+' organisms / '+(worldVersion?'intervened world #'+worldVersion:'well-mixed population');$('seedLabel').textContent='seed: '+config.seed;
+ $('playBtn').textContent=running?'Ⅱ 一時停止':'▶ 開始';$('playBtn').setAttribute('aria-label',running?'実験を一時停止':'実験を開始');$('runStatus').textContent=batchBusy?'BATCH':fastTarget!==null?'FAST FORWARD':running?'RUNNING':engine.absorbing()?'FIXED':gen>=config.maxGenerations?'LIMIT':'PAUSED';$('runStatus').classList.toggle('running',running);
+ $('soundBtn').textContent=config.sound?'音 ON':'音 OFF';$('soundBtn').setAttribute('aria-pressed',String(config.sound));
+ for(const id of ['applyBtn','resetBtn','shuffleSeed','playBtn','stepBtn','fastBtn','flipBtn','rescueBtn'])$(id).disabled=batchBusy;
+ const fixed=engine.fixed();$('winnerBanner').classList.toggle('active',engine.absorbing());if(engine.absorbing()){$('winnerTitle').textContent=SHORT[fixed]+' が固定';$('winnerTitle').style.color=COLORS[fixed];$('winnerSub').textContent='世代 '+fmt(gen,2)+' · 再導入・別の乱数種で続ける'}
+ if(config.mutation>0&&fixed>=0)$('arenaCaption').textContent='一時的に単一戦略になっています。変異があるので吸収固定ではありません。';else if(droppedHistory)$('arenaCaption').textContent='履歴上限により古い'+droppedHistory+'行を削除。CSVは保持している履歴のみです。';else $('arenaCaption').textContent='有限集団では、期待利得が高い側でも偶然に絶滅する可能性があります。';
+ if(selectedSlot>=0){const a=agents[selectedSlot];$('inspector').textContent='スロット #'+(a.slot+1)+' / 個体 #'+a.serial+' / '+NAMES[a.type]+' / 誕生 '+fmt(a.born,2)+'世代 / この個体の出生回数 '+a.offspring+' / 系統 #'+a.lineage}
+}
+function renderMatrix(){
+ const k=matrix.length;let html='<table class="payoff-table"><thead><tr><th>自分 ＼ 相手</th>';for(let j=0;j<k;j++)html+='<th style="color:'+COLORS[j]+'">'+SHORT[j]+'</th>';html+='</tr></thead><tbody>';
+ for(let i=0;i<k;i++){html+='<tr><td style="color:'+COLORS[i]+'">'+SHORT[i]+'</td>';for(let j=0;j<k;j++)html+='<td>'+fmt(matrix[i][j])+'</td>';html+='</tr>'}html+='</tbody></table>';$('matrix').innerHTML=html;
+ const d0=matrix[0][0]-matrix[1][0],d1=matrix[0][1]-matrix[1][1];let label;
+ if(Math.abs(d0)<EPS&&Math.abs(d1)<EPS)label='FとTの期待利得は一致。費用も同じなら、差は遺伝的浮動のみ。';else if(d0>=-EPS&&d1>=-EPS)label='この行列ではFがTを弱く優越（少なくとも一方で厳密）。';else if(d0<=EPS&&d1<=EPS)label='この行列ではTがFを弱く優越。';else label='優劣が相手に依存する行列です。';
+ $('dominance').textContent=label+' 表は費用控除前。F費用='+config.costF+'、T費用='+config.costT+(config.hybridEnabled?'、H費用='+config.costH:'')+'。';
+ const rho=analyticalFixation(config,matrix,engine.counts[0]);$('fixationNote').textContent=rho===null?'固定確率の厳密表示は「二戦略・無変異・正の出生重み」の場合だけです。':'この時点のF '+engine.counts[0]+'/'+config.population+' から、環境を固定した場合の最終F固定確率：'+fmt(rho*100,3)+'%（Moran吸収確率の直接計算）。';
+}
+function renderWorld(){
+ const dim=world.prior.length+' states → '+inf.px.length+' signals';$('worldDimensions').textContent=dim;let html='';
+ for(const x of inf.active){const map=inf.map[x];html+='<div class="signal-card"><h3>x'+(x+1)+' <span class="tiny muted">P='+fmt(inf.px[x],3)+'</span></h3><div class="scores"><span class="f">F '+fmt(inf.F[x],2)+'</span><span class="t">T '+fmt(inf.T[x],2)+'</span></div><small>MAP：w'+(map+1)+' ('+fmt(inf.post[x][map]*100,1)+'%)'+(config.hybridEnabled?' / H '+fmt(inf.H[x],2):'')+'</small><div class="posterior">';for(let w=0;w<world.prior.length;w++)html+='<i style="display:block;width:'+inf.post[x][w]*100+'%;background:'+stateColor(w,world.prior.length)+'" title="w'+(w+1)+': '+fmt(inf.post[x][w],4)+'"></i>';html+='</div></div>'}
+ $('signals').innerHTML=html;let table='<table class="data-table"><thead><tr><th>状態</th><th>μ(w)</th><th>f(w)</th>';for(let x=0;x<inf.px.length;x++)table+='<th>P(x'+(x+1)+'|w)</th>';table+='</tr></thead><tbody>';for(let w=0;w<world.prior.length;w++){table+='<tr><td>w'+(w+1)+'</td><td>'+fmt(world.prior[w],5)+'</td><td>'+fmt(world.fitness[w],4)+'</td>';for(let x=0;x<inf.px.length;x++)table+='<td>'+fmt(world.likelihood[w][x],5)+'</td>';table+='</tr>'}table+='</tbody></table>';$('worldTable').innerHTML=table;
+}
+/* ---------- Purely visual population and event rendering ---------- */
+const contexts=new Map();
+function canvasFrame(canvas){
+ const rect=canvas.getBoundingClientRect(),w=rect.width,h=rect.height;if(!w||!h)return null;const dpr=Math.min(window.devicePixelRatio||1,2);
+ if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr)}
+ let ctx=contexts.get(canvas);if(!ctx){ctx=canvas.getContext('2d');contexts.set(canvas,ctx)}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);return {ctx,w,h};
+}
+function stateColor(i,n){return 'hsl('+(195+i*190/Math.max(1,n-1))+',55%,65%)'}
+function organism(ctx,type,x,y,r,phase=0,alpha=1,outline=false){
+ ctx.save();ctx.translate(x,y);ctx.globalAlpha=alpha;ctx.fillStyle=COLORS[type];ctx.strokeStyle=COLORS[type];ctx.lineWidth=1.35;
+ ctx.beginPath();if(type===0){ctx.ellipse(0,0,r*1.05,r*.85,Math.sin(phase)*.2,0,Math.PI*2)}else if(type===1){ctx.moveTo(0,-r*1.12);ctx.lineTo(r*.95,r*.82);ctx.lineTo(-r*.95,r*.82);ctx.closePath()}else{for(let j=0;j<6;j++){const a=Math.PI/3*j+.2;if(j===0)ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);else ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath()}
+ if(outline)ctx.stroke();else{ctx.fill();ctx.fillStyle='#102733';const eye=Math.max(1,r*.11);ctx.beginPath();ctx.arc(-r*.28,-r*.08,eye,0,Math.PI*2);ctx.arc(r*.28,-r*.08,eye,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#102733';ctx.lineWidth=.8;if(r>6){ctx.beginPath();ctx.arc(0,r*.15,r*.22,.1,Math.PI-.1);ctx.stroke()}}
+ ctx.restore();
+}
+function drawArena(){
+ const f=canvasFrame($('arena'));if(!f)return;const {ctx,w,h}=f,cx=w*.5,cy=h*.52,rx=w*.435,ry=h*.355,N=config.population;
+ const bg=ctx.createRadialGradient(cx,cy,10,cx,cy,w*.6);bg.addColorStop(0,'#172d39');bg.addColorStop(.65,'#0d202e');bg.addColorStop(1,'#0a1521');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+ ctx.lineWidth=.6;ctx.strokeStyle='#28465b42';const spacing=32;
+ for(let y=10;y<h;y+=spacing){for(let x=10+(Math.round(y/spacing)%2)*16;x<w;x+=spacing){ctx.beginPath();ctx.arc(x,y,.8,0,Math.PI*2);ctx.stroke()}}
+ ctx.save();ctx.translate(cx,cy);ctx.scale(1,ry/rx);for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(0,0,rx+(i-1)*9,0,Math.PI*2);ctx.strokeStyle=i===1?'#395b6b88':'#2a4c5e3b';ctx.lineWidth=i===1?1:.6;ctx.stroke()}ctx.restore();
+ const baseR=clamp(Math.sqrt(w*h/N)*.168,3.2,10.5),move=config.motion&&!reducedMotion;
+ for(let i=0;i<agents.length;i++){const a=agents[i],theta=i*2.399963229728653,rad=Math.sqrt((i+.5)/N)*.92;const jig=move?Math.sin(visualTime*.55+a.phase)*3:0;a.x=cx+Math.cos(theta)*rx*rad+jig;a.y=cy+Math.sin(theta)*ry*rad+(move?Math.cos(visualTime*.65+a.phase)*3:0)}
+ effects=effects.filter(e=>visualTime-e.birth<config.effectSeconds);
+ for(const e of effects){const p=(visualTime-e.birth)/config.effectSeconds,from=agents[e.from],to=agents[e.to];if(!from||!to)continue;const mx=(from.x+to.x)/2+(to.y-from.y)*e.curve*.45,my=(from.y+to.y)/2-(to.x-from.x)*e.curve*.45;ctx.save();ctx.globalAlpha=(1-p)*.55;ctx.strokeStyle=COLORS[e.type];ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(from.x,from.y);ctx.quadraticCurveTo(mx,my,to.x,to.y);ctx.stroke();const t=Math.min(1,p*2),px=(1-t)**2*from.x+2*(1-t)*t*mx+t*t*to.x,py=(1-t)**2*from.y+2*(1-t)*t*my+t*t*to.y;ctx.fillStyle=COLORS[e.type];if(config.glow){ctx.shadowColor=COLORS[e.type];ctx.shadowBlur=10}ctx.beginPath();ctx.arc(px,py,2.6,0,Math.PI*2);ctx.fill();ctx.restore();if(p>.35){ctx.globalAlpha=(1-p)*.5;ctx.strokeStyle=COLORS[e.type];ctx.beginPath();ctx.arc(to.x,to.y,baseR+(p-.35)*28,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;if(e.mutation){ctx.fillStyle=COLORS[e.type];ctx.font='9px '+getComputedStyle(document.documentElement).getPropertyValue('--mono');ctx.fillText('MUT',to.x+8,to.y-9-p*12)}}}
+ for(const a of agents){const bornAgo=visualTime-a.changed,growth=bornAgo>=0&&bornAgo<.28?.55+.45*bornAgo/.28:1;ctx.save();if(config.glow&&N<=600){ctx.shadowColor=COLORS[a.type];ctx.shadowBlur=bornAgo<.6?14:5}organism(ctx,a.type,a.x,a.y,baseR*growth,a.phase+visualTime*.4,.85);ctx.restore();if(a.slot===selectedSlot){ctx.strokeStyle='#e8f2fa';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(a.x,a.y,baseR+5,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}}
+ const pct=engine.counts[0]/N;ctx.fillStyle='#5ce8bf';ctx.font='10px ui-monospace,monospace';ctx.textAlign='right';ctx.fillText('F '+fmt(pct*100,1)+'%',w-18,23);ctx.fillStyle='#809ab0';ctx.fillText('N = '+N,w-18,39);ctx.textAlign='left';
+}
+function drawHistory(){const f=canvasFrame($('historyChart'));if(!f||!history.length)return;const {ctx,w,h}=f,l=33,r=10,t=10,b=25,cw=w-l-r,ch=h-t-b;const first=history[0].generation,last=Math.max(first+1,engine.tick/config.population);ctx.font='10px ui-monospace,monospace';
+ for(const p of [0,.5,1]){const y=t+(1-p)*ch;ctx.strokeStyle='#2a3d51';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(l,y);ctx.lineTo(w-r,y);ctx.stroke();ctx.fillStyle='#8ea5b9';ctx.fillText(Math.round(p*100)+'%',1,y+3)}
+ for(let i=0;i<engine.k;i++){ctx.beginPath();ctx.strokeStyle=COLORS[i];ctx.lineWidth=i===0?2:1.6;let firstPoint=true;const stride=Math.max(1,Math.floor(history.length/Math.max(1,cw*2)));for(let j=0;j<history.length;j+=stride){const row=history[j],x=l+(row.generation-first)/(last-first)*cw,y=t+(1-row.shares[i])*ch;if(firstPoint){ctx.moveTo(x,y);firstPoint=false}else ctx.lineTo(x,y)}ctx.lineTo(l+(engine.tick/config.population-first)/(last-first)*cw,t+(1-engine.counts[i]/config.population)*ch);ctx.stroke()}
+ for(const event of actions){const gen=event.tick/config.population;if(gen<first)continue;const x=l+(gen-first)/(last-first)*cw;ctx.strokeStyle='#f0cd8366';ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(x,t);ctx.lineTo(x,t+ch);ctx.stroke();ctx.setLineDash([])}
+ ctx.fillStyle='#8ea5b9';ctx.textAlign='left';ctx.fillText(fmt(first,0),l,h-5);ctx.textAlign='right';ctx.fillText(fmt(last,1)+' gen',w-r,h-5);ctx.textAlign='left';
+}
+function drawWorldChart(){const f=canvasFrame($('worldChart'));if(!f)return;const {ctx,w,h}=f,left=32,right=34,top=22,bottom=27,cw=w-left-right,ch=h-top-bottom,n=world.prior.length,maxF=Math.max(...world.fitness,1e-9),maxP=Math.max(...world.prior,1e-9),step=cw/n;ctx.font='9px ui-monospace,monospace';ctx.fillStyle='#9bb4c8';ctx.fillText('f(w)',0,13);ctx.fillText('μ(w)',w-32,13);
+ for(let i=0;i<n;i++){const x=left+step*i,y=top+ch*(1-world.fitness[i]/maxF);ctx.fillStyle=stateColor(i,n);ctx.globalAlpha=.65;ctx.fillRect(x+step*.18,y,Math.max(1,step*.64),top+ch-y);ctx.globalAlpha=1;if(n<=16||i%Math.ceil(n/12)===0){ctx.fillStyle='#859fb6';ctx.fillText('w'+(i+1),x+step*.18,h-8)}}ctx.beginPath();ctx.strokeStyle='#f0cd83';ctx.lineWidth=1.5;for(let i=0;i<n;i++){const x=left+step*(i+.5),y=top+ch*(1-world.prior[i]/maxP);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.stroke();ctx.fillStyle='#8fa9bf';ctx.fillText(fmt(maxF,1),0,top+4);ctx.fillText('0',18,top+ch);ctx.textAlign='right';ctx.fillText(fmt(maxP,2),w,top+4);ctx.textAlign='left';}
+function drawDuel(){const f=canvasFrame($('duel'));if(!f||!duelState)return;const {ctx,w,h}=f,m=inf.active.length,phase=clamp((visualTime-duelStart)/config.duelSeconds,0,1);ctx.font='11px ui-monospace,monospace';
+ const selected=[...new Set(duelState.choice)];const shown=[...selected,...inf.active.filter(x=>!selected.includes(x))].slice(0,12).sort((a,b)=>a-b),num=shown.length,pad=30,step=(w-pad*2)/Math.max(1,num-1),resourceY=83;
+ const xPos=x=>{let i=shown.indexOf(x);if(i<0)return w-16;return num===1?w/2:pad+i*step};
+ for(const x of shown){const px=xPos(x);ctx.strokeStyle='#3a5870';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(px,resourceY+15,13,4,0,0,Math.PI*2);ctx.stroke();const pulse=Math.sin(visualTime*2+x)*2;ctx.fillStyle='#759aae';ctx.beginPath();ctx.moveTo(px,resourceY-13+pulse);ctx.lineTo(px+8,resourceY+pulse);ctx.lineTo(px,resourceY+9+pulse);ctx.lineTo(px-8,resourceY+pulse);ctx.closePath();ctx.stroke();ctx.textAlign='center';ctx.fillStyle='#c0d2e0';ctx.fillText('x'+(x+1),px,resourceY+38)}
+ for(let side=0;side<2;side++){const type=duelState.types[side],startX=side===0?35:w-35,startY=side===0?22:h-18,targetX=xPos(duelState.choice[side]),targetY=resourceY+(side===0?-24:24);const delay=duelState.order[0]===side?0:.13,t=clamp((phase-delay)/.35,0,1),smooth=t*t*(3-2*t),x=startX+(targetX-startX)*smooth,y=startY+(targetY-startY)*smooth;ctx.strokeStyle=COLORS[type]+'55';ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(startX,startY);ctx.lineTo(targetX,targetY);ctx.stroke();ctx.setLineDash([]);organism(ctx,type,x,y,10,visualTime);ctx.textAlign=side===0?'left':'right';ctx.fillStyle=COLORS[type];ctx.fillText(SHORT[type],side===0?2:w-2,side===0?23:h-10);if(phase>.62){const observed=duelState.choice[side],state=duelState.worldByX[observed];ctx.textAlign='center';ctx.fillStyle=COLORS[type];ctx.fillText('+'+fmt(world.fitness[state],1),clamp(x,24,w-24),side===0?y-17:y+24)}}
+ ctx.textAlign='left';if(m>12){ctx.fillStyle='#8299ad';ctx.fillText('＋'+(m-12)+' signals',w-96,12)}
+ const choiceText='F→x'+(duelState.choice[0]+1)+' / T→x'+(duelState.choice[1]+1)+'。'+(duelState.order[0]===0?'F':'T')+'が先手。';
+ if(phase>.65)$('duelText').textContent=choiceText+' 得点は事後分布から抽選した実現値。集団更新は上の期待利得行列を使用。';else $('duelText').textContent=choiceText+' 全戦略に同じ信号。'+(config.exclusive?'先に取られた資源は選べません。':'独占OFF：同じ資源も共有可能です。');
+}
+/* ---------- Optional, locally synthesized sound ---------- */
+function ensureAudio(){try{if(!audio){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;audio=new C()}if(audio.state==='suspended')audio.resume().catch(()=>{});return audio}catch(e){toast('この環境では効果音を開始できません。');return null}}
+function tone(type,now){if(!config.sound||config.volume===0)return;if(now-lastSound<.14&&type!=='win')return;const a=audio;if(!a||a.state!=='running')return;lastSound=now;try{const o=a.createOscillator(),g=a.createGain();o.type='sine';const freq=type==='win'?660:type==='mutation'?740:type===0?420:type===1?280:530;o.frequency.setValueAtTime(freq,a.currentTime);o.frequency.exponentialRampToValueAtTime(freq*1.35,a.currentTime+.075);g.gain.setValueAtTime(.0001,a.currentTime);g.gain.exponentialRampToValueAtTime(Math.max(.0001,config.volume*.18),a.currentTime+.008);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+.12);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.14)}catch(e){/* Sound must never stop a simulation. */}}
+/* ---------- Player challenge: separate worlds and separate randomness ---------- */
+function initChallenge(){$('challengeRoundsNote').textContent=config.challengeRounds;$('challengeNext').onclick=nextChallenge;challenge={round:0,points:0,optimalTotal:0,actual:0,ghostActual:0,streak:0,bestStreak:0,correct:0,answered:false,rng:new RNG(config.seed+'|challenge-reveal')};newChallengeRound()}
+function newChallengeRound(){
+ const c=Object.assign(clone(DEFAULTS),{model:'generated',worldStates:6,signals:3,channel:'bands',noise:.35,priorKind:'random',landscape:'rugged',seed:config.seed+'|challenge-world|'+challenge.round});challenge.world=makeWorld(c);challenge.inf=inferWorld(challenge.world,.5);challenge.states=challenge.inf.active.map(x=>weighted(challenge.inf.post[x],challenge.rng.next()));challenge.answered=false;challenge.selected=-1;
+ $('challengeNext').disabled=true;$('challengeNext').textContent=challenge.round+1===config.challengeRounds?'結果 →':'次の世界 →';renderChallenge();
+}
+function renderChallenge(){
+ if(!challenge)return;const q=challenge,show=$('hintToggle').checked,inference=q.inf;let html='';for(const x of inference.active){const m=inference.map[x];html+='<button class="choice'+(q.selected===x?' selected':'')+'" data-choice="'+x+'" '+(q.answered?'disabled':'')+'><span class="glyph">'+['◈','△','○'][x]+'</span><span>信号 x'+(x+1)+'</span><small>最もありそう：w'+(m+1)+' / f='+fmt(q.world.fitness[m],1)+'</small><small>その確率 '+fmt(inference.post[x][m]*100,1)+'%</small>'+(show?'<small class="f">期待利得 '+fmt(inference.F[x],2)+'</small>':'')+'</button>'}$('challengeCards').innerHTML=html;
+ $('challengeRound').textContent=(q.round>=config.challengeRounds?'COMPLETE':'ROUND '+String(q.round+1).padStart(2,'0')+' / '+config.challengeRounds);$('challengePoints').textContent='期待効率 '+(q.optimalTotal?fmt(q.points/q.optimalTotal*100,1)+'%':'－');$('challengeStreak').textContent='連続最適 '+q.streak;
+ if(!q.answered){let text='<strong>候補を1つに決めつけず、確率も見て選ぶ。</strong><br>';for(const x of inference.active){text+='<span class="mono">x'+(x+1)+': </span>'+inference.post[x].map((p,w)=>'f='+fmt(q.world.fitness[w],1)+' ('+fmt(p*100,0)+'%)').join(' / ')+'<br>'}$('challengeFeedback').innerHTML=text;$('challengeActual').textContent='実現得点は '+fmt(q.actual,1)+' / Fの累計実現得点 '+fmt(q.ghostActual,1)}
+}
+function answerChallenge(x){
+ const q=challenge;if(q.answered||q.round>=config.challengeRounds)return;q.answered=true;q.selected=x;const best=Math.max(...q.inf.F),optimal=Math.abs(q.inf.F[x]-best)<EPS,ghost=bestChoices(q.inf.F,q.inf.active)[0];q.points+=q.inf.F[x];q.optimalTotal+=best;q.actual+=q.world.fitness[q.states[x]];q.ghostActual+=q.world.fitness[q.states[ghost]];if(optimal){q.correct++;q.streak++}else q.streak=0;q.bestStreak=Math.max(q.bestStreak,q.streak);renderChallenge();
+ const trueState=q.states[x];$('challengeFeedback').innerHTML='<strong style="color:'+(optimal?COLORS[0]:COLORS[1])+'">'+(optimal?'期待利得を最大化した。':'期待利得がもっと高い選択肢があった。')+'</strong><br>あなた：E[f]='+fmt(q.inf.F[x],3)+' / 最適：'+fmt(best,3)+'。<br>今回の中身は w'+(trueState+1)+'、実現利得 '+fmt(q.world.fitness[trueState],2)+'。<br><span class="muted">期待値の高い選択でも、その1回の結果が良いとは限りません。選び方と幸運を区別します。</span>';
+ $('challengeActual').textContent='実現得点 '+fmt(q.actual,1)+' / F '+fmt(q.ghostActual,1);$('challengeNext').disabled=false;tone(optimal?'win':1,visualTime);
+}
+function nextChallenge(){
+ const q=challenge;if(!q.answered)return;q.round++;
+ if(q.round>=config.challengeRounds){$('challengeRound').textContent='COMPLETE / '+config.challengeRounds+' rounds';$('challengeFeedback').innerHTML='<strong class="f">期待効率 '+fmt(q.points/q.optimalTotal*100,1)+'%</strong><br>最適選択 '+q.correct+' / '+config.challengeRounds+'問 · 最長連続 '+q.bestStreak+'問<br>累計の実現利得：あなた '+fmt(q.actual,1)+'、F '+fmt(q.ghostActual,1)+'。<br><span class="muted">採点は実現利得ではなく期待利得。偶然の大当たりを、戦略の正しさと混同しないためです。</span>';$('challengeNext').textContent='もう一度';$('challengeNext').onclick=()=>{ $('challengeNext').onclick=nextChallenge;initChallenge()};return}
+ newChallengeRound();
+}
+/* ---------- Replicated simulations, chunked to keep the browser responsive ---------- */
+function wilson(success,n){if(!n)return [0,1];const z=1.959963984540054,p=success/n,d=1+z*z/n,center=(p+z*z/(2*n))/d,r=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n))/d;return [Math.max(0,center-r),Math.min(1,center+r)]}
+async function startBatch(){
+ if(batchBusy)return;const runs=Number($('batchRuns').value),horizon=Number($('batchHorizon').value);
+ if(!Number.isInteger(runs)||runs<1||runs>1000||!Number.isInteger(horizon)||horizon<1||horizon>10000){toast('反復は1〜1000回、上限は1〜10000世代の整数です。');return}
+ batchBusy=true;batchCancel=false;running=false;fastTarget=null;batchResults=[];$('batchStart').disabled=true;$('batchCancel').disabled=false;$('batchCsv').disabled=true;const cfg=clone(config),A=matrix.map(r=>r.slice());batchMeta={config:cfg,world:clone(world),worldVersion,runs,horizon,seedRule:cfg.seed+'|batch|{index}',startedAt:new Date().toISOString()};updateUI();
+ let current=new Engine(cfg,A,cfg.seed+'|batch|0');const maxTicks=cfg.population*horizon;
+ try{
+  while(batchResults.length<runs&&!batchCancel){
+   const deadline=performance.now()+9;let operations=0;
+   do{
+    if(current.absorbing()||current.tick>=maxTicks){const fixed=current.absorbing()?current.fixed():-1;batchResults.push({index:batchResults.length,seed:cfg.seed+'|batch|'+batchResults.length,tick:current.tick,generation:current.tick/cfg.population,counts:current.counts.slice(),fixed,status:fixed>=0?'fixed_'+SHORT[fixed]:'censored'});if(batchResults.length>=runs)break;current=new Engine(cfg,A,cfg.seed+'|batch|'+batchResults.length);continue}
+    current.step();operations++;
+   }while(operations<10000&&performance.now()<deadline);
+   updateBatchProgress(runs,horizon);await new Promise(resolve=>requestAnimationFrame(resolve));
+  }
+ }catch(e){toast('反復実験エラー: '+e.message)}finally{
+  batchBusy=false;$('batchStart').disabled=false;$('batchCancel').disabled=true;$('batchCsv').disabled=batchResults.length===0;updateBatchProgress(runs,horizon,true);updateUI();
+ }
+}
+function updateBatchProgress(runs,horizon,finished=false){
+ const n=batchResults.length,nF=batchResults.filter(r=>r.fixed===0).length,nT=batchResults.filter(r=>r.fixed===1).length,nH=batchResults.filter(r=>r.fixed===2).length,unresolved=n-nF-nT-nH;
+ $('batchProgress').style.width=n/runs*100+'%';$('batchF').textContent=nF;$('batchT').textContent=nT;$('batchOther').textContent=unresolved+' / '+nH;
+ $('batchStatus').textContent=(finished?(batchCancel?'中止。完了済み試行のみ集計：':'完了：'):'実行中：')+n+' / '+runs+'試行 · 上限 '+horizon+'世代';
+ if(!n)return;const interval=wilson(nF,n),allFixed=unresolved===0;const rho=analyticalFixation(batchMeta.config,matrix,initialCounts(batchMeta.config)[0]);
+ $('batchSummary').textContent='上限内のF吸収固定率 '+fmt(nF/n*100,1)+'% / Wilson 95%区間 ['+fmt(interval[0]*100,1)+', '+fmt(interval[1]*100,1)+']%。未吸収 '+unresolved+'、H固定 '+nH+'。'+(allFixed?'全試行で吸収を観測。':'未吸収をT勝利に数えていません。上限内の固定率と最終固定確率は別です。')+(rho===null?'':' 理論上の最終F固定確率 '+fmt(rho*100,3)+'%。')+(batchMeta.config.mutation>0?' 変異あり：恒久的な吸収固定はありません。':'');
+}
+/* ---------- File export / import / share (no backend) ---------- */
+function downloadText(name,text,mime='text/plain;charset=utf-8'){const blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+function csvCell(v){if(typeof v==='number')return String(v);let s=String(v??'');if(/^[=+\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
+function csvText(rows){return '\ufeff'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n')+'\r\n'}
+function exportHistory(){recordHistory('export');const rows=[['tick','generation','F','T','H','share_F','share_T','share_H','payoff_F','payoff_T','payoff_H','weight_F','weight_T','weight_H','mean_payoff','world_version','reason']];for(const r of history)rows.push([r.tick,r.generation,...[0,1,2].map(i=>r.counts[i]||0),...[0,1,2].map(i=>r.shares[i]||0),...[0,1,2].map(i=>r.payoffs[i]??''),...[0,1,2].map(i=>r.weights[i]??''),r.meanPayoff,r.worldVersion,r.reason]);downloadText('fitness_beats_truth_history.csv',csvText(rows),'text/csv;charset=utf-8')}
+function currentWorldConfig(){const c=clone(config);if(worldVersion){c.model='custom';c.customWorld=clone(world)}return c}
+function toBase64(s){const bytes=new TextEncoder().encode(s);let str='';for(const b of bytes)str+=String.fromCharCode(b);return btoa(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function fromBase64(s){const normalized=s.replace(/-/g,'+').replace(/_/g,'/');const binary=atob(normalized);return new TextDecoder('utf-8',{fatal:true}).decode(Uint8Array.from(binary,c=>c.charCodeAt(0)))}
+function openJSON(useWorld=false){let c=clone(draft);if(useWorld){c=currentWorldConfig();c.model='custom';c.customWorld=clone(world)}$('jsonEditor').value=JSON.stringify(c,null,2);$('jsonError').textContent='';$('jsonDialog').showModal()}
+function safeAction(fn){return (...args)=>{try{return fn(...args)}catch(e){toast(e.message||String(e));console.error(e)}}}
+/* ---------- Interventions are explicit and logged ---------- */
+function flipWorld(){
+ if(batchBusy)return;world.fitness.reverse();worldVersion++;inf=inferWorld(world,config.alpha);matrix=expectedMatrix(inf,config);engine.A=matrix.map(r=>r.slice());actions.push({tick:engine.tick,type:'reverse_fitness',worldVersion,fitness:world.fitness.slice()});recordHistory('reverse_fitness');addEvent('外部介入：適応度配列を反転。両戦略の評価を即時更新。');renderWorld();renderMatrix();newDuel();updateUI();
+}
+function rescueMinority(){
+ if(batchBusy)return;let to=0,from=0;for(let i=1;i<engine.k;i++){if(engine.counts[i]<engine.counts[to])to=i;if(engine.counts[i]>engine.counts[from])from=i}if(to===from){toast('個体数が同率のため再導入先を決められません。1イベント進めてください。');return}
+ const count=Math.min(config.rescueCount,engine.counts[from]);for(let i=0;i<count;i++){const slot=groups[from][visualRng.int(groups[from].length)];engine.counts[from]--;engine.counts[to]++;moveAgentType(slot,to);agents[slot].born=engine.tick/config.population;agents[slot].changed=visualTime;agents[slot].offspring=0;agents[slot].lineage=-(actions.length+1);agents[slot].serial='I'+(actions.length+1)+'-'+i}
+ actions.push({tick:engine.tick,type:'reintroduce',from,to,count});recordHistory('reintroduce');addEvent('外部介入：'+SHORT[from]+' '+count+'個体を '+SHORT[to]+' に置換。進化による復活ではありません。',SHORT[to]);renderMatrix();updateUI();
+}
+/* ---------- Embedded numerical and invariance tests ---------- */
+function selfTest(){
+ const out=[];const check=(name,fn)=>{try{fn();out.push({name,pass:true})}catch(e){out.push({name,pass:false,error:e.message})}};const near=(a,b,tol=1e-9)=>{if(Math.abs(a-b)>tol)throw Error(a+' != '+b)};const assert=(x,msg='assertion failed')=>{if(!x)throw Error(msg)};
+ const c=validateConfig(DEFAULTS),w=makeWorld(c),q=inferWorld(w,c.alpha),A=expectedMatrix(q,c);
+ check('論文の周辺確率 13/28, 15/28',()=>{near(q.px[0],13/28);near(q.px[1],15/28)});
+ check('論文の事後分布とMAP',()=>{[1/13,9/13,3/13].forEach((v,i)=>near(q.post[0][i],v));[1/5,1/5,3/5].forEach((v,i)=>near(q.post[1][i],v));assert(q.map[0]===1&&q.map[1]===2)});
+ check('Fの期待利得 5 / 6.6、Tの評価 4 / 3',()=>{near(q.F[0],5);near(q.F[1],6.6);near(q.T[0],4);near(q.T[1],3)});
+ check('公平な資源競争の行列 [[5.8,6.6],[5,5.8]]',()=>{near(A[0][0],5.8);near(A[0][1],6.6);near(A[1][0],5);near(A[1][1],5.8)});
+ check('完全情報ならFとTが一致',()=>{const v={prior:[.2,.3,.5],likelihood:[[1,0,0],[0,1,0],[0,0,1]],fitness:[8,1,5]},p=inferWorld(v,.5),a=expectedMatrix(p,c);p.F.forEach((x,i)=>near(x,p.T[i]));for(const row of a)for(const x of row)near(x,6.5);near(p.accuracy,1)});
+ check('一定適応度・同率選択の中立性',()=>{const v=clone(w);v.fitness.fill(7);const a=expectedMatrix(inferWorld(v,.5),c);for(const row of a)for(const x of row)near(x,7)});
+ check('独占OFFの利得',()=>{const cc=Object.assign(clone(c),{exclusive:false}),a=expectedMatrix(q,cc);near(a[0][0],6.6);near(a[0][1],6.6);near(a[1][0],5);near(a[1][1],5)});
+ check('Hybridのα=0とα=1',()=>{const x=inferWorld(w,0),y=inferWorld(w,1);x.H.forEach((v,i)=>near(v,x.F[i]));y.H.forEach((v,i)=>near(v,y.T[i]))});
+ check('同じ種の出生死亡系列は完全一致',()=>{const e1=new Engine(c,A),e2=new Engine(c,A),unrelated=new RNG('render');for(let i=0;i<2000;i++){e1.step();for(let j=0;j<7;j++)unrelated.next();e2.step();assert(e1.counts.every((n,k)=>n===e2.counts[k]))}assert(e1.rng.state===e2.rng.state)});
+ check('変異あり三戦略でN保存・非負',()=>{const cc=Object.assign(clone(c),{hybridEnabled:true,initialH:20,mutation:.12}),a=expectedMatrix(q,cc),e=new Engine(cc,a);for(let i=0;i<5000;i++){e.step();assert(e.counts.reduce((x,y)=>x+y,0)===cc.population);assert(e.counts.every(v=>Number.isInteger(v)&&v>=0))}});
+ check('選択s=0の固定確率は初期比率',()=>{const cc=Object.assign(clone(c),{selection:0});near(analyticalFixation(cc,A,48),48/cc.population)});
+ check('無変異の固定は吸収状態',()=>{const cc=Object.assign(clone(c),{initialF:100}),e=new Engine(cc,A);for(let i=0;i<500;i++)e.step();assert(e.counts[0]===cc.population&&e.absorbing())});
+ check('全出生重み0でも正常な中立更新',()=>{const cc=Object.assign(clone(c),{costF:100,costT:100}),e=new Engine(cc,A);for(let i=0;i<1000;i++)e.step();assert(e.counts.reduce((a,b)=>a+b,0)===c.population)});
+ check('初期比率の整数丸めはNを保存',()=>{const cc=Object.assign(clone(c),{population:17,rescueCount:1,hybridEnabled:true,initialF:33.3,initialH:33.3});assert(initialCounts(cc).reduce((a,b)=>a+b,0)===17)});
+ check('不正な確率行列を拒否',()=>{let rejected=false;try{validateWorld({prior:[.5,.5],likelihood:[[0,0],[1,0]],fitness:[1,2]})}catch(e){rejected=true}assert(rejected)});
+ check('欠けた任意世界・未知キーを拒否',()=>{for(const bad of [{model:'custom'},{unknown:2}]){let rejected=false;try{validateConfig(bad)}catch(e){rejected=true}assert(rejected)}});
+ check('日本語・Unicode種の共有往復',()=>{const text='日本語の種 🧬 / hoffman';assert(fromBase64(toBase64(text))===text)});
+ check('30個の生成世界：同一情報・費用0のF弱優越',()=>{for(let i=0;i<30;i++){const cc=Object.assign(clone(c),{model:'generated',seed:'test-'+i}),p=inferWorld(makeWorld(cc),.5),a=expectedMatrix(p,cc);assert(a[0][0]>=a[1][0]-EPS&&a[0][1]>=a[1][1]-EPS)}});
+ return {version:VERSION,passed:out.filter(v=>v.pass).length,total:out.length,tests:out};
+}
+/* ---------- Input events and the render loop ---------- */
+function togglePlay(){if(batchBusy)return;if(running){running=false;fastTarget=null}else{if(engine.tick>=config.maxGenerations*config.population){toast('上限世代です。設定を変更してリセットしてください。');return}if(engine.absorbing()&&config.stopAtFixation){toast('吸収固定しています。少数派を再導入するかリセットしてください。');return}running=true;ensureAudio()}accumulator=0;updateUI()}
+function bindUI(){
+ $('preset').addEventListener('change',()=>{const name=$('preset').value;if(name==='custom'){markDirty();return}const next=Object.assign(clone(DEFAULTS),PRESETS[name].patch);setDraft(next,name);$('configStatus').textContent='未適用';$('configStatus').classList.add('dirty')});
+ $('applyBtn').onclick=safeAction(()=>resetExperiment(draft,true));$('resetBtn').onclick=safeAction(()=>resetExperiment(config,false));$('shuffleSeed').onclick=safeAction(()=>{const c=clone(draft);if(window.crypto&&crypto.getRandomValues)c.seed='seed-'+crypto.getRandomValues(new Uint32Array(1))[0].toString(36);else c.seed='seed-'+Date.now().toString(36);setDraft(c,'custom');$('configStatus').textContent='未適用';$('configStatus').classList.add('dirty')});
+ $('settingsJump').onclick=()=>$('settingsPanel').scrollIntoView({behavior:reducedMotion?'auto':'smooth'});$('playBtn').onclick=togglePlay;$('stepBtn').onclick=safeAction(()=>{if(engine.tick>=config.maxGenerations*config.population)return;running=false;fastTarget=null;if(engine.absorbing()&&config.stopAtFixation){toast('吸収固定です。再導入かリセットをしてください。');return}advanceOne();recordHistory('step');updateUI()});
+ $('fastBtn').onclick=()=>{if(engine.absorbing()&&config.stopAtFixation){toast('吸収固定です。再導入かリセットをしてください。');return}fastTarget=Math.min(engine.tick+100*config.population,config.maxGenerations*config.population);running=true;updateUI()};
+ $('speed').oninput=()=>{config.speed=Number($('speed').value);$('speedValue').textContent=fmt(config.speed,2).replace(/0+$/,'').replace(/\.$/,'');if($('configStatus').textContent==='適用済'){draft.speed=config.speed;$('cfg-speed').value=config.speed}};
+ $('soundBtn').onclick=()=>{config.sound=!config.sound;if(config.sound)ensureAudio();if($('configStatus').textContent==='適用済'){draft.sound=config.sound;$('cfg-sound').checked=config.sound}updateUI()};
+ $('flipBtn').onclick=safeAction(flipWorld);$('rescueBtn').onclick=safeAction(rescueMinority);$('helpBtn').onclick=()=>$('helpDialog').showModal();
+ document.querySelectorAll('[data-close]').forEach(el=>el.onclick=()=>$(el.dataset.close).close());
+ document.querySelectorAll('.tab').forEach(el=>{el.onclick=()=>{document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',String(t===el)));document.querySelectorAll('.tab-content').forEach(p=>p.hidden=p.id!=='panel-'+el.dataset.tab)};el.onkeydown=e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const tabs=[...document.querySelectorAll('.tab')],index=tabs.indexOf(el),next=tabs[(index+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];next.click();next.focus();e.preventDefault()}}});
+ $('arena').addEventListener('click',e=>{const r=$('arena').getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let best=20,slot=-1;for(const a of agents){const distance=Math.hypot(a.x-x,a.y-y);if(distance<best){best=distance;slot=a.slot}}selectedSlot=slot;updateUI()});
+ $('csvBtn').onclick=exportHistory;$('runJsonBtn').onclick=()=>{recordHistory('export');downloadText('fitness_beats_truth_run.json',JSON.stringify({project:'fitness_beats_truth',version:VERSION,startedAt:sessionStart,config,initialWorld,activeWorld:world,worldVersion,payoffMatrix:matrix,tick:engine.tick,counts:engine.counts,rngState:engine.rng.state,history,droppedHistory,actions,events,batch:batchMeta?{metadata:batchMeta,results:batchResults}:null,notes:'Snapshot for analysis; settings import does not resume a run. Dynamics RNG consumes four draws per event.'},null,2),'application/json')};
+ $('jsonBtn').onclick=()=>openJSON();$('worldJsonBtn').onclick=()=>openJSON(true);$('copyWorld').onclick=()=>{$('jsonEditor').value=JSON.stringify(Object.assign(clone(draft),{model:'custom',customWorld:clone(world)}),null,2)};
+ $('jsonApply').onclick=()=>{try{const c=validateConfig(JSON.parse($('jsonEditor').value));setDraft(c,'custom');markDirty();$('jsonDialog').close();toast('設定欄へ反映しました。「設定を適用して開始」で実験に適用します。')}catch(e){$('jsonError').textContent=e.message}};
+ $('exportConfig').onclick=safeAction(()=>downloadText('fitness_beats_truth_config.json',JSON.stringify(validateConfig(draft),null,2),'application/json'));
+ $('importConfig').onclick=()=>$('configFile').click();$('configFile').onchange=async()=>{const file=$('configFile').files[0];if(!file)return;try{if(file.size>1000000)throw Error('設定ファイルは1MB以下にしてください。');const c=validateConfig(JSON.parse(await file.text()));setDraft(c,'custom');markDirty();toast('設定を読み込みました。適用ボタンで開始してください。')}catch(e){toast('設定の読込に失敗: '+e.message)}finally{$('configFile').value=''}};
+ $('shareBtn').onclick=()=>{const url=location.href.split('#')[0]+'#cfg='+toBase64(JSON.stringify(currentWorldConfig()));$('shareUrl').value=url;$('shareDialog').showModal()};$('copyShare').onclick=async()=>{try{await navigator.clipboard.writeText($('shareUrl').value);toast('設定URLをコピーしました。')}catch(e){$('shareUrl').focus();$('shareUrl').select();toast('URLを選択しました。Ctrl+Cでコピーしてください。')}};
+ $('challengeCards').onclick=e=>{const button=e.target.closest('[data-choice]');if(button)answerChallenge(Number(button.dataset.choice))};$('hintToggle').onchange=renderChallenge;$('challengeNext').onclick=nextChallenge;$('challengeReset').onclick=()=>{$('challengeNext').onclick=nextChallenge;initChallenge()};
+ $('batchStart').onclick=startBatch;$('batchCancel').onclick=()=>{batchCancel=true};$('batchCsv').onclick=()=>{const rows=[['index','seed','generation','F','T','H','status','horizon']];for(const r of batchResults)rows.push([r.index,r.seed,r.generation,r.counts[0],r.counts[1],r.counts[2]||0,r.status,batchMeta.horizon]);downloadText('fitness_beats_truth_replicates.csv',csvText(rows),'text/csv;charset=utf-8')};
+ for(const [id,key] of [['batchRuns','batchRuns'],['batchHorizon','batchHorizon']])$(id).onchange=()=>{const v=Number($(id).value),s=SCHEMA.find(x=>x.key===key);if(Number.isInteger(v)&&v>=s.min&&v<=s.max){config[key]=v;if($('configStatus').textContent==='適用済'){draft[key]=v;$('cfg-'+key).value=v}}};
+ $('testBtn').onclick=()=>{const result=selfTest();$('testResult').textContent=result.passed+'/'+result.total+' PASS\n'+result.tests.map(t=>(t.pass?'✓ ':'✗ ')+t.name+(t.error?' — '+t.error:'')).join('\n');toast('内蔵テスト: '+result.passed+'/'+result.total+' PASS')};
+ document.addEventListener('keydown',e=>{if(e.ctrlKey||e.altKey||e.metaKey||e.repeat)return;if(['INPUT','TEXTAREA','SELECT','BUTTON','SUMMARY','A'].includes(document.activeElement?.tagName)||document.querySelector('dialog[open]'))return;if(e.code==='Space'){e.preventDefault();togglePlay()}else if(e.key.toLowerCase()==='n')$('stepBtn').click();else if(e.key.toLowerCase()==='r')$('resetBtn').click();else if(e.key==='?')$('helpDialog').showModal()});
+ document.addEventListener('visibilitychange',()=>{lastFrame=0;accumulator=0});
+}
+function frame(timestamp){
+ try{
+  const dt=lastFrame?Math.min(.1,(timestamp-lastFrame)/1000):0;lastFrame=timestamp;
+  if(!document.hidden){visualTime+=dt;
+   if(running&&!batchBusy){if(fastTarget!==null){const deadline=performance.now()+9;let steps=0;while(engine.tick<fastTarget&&running&&steps<5000&&performance.now()<deadline){advanceOne(false);steps++}if(fastTarget!==null&&engine.tick>=fastTarget){fastTarget=null;running=false;recordHistory('fast_forward')}}else{accumulator+=dt*config.speed*config.population;let steps=0;while(accumulator>=1&&running&&steps<1500){accumulator--;advanceOne(true);steps++}}}
+   if(!batchBusy&&(running||engine.tick===0)&&visualTime-duelStart>=config.duelSeconds)newDuel();
+   drawArena();if(timestamp-lastUI>100){updateUI();drawHistory();drawWorldChart();lastUI=timestamp}drawDuel();
+  }
+ }catch(e){running=false;fastTarget=null;toast('実行を停止しました: '+e.message);console.error(e)}
+ requestAnimationFrame(frame);
+}
+function boot(){
+ createFields();bindUI();let initial=clone(DEFAULTS),preset='paper';
+ try{if(location.hash.startsWith('#cfg=')){if(location.hash.length>200000)throw Error('共有設定が大きすぎます。');initial=validateConfig(JSON.parse(fromBase64(location.hash.slice(5))));preset='custom'}}catch(e){toast('共有設定を読めないため標準設定で起動: '+e.message)}
+ setDraft(initial,preset);resetExperiment(initial,false);requestAnimationFrame(frame);
+}
+window.FBT={version:VERSION,defaults:clone(DEFAULTS),schema:SCHEMA,validateConfig,validateWorld,makeWorld,inferWorld,expectedMatrix,initialCounts,payoffs,birthWeights,Engine,RNG,analyticalFixation,selfTest,
+ getState:()=>({config:clone(config),world:clone(world),matrix:clone(matrix),counts:engine.counts.slice(),tick:engine.tick,rngState:engine.rng.state,running,worldVersion,actions:clone(actions),history:clone(history),batchResults:clone(batchResults),visualCounts:groups.map(g=>g.length)}),
+ reset:(c=DEFAULTS)=>resetExperiment(c,false),advance:(n=1)=>{for(let i=0;i<n;i++)if(!advanceOne(false))break;updateUI()},pause:()=>{running=false;fastTarget=null;updateUI()}};
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta name="google-site-verification" content="282HWwFqX5MAEmjMUQXGFlpHvfHdCSs5btSxB52O1vA" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>男女でジーンズを入れ替えたら、後ろ姿はどう変わる？ シルエット比較実験</title>
+  <meta name="description" content="女性向け・男性向けジーンズを男女で入れ替えたAI比較画像から、腰・臀部・脚のシルエットがどう変わるかを分析。身体差と衣服設計の効果を分けて考える視覚実験。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:title" content="男女でジーンズを入れ替えたら、後ろ姿はどう変わる？">
+  <meta property="og:description" content="身体が一次信号で、ジーンズはその増幅器なのか。2枚の比較画像からシルエットの正体を分解する。">
+  <meta property="og:image" content="img1.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="男女でジーンズを入れ替えたら、後ろ姿はどう変わる？">
+  <meta name="twitter:description" content="身体差と衣服設計の相互作用を、2枚の比較画像から読み解く。">
+  <meta name="twitter:image" content="img1.png">
+
+  <style>
+    html {
+      background: #fff;
+      color: #111;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.9;
+      font-size: 17px;
+    }
+
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 48px 20px 80px;
+    }
+
+    header {
+      margin-bottom: 48px;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.6rem);
+      margin: 0 0 20px;
+    }
+
+    h2 {
+      font-size: 1.9rem;
+      margin: 3.2em 0 1em;
+      padding-bottom: .3em;
+      border-bottom: 1px solid #ddd;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      margin: 2em 0 .7em;
+    }
+
+    p {
+      margin: 1em 0;
+    }
+
+    a {
+      color: #0645ad;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+      margin: 1.6em 0 .6em;
+    }
+
+    figure {
+      margin: 2.2em 0;
+    }
+
+    figcaption {
+      font-size: .9rem;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    blockquote {
+      margin: 2em 0;
+      padding-left: 1.2em;
+      border-left: 4px solid #222;
+      color: #333;
+      font-size: 1.15rem;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .92em;
+      background: #f5f5f5;
+      padding: .1em .25em;
+    }
+
+    pre {
+      overflow-x: auto;
+      background: #f6f6f6;
+      padding: 1em;
+      line-height: 1.6;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5em 0;
+      font-size: .95rem;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: .65em .75em;
+      text-align: left;
+    }
+
+    th {
+      background: #f7f7f7;
+    }
+
+    ul, ol {
+      padding-left: 1.4em;
+    }
+
+    .lead {
+      font-size: 1.18rem;
+      color: #333;
+    }
+
+    .note {
+      font-size: .9rem;
+      color: #666;
+    }
+
+    nav {
+      margin: 2em 0 0;
+      font-size: .95rem;
+    }
+
+    nav a {
+      margin-right: .9em;
+      white-space: nowrap;
+    }
+
+    hr {
+      border: 0;
+      border-top: 1px solid #ddd;
+      margin: 3em 0;
+    }
+
+    footer {
+      margin-top: 4em;
+      padding-top: 1.5em;
+      border-top: 1px solid #ddd;
+      color: #666;
+      font-size: .85rem;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        font-size: 16px;
+      }
+
+      main {
+        padding-top: 32px;
+      }
+
+      h2 {
+        font-size: 1.55rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <article itemscope itemtype="https://schema.org/Article">
+
+    <header>
+      <p class="note">ファッション / 視覚実験 / ジーンズ / シルエット比較</p>
+
+      <h1 itemprop="headline">男女でジーンズを入れ替えたら、後ろ姿はどう変わる？</h1>
+
+      <p class="lead" itemprop="description">
+        女性向けジーンズを男性へ、男性向けジーンズを女性へ。
+        そのとき「女性らしさ」「男性らしさ」はどこまで衣服に支配され、どこから身体そのものに残るのか。
+        2枚のAI生成画像を使って、後ろ姿のシルエットを分解してみる。
+      </p>
+
+      <p class="note">
+        ※このページはファッション形態の視覚分析を目的としたAI生成画像の比較です。
+        実測人体データでも、医学・人類学上の定量実験でもありません。
+      </p>
+
+      <nav aria-label="目次">
+        <a href="#compare">比較画像</a>
+        <a href="#result">結論</a>
+        <a href="#shape">シルエット</a>
+        <a href="#design">ジーンズ設計</a>
+        <a href="#limits">限界</a>
+        <a href="#experiment">実験設計</a>
+      </nav>
+    </header>
+
+    <h2 id="compare">まず画像を見る</h2>
+
+    <figure itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+      <img
+        src="img1.png"
+        alt="女性が女性向けジーンズ、男性が男性向けジーンズを着用した後ろ姿の比較画像"
+        width="1448"
+        height="1086"
+        loading="eager"
+        itemprop="contentUrl">
+      <figcaption itemprop="caption">
+        画像1。通常条件。女性は女性向けのタイトなジーンズ、男性は比較的直線的な男性向けジーンズを着用。
+      </figcaption>
+    </figure>
+
+    <figure itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+      <img
+        src="img2.png"
+        alt="女性と男性のジーンズのスタイルを入れ替えた後ろ姿の比較画像"
+        width="1448"
+        height="1086"
+        loading="lazy"
+        itemprop="contentUrl">
+      <figcaption itemprop="caption">
+        画像2。交換条件。女性は男性向けジーンズ、男性は女性向けジーンズを着用。
+      </figcaption>
+    </figure>
+
+    <p>
+      ぱっと見て最初に分かるのは、ジーンズを入れ替えても男女の見た目がそのまま入れ替わるわけではない、ということだ。
+      服はかなり強く見た目を変える。しかし、身体全体の比率を完全には上書きしない。
+    </p>
+
+    <blockquote>
+      身体が一次信号であり、ジーンズはその信号に対する増幅器・減衰器である。
+    </blockquote>
+
+    <h2 id="result">1枚目では「身体」と「衣服」が同じ方向を向いている</h2>
+
+    <p>
+      画像1では、女性側の身体形状と女性向けジーンズの設計が同じ方向に作用している。
+      腰から臀部に向かって横幅が増え、その後、大腿から足首へ向かって再び細くなる。
+      つまり輪郭に「細い → 広い → 細い」という変化が出る。
+    </p>
+
+    <p>
+      男性側では逆に、肩幅が大きく、腰が狭く、脚が比較的まっすぐ落ちる。
+      ジーンズ自体も臀部や大腿を強調しすぎず、直線的な見え方を残している。
+    </p>
+
+    <p>
+      ここでは身体の特徴と衣服の特徴が協調している。
+      そのため、男女差が最も分かりやすく見える。
+    </p>
+
+    <h2>2枚目では「身体」と「衣服」が逆方向を向く</h2>
+
+    <p>
+      画像2では、女性に男性向けジーンズを、男性に女性向けジーンズを着用させている。
+      ここで面白いのは、局所的な形はかなり変わるのに、全体の読み取りはそれほど簡単には反転しないことだ。
+    </p>
+
+    <p>
+      女性側では、男性向けのストレートなジーンズによって、臀部や大腿の局所的な曲率が弱くなる。
+      ただし、肩幅、腰幅、骨盤幅、臀部幅など身体全体の比率は残る。
+    </p>
+
+    <p>
+      男性側では、女性向けのタイトなジーンズによって臀部や脚の輪郭が強く拾われる。
+      しかし、それでも肩から腰までの逆三角形構造は消えない。
+    </p>
+
+    <p>
+      つまり、ジーンズは身体を「別の性別」に変えるものではない。
+      むしろ、すでに存在する形態情報を強調したり、鈍らせたりする。
+    </p>
+
+    <h2 id="shape">人間は「尻」だけを見ているわけではない</h2>
+
+    <p>
+      後ろ姿だけを見たとき、顔や胸部の情報はほぼ使えない。
+      それでも男女差はかなり読み取れる。
+      ということは、人間の視覚系は身体の複数の比率を同時に見ていると考えたほうが自然だ。
+    </p>
+
+    <ul>
+      <li>肩幅 / 腰幅</li>
+      <li>臀部幅 / 腰幅</li>
+      <li>臀部幅 / 足首幅</li>
+      <li>腰から臀部への横幅変化</li>
+      <li>臀部から大腿への収束</li>
+      <li>脚の付け根位置</li>
+    </ul>
+
+    <p>
+      これらは単独ではなく、まとまりとして読まれる。
+      だから臀部だけを強調しても、全体のシルエット認識が完全に反転するわけではない。
+    </p>
+
+    <h3>シルエットを関数として考える</h3>
+
+    <p>
+      身長方向の位置を <code>y</code>、その高さで見える横幅を <code>W(y)</code> とする。
+      すると後ろ姿は、「高さごとに横幅がどう変わるか」という関数として近似できる。
+    </p>
+
+    <pre><code>W(y) = F(B(y), garment, tension, seam, texture)</code></pre>
+
+    <p>
+      <code>B(y)</code> は身体そのものの横幅。
+      <code>garment</code> は服の形、
+      <code>tension</code> は布の張力、
+      <code>seam</code> は縫い目、
+      <code>texture</code> は色落ちや表面情報だ。
+    </p>
+
+    <p>
+      特に重要なのは <code>dW/dy</code>、つまり高さ方向に横幅がどれだけ変化するか。
+      腰から臀部へ幅が増え、そこから脚へ向かって減るなら、曲線的なシルエットになる。
+      男性向けジーンズはこの変化を平滑化しやすく、女性向けジーンズは局所的な曲率を拾いやすい。
+    </p>
+
+    <h2 id="design">ジーンズのどこがシルエットを変えるのか</h2>
+
+    <h3>股上</h3>
+    <p>
+      股上は腰位置の見え方を変える。
+      高い股上はウエストと臀部の境界を強く見せやすく、結果として腰臀比を強調しやすい。
+    </p>
+
+    <h3>ヨーク</h3>
+    <p>
+      後ろ腰にあるV字や弧状の切り替えは、臀部上端の見え方を変える。
+      これは単なる縫製線ではなく、目にとっての「形状ガイド」になる。
+    </p>
+
+    <h3>ポケット位置</h3>
+    <p>
+      後ろポケットの高さ、間隔、角度は臀部の大きさや高さの知覚に影響する。
+      実際の輪郭を変えなくても、基準線を置くだけで目は形を違って読む。
+    </p>
+
+    <h3>フィット</h3>
+    <p>
+      タイトなジーンズは身体表面の曲率をそのまま布に転写する。
+      ルーズなジーンズは、身体の細かな凹凸を平均化する。
+      信号処理っぽく言えば、ルーズフィットは一種の smoothing である。
+    </p>
+
+    <h3>脚のテーパー</h3>
+    <p>
+      足首に向かって細くなるほど、臀部は相対的に大きく見える。
+      絶対サイズを変えなくても、比率を変えるだけで印象はかなり動く。
+    </p>
+
+    <h2 id="limits">ただし、この2枚は厳密なA/Bテストではない</h2>
+
+    <p>
+      ここは重要だ。
+      AI画像生成では「ジーンズだけを入れ替えた」つもりでも、
+      臀部形状、大腿幅、腰幅、布の張り、ポケット位置、姿勢などまで微妙に再生成される可能性がある。
+    </p>
+
+    <p>
+      つまり、画像2は単純に
+    </p>
+
+    <pre><code>Image2 = Image1 + jeans_swap</code></pre>
+
+    <p>
+      とは限らない。
+      より実態に近いのは、
+    </p>
+
+    <pre><code>Image2 = regenerate(Image1, jeans_swap_instruction)</code></pre>
+
+    <p>
+      である。
+      したがって、この比較は「視覚仮説の生成」には使えるが、
+      「女性向けジーンズによって臀部が何％大きく見える」といった定量評価には使えない。
+    </p>
+
+    <h2 id="experiment">本当に測るなら、2×2の実験にする</h2>
+
+    <p>
+      厳密に調べるなら、3D人体モデルを使って身体形状を固定し、ジーンズだけを交換する必要がある。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>身体</th>
+          <th>男性向けジーンズ</th>
+          <th>女性向けジーンズ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>女性モデル</td>
+          <td>A</td>
+          <td>B</td>
+        </tr>
+        <tr>
+          <td>男性モデル</td>
+          <td>C</td>
+          <td>D</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      カメラ、照明、姿勢、身長スケールを完全に固定し、
+      そのうえで人間評価または輪郭指標によって「女性的 / 男性的」に見える度合いを測る。
+    </p>
+
+    <pre><code>SilhouetteScore
+= β₀
++ β₁ Sex
++ β₂ Jeans
++ β₃ Sex×Jeans
++ ε</code></pre>
+
+    <p>
+      最も面白いのは <code>β₃</code>、つまり身体とジーンズの交互作用だ。
+      女性向けジーンズは単独で女性的なのか。
+      それとも女性身体と組み合わさったときに特に女性的になるのか。
+      ここまで分離できれば、単なる「見た目の感想」からデザイン実験に進める。
+    </p>
+
+    <h2>結論</h2>
+
+    <p>
+      この比較から最も妥当なのは、次の結論だ。
+    </p>
+
+    <blockquote>
+      ファッション設計とは、布を身体に貼り付ける作業ではない。<br>
+      人間が身体をどう読むか、その視覚変換関数を設計する仕事である。
+    </blockquote>
+
+    <p>
+      女性向けジーンズは腰、臀部、大腿の曲率を拾いやすく、
+      男性向けジーンズは直線性を残しやすい。
+      ただし、衣服より上位にあるのは身体全体の幾何学であり、ジーンズだけでその読み取りが完全に反転するわけではない。
+    </p>
+
+    <p>
+      つまり「男性向け」「女性向け」という分類は、単なる商品カテゴリーではない。
+      それぞれが身体のどの情報を残し、どの情報を強調し、どの情報を隠すかという、
+      小さな視覚アルゴリズムなのである。
+    </p>
+
+    <footer>
+      <p>
+        AI-generated visual comparison / fashion silhouette analysis.
+        本ページの画像は概念比較用であり、人体計測・医学・人類学上の実測データではありません。
+      </p>
+    </footer>
+
+  </article>
+</main>
+</body>
+</html>
