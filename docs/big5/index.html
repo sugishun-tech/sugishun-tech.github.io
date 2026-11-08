@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="282HWwFqX5MAEmjMUQXGFlpHvfHdCSs5btSxB52O1vA" />
+    <title>あなたを信頼するBig5テスト</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+     :root {
+       --primary-color: #6366f1;
+       --bg-color: #f8fafc;
+       --card-bg: #ffffff;
+       --text-main: #1e293b;
+       --text-sub: #64748b;
+     }
+
+     body {
+       font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+       background-color: var(--bg-color);
+       color: var(--text-main);
+       margin: 0;
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       min-height: 100vh;
+     }
+
+     .container {
+       width: 90%;
+       max-width: 650px;
+       background: var(--card-bg);
+       padding: 2.5rem;
+       border-radius: 1.5rem;
+       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+       text-align: center;
+       margin: 20px 0;
+     }
+
+     h1 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--primary-color); }
+     
+     .description {
+       text-align: left;
+       font-size: 0.9rem;
+       color: var(--text-sub);
+       margin-bottom: 2rem;
+       line-height: 1.6;
+       background: #f1f5f9;
+       padding: 1rem;
+       border-radius: 1rem;
+     }
+
+     .progress { font-size: 0.875rem; color: var(--text-sub); margin-bottom: 1rem; }
+     .question-text { font-size: 1.2rem; font-weight: bold; min-height: 4.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: center; line-height: 1.4; }
+
+     .options { display: grid; gap: 0.75rem; }
+     .btn {
+       border: 2px solid #e2e8f0;
+       background: white;
+       padding: 1rem;
+       border-radius: 0.75rem;
+       cursor: pointer;
+       transition: all 0.2s;
+       font-size: 1rem;
+       font-weight: 500;
+     }
+     .btn:hover { background: #f1f5f9; border-color: var(--primary-color); color: var(--primary-color); }
+
+     .nav-buttons { margin-top: 2rem; display: flex; justify-content: space-between; }
+     .sub-btn { background: none; border: none; color: var(--text-sub); cursor: pointer; text-decoration: underline; font-size: 0.875rem; }
+
+     .result-section { display: none; }
+     canvas { margin: 2rem 0; max-height: 400px; }
+     .trait-desc { text-align: left; margin-top: 2rem; }
+     .trait-item { margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem; }
+     .trait-title { font-weight: bold; color: var(--primary-color); margin-bottom: 0.25rem; }
+     .share-url { font-size: 0.75rem; background: #f1f5f9; padding: 0.75rem; border-radius: 0.5rem; word-break: break-all; margin-top: 1rem; }
+    </style>
+  </head>
+  <body>
+
+    <div class="container" id="app">
+      <!-- 診断ページ -->
+      <div id="test-section">
+        <h1>あなたを信頼するBig5</h1>
+        <div class="description">
+          このテストは、心理学において信頼性の高い<strong>「ビッグファイブ」</strong>に基づき、あなたの個性を5つの側面から分析します。私たちは、あなたが自分自身を最もよく知っていると信じています。そのため、<strong>回答を疑ったり「嘘をついている」と判定したりすることはありません。</strong>直感で、今のあなたに最も近いものを選んでください。
+        </div>
+        <div class="progress">質問 <span id="current-idx">1</span> / 50</div>
+        <div class="question-text" id="q-text">読み込み中...</div>
+        <div class="options">
+          <button class="btn" onclick="handleAnswer(5)">非常にあてはまる</button>
+          <button class="btn" onclick="handleAnswer(4)">ややあてはまる</button>
+          <button class="btn" onclick="handleAnswer(3)">どちらともいえない</button>
+          <button class="btn" onclick="handleAnswer(2)">あまりあてはまらない</button>
+          <button class="btn" onclick="handleAnswer(1)">全くあてはまらない</button>
+        </div>
+        <div class="nav-buttons">
+          <button class="sub-btn" id="back-btn" onclick="prevQuestion()" style="visibility: hidden;">← 前の質問へ</button>
+          <button class="sub-btn" onclick="handleAnswer(3)">スキップ</button>
+        </div>
+      </div>
+
+      <!-- 結果ページ -->
+      <div id="result-section" class="result-section">
+        <h1>あなたの診断結果</h1>
+        <canvas id="scoreChart"></canvas>
+        <div class="trait-desc" id="trait-info"></div>
+        <button class="btn" style="width:100%; margin-top:2rem;" onclick="location.href=location.pathname">もう一度テストする</button>
+        <p style="margin-top:2rem; font-size:0.8rem; color:var(--text-sub);">この結果を保存・共有するURL:</p>
+        <div class="share-url" id="share-link"></div>
+      </div>
+    </div>
+
+    <script>
+     // 1. 質問データ定義[cite: 1]
+     const items = {
+       'EXT1': ['パーティーなどで、その場の中心人物になる', 1],
+       'EXT2': ['あまり自分からは話さないほうだ', -1],
+       'EXT3': ['人の中にいると心地よく感じる', 1],
+       'EXT4': ['目立たず、後ろの方にいることが多い', -1],
+       'EXT5': ['自分から進んで会話を始める', 1],
+       'EXT6': ['自分から話すことはあまりない', -1],
+       'EXT7': ['パーティーでは多くの異なる人たちと話す', 1],
+       'EXT8': ['人から注目を浴びるのが苦手だ', -1],
+       'EXT9': ['自分が注目の的になっても気にならない', 1],
+       'EXT10': ['知らない人の前では静かにしている', -1],
+       'AGR1': ['他人の直面している問題に対して、あまり関心がない', -1],
+       'AGR2': ['人そのものに興味がある', 1],
+       'AGR3': ['つい人を馬鹿にしたり、失礼な態度をとることがある', -1],
+       'AGR4': ['他人の気持ちに共感できる', 1],
+       'AGR5': ['他人が抱えるトラブルには興味がわかない', -1],
+       'AGR6': ['自分は情にもろい（感受性が豊か）ほうだ', 1],
+       'AGR7': ['基本的には他人にあまり関心を持っていない', -1],
+       'AGR8': ['他人のために時間を割く', 1],
+       'AGR9': ['他人の感情に敏感で、それを自分でも感じる', 1],
+       'AGR10': ['人をリラックスさせるのが得意だ', 1],
+       'EST1': ['すぐにストレスを感じ、パニックになりやすい', -1],
+       'EST2': ['ほとんどの時間はリラックスしている', 1],
+       'EST3': ['いろいろなことを心配しがちだ', -1],
+       'EST4': ['憂鬱な気分（ブルー）になることはめったにない', 1],
+       'EST5': ['心の平穏を乱されやすい', -1],
+       'EST6': ['感情を害したり、動揺したりしやすい', -1],
+       'EST7': ['気分がコロコロと変わりやすい', -1],
+       'EST8': ['感情の起伏が激しいほうだ', -1],
+       'EST9': ['些細なことでイライラしやすい', -1],
+       'EST10': ['よく落ち込んだり悲しくなったりする', -1],
+       'CSN1': ['常に準備を怠らない', 1],
+       'CSN2': ['自分の持ち物をあちこちに散らかしたままにする', -1],
+       'CSN3': ['細かいディテールにまで注意を払う', 1],
+       'CSN4': ['物事を台無しにしたり、散らかしたりすることがある', -1],
+       'CSN5': ['やるべき仕事や家事はすぐに終わらせる', 1],
+       'CSN6': ['使ったものを元の場所に戻し忘れることが多い', -1],
+       'CSN7': ['秩序やルールを重んじる', 1],
+       'CSN8': ['自分の義務や責任をサボることがある', -1],
+       'CSN9': ['スケジュール（予定表）に従って行動する', 1],
+       'CSN10': ['仕事や物事の進め方には完璧を求める', 1],
+       'OPN1': ['語彙（ボキャブラリー）が豊富だ', 1],
+       'OPN2': ['抽象的な概念を理解するのに苦労することがある', -1],
+       'OPN3': ['想像力が非常に豊かだ', 1],
+       'OPN4': ['抽象的な理論やアイデアには興味がない', -1],
+       'OPN5': ['素晴らしいアイデアを思いつく', 1],
+       'OPN6': ['自分にはあまり創造性や想像力がないと思う', -1],
+       'OPN7': ['物事を理解するのが人より早い', 1],
+       'OPN8': ['あえて難しい言葉を使うことがある', 1],
+       'OPN9': ['物事の背景をじっくり考える時間を大切にする', 1],
+       'OPN10': ['いつもアイデアに満ち溢れている', 1]
+     };
+
+     // 2. 指標の定義（グラフと説明用）
+     const traitLabels = {
+       'EXT': { name: '外向性', desc: '社交性、活発さ、エネルギーの向き先を表します。高いと活動的で、低いと落ち着いた内向的な傾向があります。' },
+       'AGR': { name: '協調性', desc: '他人への思いやりや共感、協力的な姿勢を表します。高いと親切で、低いと合理的または自立的な傾向があります。' },
+       'EST': { name: '情緒安定性', desc: 'ストレスへの耐性や感情の安定度を表します。高いと冷静で、低いと感受性が豊かで心配性な一面があります。' },
+       'CSN': { name: '誠実性', desc: '責任感、勤勉さ、自己コントロール力を表します。高いと計画的で、低いと柔軟で即興を好む傾向があります。' },
+       'OPN': { name: '開放性', desc: '知的好奇心や想像力、新しい経験への意欲を表します。高いと独創的で、低いと現実的で堅実な判断を好みます。' }
+     };
+
+     const order = Object.keys(items);
+     let currentIdx = 0;
+     let userAnswers = [];
+
+     // 3. 制御ロジック
+     function init() {
+       const params = new URLSearchParams(window.location.search);
+       const data = params.get('d');
+       if (data && data.length === 50) {
+         showResult(data.split('').map(Number));
+       } else {
+         updateQuestion();
+       }
+     }
+
+     function updateQuestion() {
+       document.getElementById('current-idx').innerText = currentIdx + 1;
+       document.getElementById('q-text').innerText = items[order[currentIdx]][0];
+       document.getElementById('back-btn').style.visibility = currentIdx > 0 ? 'visible' : 'hidden';
+     }
+
+     function handleAnswer(val) {
+       userAnswers[currentIdx] = val;
+       if (currentIdx < order.length - 1) {
+         currentIdx++;
+         updateQuestion();
+       } else {
+         const dataStr = userAnswers.join('');
+         const newUrl = window.location.pathname + `?d=${dataStr}`;
+         window.history.pushState(null, '', newUrl);
+         showResult(userAnswers);
+       }
+     }
+
+     function prevQuestion() {
+       if (currentIdx > 0) {
+         currentIdx--;
+         updateQuestion();
+       }
+     }
+
+     function showResult(answers) {
+       document.getElementById('test-section').style.display = 'none';
+       document.getElementById('result-section').style.display = 'block';
+       document.getElementById('share-link').innerText = window.location.href;
+
+       const scores = calculateScores(answers);
+       renderChart(scores);
+       renderDesc(scores);
+     }
+
+     function calculateScores(answers) {
+       const rawResults = { EXT: 0, AGR: 0, EST: 0, CSN: 0, OPN: 0 };
+       order.forEach((key, i) => {
+         const trait = key.substring(0, 3);
+         const direction = items[key][1];
+         const val = answers[i] || 3;
+         rawResults[trait] += (direction === 1) ? val : (6 - val);
+       });
+       
+       const finalScores = {};
+       for (let k in rawResults) {
+         // 各項目10問(1~5点)なので10〜50点。これを0〜100%に変換。
+         finalScores[k] = ((rawResults[k] - 10) / 40) * 100;
+       }
+       return finalScores;
+     }
+
+     function renderChart(scores) {
+       const ctx = document.getElementById('scoreChart').getContext('2d');
+       new Chart(ctx, {
+         type: 'radar',
+         data: {
+           labels: Object.values(traitLabels).map(l => l.name),
+           datasets: [{
+             label: 'あなたのパーソナリティ',
+             data: [scores.EXT, scores.AGR, scores.EST, scores.CSN, scores.OPN],
+             backgroundColor: 'rgba(99, 102, 241, 0.2)',
+             borderColor: 'rgba(99, 102, 241, 1)',
+             borderWidth: 3,
+             pointBackgroundColor: 'rgba(99, 102, 241, 1)'
+           }]
+         },
+         options: {
+           scales: {
+             r: {
+               min: 0,
+               max: 100,
+               beginAtZero: true,
+               ticks: { stepSize: 20, display: false }
+             }
+           },
+           plugins: { legend: { display: false } }
+         }
+       });
+     }
+
+     function renderDesc(scores) {
+       const container = document.getElementById('trait-info');
+       container.innerHTML = ''; // 初期化
+       Object.keys(traitLabels).forEach(key => {
+         const div = document.createElement('div');
+         div.className = 'trait-item';
+         div.innerHTML = `
+           <div class="trait-title">${traitLabels[key].name} (${Math.round(scores[key])}%)</div>
+           <div style="font-size:0.9rem; color:var(--text-sub);">${traitLabels[key].desc}</div>
+         `;
+         container.appendChild(div);
+       });
+     }
+
+     window.onload = init;
+    </script>
+  </body>
+</html>
