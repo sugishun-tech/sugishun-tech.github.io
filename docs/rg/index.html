@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta name="google-site-verification" content="JEEM86Nny0_h4_vD5px24FuZV45pyOJo4ovr7YxpBjo" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <meta name="description" content="ピケティの r > g を資本ストック、国民所得、実質資本収益率、実質経済成長率、再投資率、インフレ率からシミュレーション。期ごとの名目値・実質値を比較し、CSV出力とURLでの条件共有ができる無料ツール。">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:title" content="r > g シミュレーター | 資本・国民所得・インフレ">
+  <meta property="og:description" content="r、g、再投資率、インフレ率を設定し、資本と国民所得の名目値・実質値を期別に計算。CSV保存・URL共有に対応。">
+  <meta name="twitter:card" content="summary">
+  <title>r &gt; g シミュレーター | 資本ストック・国民所得・インフレ率</title>
+  <link rel="canonical" id="canonical-url">
+  <script>
+    // クエリ違いのページを重複インデックスさせない。file:// では canonical を設定しない。
+    if (location.protocol === 'https:' || location.protocol === 'http:') {
+      document.getElementById('canonical-url').href = location.origin + location.pathname;
+    }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "r > g シミュレーター",
+    "description": "資本収益率と経済成長率を比較し、インフレを考慮した資本ストック・国民所得の名目値と実質値を期間別に試算するツール。",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "browserRequirements": "JavaScript",
+    "inLanguage": "ja",
+    "isAccessibleForFree": true
+  }
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      color: #1b1b1b;
+      background: #fff;
+      font-synthesis: none;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0 auto; padding: 36px 20px 60px; max-width: 1140px; line-height: 1.65; }
+    h1 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 0 0 12px; line-height: 1.35; }
+    h2 { font-size: 1.2rem; margin: 38px 0 12px; }
+    p { margin: 0 0 15px; }
+    .intro, .notes { max-width: 78ch; }
+    .muted, .notes, small { color: #585858; }
+    form { margin: 30px 0 26px; }
+    .fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 18px; }
+    label { display: block; font-weight: 600; font-size: .91rem; margin-bottom: 5px; }
+    input, select, button { font: inherit; }
+    input, select { width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid #aaa; border-radius: 3px; background: #fff; color: inherit; }
+    input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid #1f5fbf; outline-offset: 2px; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 20px; }
+    button { padding: 9px 16px; border: 1px solid #6f6f6f; border-radius: 3px; background: #fff; color: inherit; cursor: pointer; }
+    button.primary { background: #222; color: white; border-color: #222; }
+    button:hover:not(:disabled) { border-color: #222; }
+    button:disabled { cursor: not-allowed; opacity: .45; }
+    #copy-status { font-size: .85rem; color: #555; }
+    #error, #warning { border-left: 3px solid #888; padding-left: 12px; }
+    #error { color: #a12626; border-color: #a12626; }
+    #warning { color: #6c4500; border-color: #9d7100; }
+    #summary { margin: 0 0 14px; }
+    .table-wrap { max-width: 100%; overflow-x: auto; border-top: 1px solid #aaa; }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .87rem; white-space: nowrap; }
+    caption { padding: 12px 0; text-align: left; font-weight: 600; }
+    th, td { padding: 9px 12px; border-bottom: 1px solid #e6e6e6; text-align: right; }
+    thead th { background: #f8f8f8; border-bottom: 1px solid #aaa; font-weight: 600; }
+    th:first-child, td:first-child { text-align: left; }
+    tbody tr:hover { background: #fafafa; }
+    code { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; overflow-wrap: anywhere; }
+    .formula { margin: 7px 0; }
+    footer { margin-top: 38px; padding-top: 14px; border-top: 1px solid #ddd; font-size: .88rem; color: #555; }
+    [hidden] { display: none !important; }
+    @media (max-width: 780px) { .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 480px) { body { padding: 24px 14px 48px; } .fields { grid-template-columns: 1fr; gap: 12px; } .actions button { flex-grow: 1; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>r &gt; g シミュレーター</h1>
+      <p class="intro">資本収益率 <strong>r</strong> と国民所得成長率 <strong>g</strong> の関係を、資本ストックと国民所得の推移から確かめる。インフレを考慮した<strong>実質値・名目値</strong>を同時に表示する。</p>
+      <p class="muted intro">すべて年率・年単位。r と g は実質値で入力し、初期の物価指数を 1 とする。計算はブラウザー内で行う。</p>
+    </header>
+
+    <form id="simulator" method="get" action="">
+      <div class="fields">
+        <div>
+          <label for="r">実質資本収益率 r（%/年）</label>
+          <input id="r" name="r" type="number" value="5" min="-99.99" max="100" step="any" required>
+        </div>
+        <div>
+          <label for="g">実質国民所得成長率 g（%/年）</label>
+          <input id="g" name="g" type="number" value="2" min="-99.99" max="100" step="any" required>
+        </div>
+        <div>
+          <label for="pi">インフレ率 π（%/年）</label>
+          <input id="pi" name="pi" type="number" value="2" min="-99.99" max="100" step="any" required>
+        </div>
+        <div>
+          <label for="s">資本収益の再投資率 s（%）</label>
+          <input id="s" name="s" type="number" value="30" min="0" max="100" step="any" required>
+        </div>
+        <div>
+          <label for="k0">初期資本ストック K₀</label>
+          <input id="k0" name="k0" type="number" value="600" min="0" max="1000000000000" step="any" required>
+        </div>
+        <div>
+          <label for="y0">初期国民所得 Y₀（年額）</label>
+          <input id="y0" name="y0" type="number" value="100" min="0.000000000001" max="1000000000000" step="any" required>
+        </div>
+        <div>
+          <label for="t">計算する最終期 t（年）</label>
+          <input id="t" name="t" type="number" value="30" min="0" max="200" step="1" required>
+        </div>
+        <div>
+          <label for="unit">金額の表示単位</label>
+          <select id="unit" name="unit">
+            <option value="円">円</option>
+            <option value="万円">万円</option>
+            <option value="億円">億円</option>
+            <option value="兆円" selected>兆円</option>
+            <option value="任意単位">任意単位</option>
+          </select>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="primary" type="submit">計算する</button>
+        <button id="download-csv" type="button">CSVダウンロード</button>
+        <button id="copy-url" type="button">URLをコピー</button>
+        <span id="copy-status" role="status" aria-live="polite"></span>
+      </div>
+    </form>
+
+    <p id="error" role="alert" hidden></p>
+    <section id="results" aria-labelledby="results-heading">
+      <h2 id="results-heading">シミュレーション結果</h2>
+      <p id="summary" aria-live="polite"></p>
+      <p id="warning" hidden></p>
+      <div class="table-wrap" role="region" aria-label="期間ごとの計算結果。横方向にスクロール可能" tabindex="0">
+        <table>
+          <caption id="table-caption">t = 0〜30 のシミュレーション</caption>
+          <thead>
+            <tr>
+              <th scope="col">期 t</th>
+              <th scope="col">物価指数（0期=1）</th>
+              <th scope="col" id="h-k-real">資本・実質（兆円）</th>
+              <th scope="col" id="h-k-nom">資本・名目（兆円）</th>
+              <th scope="col" id="h-y-real">国民所得・実質（兆円/年）</th>
+              <th scope="col" id="h-y-nom">国民所得・名目（兆円/年）</th>
+              <th scope="col" id="h-return-real">資本所得・実質（兆円/年）</th>
+              <th scope="col" id="h-return-nom">資本所得・名目（兆円/年）</th>
+              <th scope="col">資本/所得（年分）</th>
+              <th scope="col">資本所得/国民所得（%）</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin-top: 10px; font-size: .84rem;">表は表示上のみ丸めている。CSVには計算値を最大15桁の有効数字で出力する。</p>
+    </section>
+
+    <section class="notes" aria-labelledby="about-heading">
+      <h2 id="about-heading">計算式と前提</h2>
+      <p>一定の実質資本収益率 r、実質国民所得成長率 g、インフレ率 π、資本収益の再投資率 s を仮定する。百分率は計算時に小数へ変換する。t=0 は初期時点で、資本所得は各期の資本ストックから算出する。</p>
+      <p class="formula"><code>K(t+1) = K(t) × (1 + s × r)</code></p>
+      <p class="formula"><code>Y(t+1) = Y(t) × (1 + g)</code></p>
+      <p class="formula"><code>P(t+1) = P(t) × (1 + π), P(0) = 1</code></p>
+      <p class="formula"><code>資本所得(t) = r × K(t)</code></p>
+      <p class="formula"><code>名目値(t) = 実質値(t) × P(t)</code></p>
+      <p class="formula"><code>資本/所得 = K(t) / Y(t)（年分）</code></p>
+      <p class="formula"><code>資本所得/国民所得 = r × K(t) / Y(t)</code></p>
+      <p><strong>r &gt; g でも資本ストックが国民所得より速く増えるとは限らない。</strong> この単純モデルで資本/所得比率が上昇する条件は <code>s × r &gt; g</code> となる。インフレ率が両者で共通なら、名目値への換算だけでは資本/所得比率は変わらない。</p>
+      <p>税金、資産価格の個別変動、労働所得からの追加貯蓄、人口変化、制度変化は考慮しない。資本所得/国民所得は仮定から得た機械的な比率であり、実際の所得分配や格差を予測するものではない。特に 100% を超える場合は、資本所得が国民所得の一部だという会計上の解釈と整合しない。</p>
+    </section>
+  </main>
+  <footer>外部ライブラリ・トラッキングなし。GETクエリに入力値を含めることで条件を再現できる。</footer>
+  <noscript><p>このツールの計算表、CSV出力、URL共有には JavaScript が必要。</p></noscript>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const form = document.getElementById('simulator');
+      const error = document.getElementById('error');
+      const summary = document.getElementById('summary');
+      const warning = document.getElementById('warning');
+      const tbody = document.getElementById('table-body');
+      const csvButton = document.getElementById('download-csv');
+      const copyButton = document.getElementById('copy-url');
+      const copyStatus = document.getElementById('copy-status');
+      const defaults = { r: '5', g: '2', pi: '2', s: '30', k0: '600', y0: '100', t: '30', unit: '兆円' };
+      const names = Object.keys(defaults);
+      const units = new Set(['円', '万円', '億円', '兆円', '任意単位']);
+      const numberFormat = new Intl.NumberFormat('ja-JP', { maximumFractionDigits: 6 });
+      let current = null;
+
+      function displayNumber(value) {
+        if (value === 0) return '0';
+        const abs = Math.abs(value);
+        if (abs >= 1e12 || abs < 1e-5) return value.toExponential(5);
+        return numberFormat.format(value);
+      }
+
+      function readForm() {
+        if (!form.checkValidity()) {
+          throw new Error('入力値の範囲を確認してほしい。最終期は0〜200、再投資率は0〜100%。');
+        }
+        const input = Object.fromEntries(new FormData(form).entries());
+        const numeric = {};
+        for (const name of names.filter(name => name !== 'unit')) {
+          const value = Number(input[name]);
+          if (input[name] === '' || !Number.isFinite(value)) {
+            throw new Error(`${name} に有限の数値を入力してほしい。`);
+          }
+          numeric[name] = value;
+        }
+        if (numeric.y0 <= 0 || !Number.isInteger(numeric.t)) {
+          throw new Error('初期国民所得は正の値、最終期は整数にしてほしい。');
+        }
+        if (!units.has(input.unit)) {
+          throw new Error('表示単位が不正。');
+        }
+        return {
+          r: numeric.r / 100,
+          g: numeric.g / 100,
+          pi: numeric.pi / 100,
+          s: numeric.s / 100,
+          k0: numeric.k0,
+          y0: numeric.y0,
+          t: numeric.t,
+          unit: input.unit
+        };
+      }
+
+      function simulate(args) {
+        let K = args.k0;
+        let Y = args.y0;
+        let P = 1;
+        const rows = [];
+        for (let t = 0; t <= args.t; t += 1) {
+          const incomeReal = args.r * K;
+          const row = {
+            t,
+            P,
+            KReal: K,
+            KNominal: K * P,
+            YReal: Y,
+            YNominal: Y * P,
+            incomeReal,
+            incomeNominal: incomeReal * P,
+            ratio: K / Y,
+            sharePercent: (incomeReal / Y) * 100
+          };
+          if (!Object.values(row).every(Number.isFinite) || Y <= 0 || P <= 0) {
+            throw new Error('指定した条件では桁あふれ、またはゼロへの丸めが生じる。期間や増減率を小さくしてほしい。');
+          }
+          rows.push(row);
+          K *= 1 + args.s * args.r;
+          Y *= 1 + args.g;
+          P *= 1 + args.pi;
+        }
+        return rows;
+      }
+
+      function render() {
+        try {
+          const args = readForm();
+          const rows = simulate(args);
+          current = { args, rows };
+          error.hidden = true;
+          error.textContent = '';
+          csvButton.disabled = false;
+          copyButton.disabled = false;
+
+          const money = args.unit;
+          const flow = `${money}/年`;
+          for (const [id, label] of [
+            ['h-k-real', `資本・実質（${money}）`],
+            ['h-k-nom', `資本・名目（${money}）`],
+            ['h-y-real', `国民所得・実質（${flow}）`],
+            ['h-y-nom', `国民所得・名目（${flow}）`],
+            ['h-return-real', `資本所得・実質（${flow}）`],
+            ['h-return-nom', `資本所得・名目（${flow}）`]
+          ]) {
+            document.getElementById(id).textContent = label;
+          }
+
+          const rg = args.r > args.g ? 'r > g' : args.r < args.g ? 'r < g' : 'r = g';
+          const accumulation = args.s * args.r;
+          const trend = accumulation > args.g ? '上昇' : accumulation < args.g ? '低下' : '一定';
+          summary.textContent = `${rg}。資本ストックの実質増加率 s×r は ${displayNumber(accumulation * 100)}%/年。資本/所得比率は${trend}する。${args.t}期末の資本/所得比率は ${displayNumber(rows[rows.length - 1].ratio)} 年分。`;
+          document.getElementById('table-caption').textContent = `t = 0〜${args.t} のシミュレーション（${rows.length}行）`;
+
+          const unusual = rows.some(row => row.sharePercent > 100);
+          warning.hidden = !unusual;
+          warning.textContent = unusual
+            ? '注意：一部の期で資本所得/国民所得が100%を超える。この範囲では、資本所得を国民所得の構成要素とみなす解釈が成立しない。'
+            : '';
+
+          const fragment = document.createDocumentFragment();
+          for (const row of rows) {
+            const tr = document.createElement('tr');
+            const values = [
+              row.t, row.P, row.KReal, row.KNominal, row.YReal,
+              row.YNominal, row.incomeReal, row.incomeNominal, row.ratio, row.sharePercent
+            ];
+            for (const value of values) {
+              const td = document.createElement('td');
+              td.textContent = displayNumber(value);
+              tr.appendChild(td);
+            }
+            fragment.appendChild(tr);
+          }
+          tbody.replaceChildren(fragment);
+          return true;
+        } catch (reason) {
+          current = null;
+          error.hidden = false;
+          error.textContent = reason instanceof Error ? reason.message : '計算できなかった。';
+          summary.textContent = '';
+          warning.hidden = true;
+          tbody.replaceChildren();
+          csvButton.disabled = true;
+          copyButton.disabled = true;
+          return false;
+        }
+      }
+
+      function loadQuery() {
+        const params = new URLSearchParams(window.location.search);
+        for (const name of names) {
+          const element = form.elements.namedItem(name);
+          if (name === 'unit') {
+            const value = params.get(name);
+            element.value = value && units.has(value) ? value : defaults[name];
+          } else {
+            element.value = params.has(name) ? params.get(name) : defaults[name];
+          }
+        }
+        copyStatus.textContent = '';
+        render();
+      }
+
+      function createShareURL() {
+        const url = new URL(window.location.href);
+        url.search = new URLSearchParams(new FormData(form)).toString();
+        url.hash = '';
+        return url;
+      }
+
+      function updateAddress(method, url) {
+        // 一部ブラウザーは file:// で履歴URLの変更を禁止する。
+        // 計算とURL生成は続行できるよう、履歴更新のみ省略する。
+        try {
+          history[method](null, '', url);
+        } catch {
+          // ローカルファイル等で履歴操作が許可されない場合。
+        }
+      }
+
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!render()) return;
+        updateAddress('pushState', createShareURL());
+        copyStatus.textContent = '';
+      });
+
+      window.addEventListener('popstate', loadQuery);
+
+      csvButton.addEventListener('click', () => {
+        // フォーム編集中の条件ではなく、現在表示している表を正確に保存する。
+        if (!current) return;
+        const { args, rows } = current;
+        const columns = [
+          `期t`, `物価指数(初期=1)`, `資本ストック_実質(${args.unit})`,
+          `資本ストック_名目(${args.unit})`, `国民所得_実質(${args.unit}/年)`,
+          `国民所得_名目(${args.unit}/年)`, `資本所得_実質(${args.unit}/年)`,
+          `資本所得_名目(${args.unit}/年)`, '資本/所得(年分)', '資本所得/国民所得(%)'
+        ];
+        const properties = ['t', 'P', 'KReal', 'KNominal', 'YReal', 'YNominal', 'incomeReal', 'incomeNominal', 'ratio', 'sharePercent'];
+        const quote = value => `"${String(value).replaceAll('"', '""')}"`;
+        const csvRows = [columns.map(quote).join(',')];
+        for (const row of rows) {
+          csvRows.push(properties.map(key => key === 't' ? String(row.t) : Number(row[key]).toPrecision(15)).join(','));
+        }
+        const blob = new Blob(['\ufeff', csvRows.join('\r\n'), '\r\n'], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `r-g-simulation-t${args.t}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      });
+
+      copyButton.addEventListener('click', async () => {
+        if (!render()) return;
+        const url = createShareURL();
+        updateAddress('replaceState', url);
+        try {
+          if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable');
+          await navigator.clipboard.writeText(url.href);
+          copyStatus.textContent = 'URLをコピーした';
+        } catch {
+          const textarea = document.createElement('textarea');
+          textarea.value = url.href;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.top = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          const copied = document.execCommand('copy');
+          textarea.remove();
+          copyStatus.textContent = copied ? 'URLをコピーした' : 'アドレスバーのURLをコピーしてほしい';
+        }
+      });
+
+      loadQuery();
+    })();
+  </script>
+</body>
+</html>
