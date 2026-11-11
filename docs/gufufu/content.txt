@@ -33,5 +33,5 @@ Big5テスト https://sugishun-tech.github.io/big5/
 短期記憶チェックツール https://sugishun-tech.github.io/stmtest/
 神経衰弱 https://sugishun-tech.github.io/memory_game/
 ペイント https://sugishun-tech.github.io/paint/
-
+Poker https://sugishun-tech.github.io/poker/
 
