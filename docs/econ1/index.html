@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>一般均衡理論と価格調整の力学｜スメール第8問題</title>
+<meta content="スメール第8問題を起点に、一般均衡の価格調整を数式・証明・反例で理論化。ワルラス法則、タトンマン、Scarf型循環、安定性、貨幣・在庫と数値実験を扱う。" name="description"/>
+<meta content="index,follow" name="robots"/>
+<meta content="#ffffff" name="theme-color"/>
+<meta content="article" property="og:type"/>
+<meta content="ja_JP" property="og:locale"/>
+<meta content="一般均衡理論と価格調整の力学｜スメール第8問題" property="og:title"/>
+<meta content="スメール第8問題を起点に、一般均衡の価格調整を数式・証明・反例で理論化。ワルラス法則、タトンマン、Scarf型循環、安定性、貨幣・在庫と数値実験を扱う。" property="og:description"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="一般均衡理論と価格調整の力学｜スメール第8問題" name="twitter:title"/>
+<meta content="スメール第8問題を起点に、一般均衡の価格調整を数式・証明・反例で理論化。ワルラス法則、タトンマン、Scarf型循環、安定性、貨幣・在庫と数値実験を扱う。" name="twitter:description"/>
+<!-- Publication configuration:
+     Once the public URL is known, add a self-referencing absolute HTTPS canonical
+     URL and matching og:url. Do not use a placeholder domain or a preview URL.
+     Add the actual author and datePublished when publishing, if appropriate.
+     Article content and references are static HTML; JavaScript is required for MathJax equations.
+     SEO guidance: https://developers.google.com/search/docs/appearance/title-link
+     https://developers.google.com/search/docs/appearance/snippet
+     https://developers.google.com/search/docs/appearance/structured-data/article
+     https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "一般均衡理論に価格調整の力学を導入する",
+  "description": "スメール第8問題を起点に、一般均衡の価格調整を数式・証明・反例で理論化。ワルラス法則、タトンマン、Scarf型循環、安定性、貨幣・在庫と数値実験を扱う。",
+  "inLanguage": "ja",
+  "dateCreated": "2026-11-13",
+  "dateModified": "2026-11-13",
+  "isAccessibleForFree": true,
+  "articleSection": [
+    "数理経済学",
+    "一般均衡理論",
+    "価格調整",
+    "動的安定性"
+  ],
+  "about": [
+    {
+      "@type": "Thing",
+      "name": "一般均衡理論"
+    },
+    {
+      "@type": "Thing",
+      "name": "タトンマン"
+    },
+    {
+      "@type": "Thing",
+      "name": "スメールの第8問題"
+    },
+    {
+      "@type": "Thing",
+      "name": "リャプノフ安定性"
+    }
+  ],
+  "citation": [
+    "https://doi.org/10.1007/BF03025291",
+    "https://web.stanford.edu/class/msande314/arrow-debreu.pdf",
+    "https://www.jstor.org/stable/2556215",
+    "https://doi.org/10.1016/j.jmateco.2003.11.003",
+    "https://doi.org/10.1016/j.jmateco.2024.103007",
+    "https://www.nikhildevanur.com/pubs/stoc202fp-cheung.pdf",
+    "https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ESA.2018.18",
+    "https://cs.nyu.edu/~cole/papers/tat10.pdf",
+    "https://arxiv.org/abs/2306.04890v3",
+    "https://arxiv.org/abs/2406.12526v2",
+    "https://fraser.stlouisfed.org/files/docs/publications/aer/aer_1968_friedman_role_monetary_policy.pdf",
+    "https://academic.oup.com/jlms/article-abstract/s1-25/3/226/865157",
+    "https://doi.org/10.2307/1911438"
+  ]
+}
+</script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    processEscapes: true
+  },
+  options: {
+    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  }
+};
+</script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+:root { color-scheme: light; font-family: system-ui, -apple-system, "Noto Sans CJK JP", "Yu Gothic", Meiryo, sans-serif; color: #171717; background: #fff; }
+* { box-sizing: border-box; }
+html { scroll-padding-top: 1rem; }
+body { max-width: 900px; margin: 0 auto; padding: 2rem 1.2rem 4rem; font-size: 17px; line-height: 1.95; overflow-wrap: anywhere; }
+header { margin-bottom: 2rem; }
+h1, h2, h3, legend { line-height: 1.5; }
+h1 { font-size: clamp(1.65rem, 4.5vw, 2.15rem); margin: .4rem 0 1rem; letter-spacing: .01em; }
+h2 { font-size: 1.42rem; margin: 3.2rem 0 1rem; padding-bottom: .45rem; border-bottom: 1px solid #c8c8c8; }
+h3 { font-size: 1.1rem; margin: 1.9rem 0 .6rem; }
+p { margin: .85rem 0; }
+a { color: #164997; text-decoration-thickness: .07em; text-underline-offset: .15em; }
+a:hover { text-decoration-thickness: .14em; }
+a:focus-visible, button:focus-visible, input:focus-visible, .table-wrap:focus-visible { outline: 3px solid #164997; outline-offset: 3px; }
+button, input { font: inherit; }
+small, .metadata, .note, footer { font-size: .89rem; color: #444; }
+.eyebrow { font-size: .86rem; margin-bottom: .4rem; }
+.lead { font-size: 1.05rem; }
+nav { border-top: 1px solid #c8c8c8; border-bottom: 1px solid #c8c8c8; padding: .7rem 0 1rem; margin-top: 1.8rem; }
+nav h2 { border: 0; margin: 0 0 .5rem; font-size: 1rem; padding: 0; }
+nav ol { margin: .2rem 0; padding-left: 1.6rem; }
+nav li { margin: .15rem 0; line-height: 1.8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: .4rem 0; }
+.skip { position: absolute; left: -10000px; top: .3rem; padding: .4rem; background: white; }
+.skip:focus { left: 1rem; z-index: 2; }
+.equation { margin: 1rem 0; padding: .65rem .8rem; border-left: 2px solid #aaa; background: #f6f6f6; font-family: inherit; font-size: 1rem; line-height: 1.9; overflow-x: auto; overflow-wrap: normal; }
+mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+.inline-math { font-family: inherit; }
+sub, sup { font-size: .74em; line-height: 0; }
+.theorem { margin: 1.2rem 0; padding: .2rem 1rem; border: 1px solid #bbb; }
+.table-wrap { max-width: 100%; overflow-x: auto; margin: 1rem 0; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; line-height: 1.7; }
+caption { text-align: left; font-size: .87rem; color: #444; padding: 0 0 .5rem; }
+th, td { border-bottom: 1px solid #d3d3d3; padding: .6rem .65rem; text-align: left; vertical-align: top; }
+thead th { border-top: 1px solid #aaa; border-bottom: 1px solid #aaa; }
+tbody th { font-weight: 600; }
+.ref { font-size: .83em; white-space: nowrap; }
+.references { font-size: .9rem; line-height: 1.8; }
+.references li { padding-left: .2rem; margin: 1.1rem 0; }
+fieldset { border: 1px solid #bbb; margin: 1rem 0; padding: .8rem; }
+legend { font-size: .93rem; padding: 0 .3rem; }
+.form-row { display: flex; flex-wrap: wrap; gap: .8rem; align-items: end; }
+label { display: flex; flex-direction: column; gap: .25rem; font-size: .88rem; flex: 1 1 9rem; }
+input { width: 100%; min-height: 2.6rem; padding: .3rem .5rem; border: 1px solid #777; border-radius: 0; color: #171717; background: #fff; font-size: 1rem; }
+button { padding: .5rem .8rem; border: 1px solid #777; border-radius: 0; color: #171717; background: #f4f4f4; cursor: pointer; font-size: .93rem; }
+button:hover { background: #e8e8e8; }
+button:disabled { cursor: not-allowed; color: #666; }
+#trajectory-table { min-width: 690px; font-variant-numeric: tabular-nums; }
+#trajectory-table td { white-space: nowrap; }
+#diagnostic-table { font-variant-numeric: tabular-nums; }
+.error { color: #9c1b15; }
+pre { padding: 1rem; background: #f6f6f6; overflow-x: auto; line-height: 1.6; font-size: .85rem; overflow-wrap: normal; }
+code { font-family: ui-monospace, "DejaVu Sans Mono", Consolas, monospace; }
+footer { border-top: 1px solid #bbb; margin-top: 3rem; padding-top: 1rem; }
+[hidden] { display: none !important; }
+@media (max-width: 600px) { body { padding: 1.2rem .9rem 3rem; font-size: 16px; } h2 { font-size: 1.25rem; } th, td { padding: .5rem; } .equation { font-size: .97rem; padding: .5rem .65rem; } }
+@media print { body { max-width: none; margin: 0; padding: 0; font-size: 10pt; line-height: 1.7; } nav, form, .skip, .actions { display: none; } h1 { font-size: 20pt; } h2 { font-size: 15pt; break-after: avoid; } h3 { font-size: 12pt; break-after: avoid; } p { orphans: 3; widows: 3; } .table-wrap, .equation, pre { overflow: visible; } mjx-container[display="true"] { overflow: visible; } table { font-size: 9pt; } #trajectory-table { min-width: 0; font-size: 8pt; } a { color: inherit; } .equation, .theorem, tr { break-inside: avoid; } }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">本文へ移動</a>
+<noscript><p>数式の表示にはJavaScriptが必要。MathJaxを有効にするとTeX形式の数式が表示される。</p></noscript>
+<main id="main">
+<article>
+<header>
+<p class="eyebrow">数理経済学 / 一般均衡 / 動的安定性</p>
+<h1>一般均衡理論に価格調整の力学を導入する</h1>
+<p class="lead">均衡価格が存在することと、市場がその価格へ近づくことは、異なる命題である。スメールの第8問題を出発点に、価格空間、ミクロ的な需要、調整則、安定性、循環、貨幣と在庫を一つの枠組みで検討する。</p>
+<p><strong>本稿の中心：</strong>同じ価格調整則を使い、収束する交換経済、循環する交換経済、両者を混ぜて循環を減衰させる交換経済を構成する。存在と収束の証明、全公理を満たす反例、再計算できる数値実験を掲載した。</p>
+<p class="metadata">作成・最終確認：<time datetime="2026-11-13">2026年11月13日</time> / 対象：微積分と線形代数を使って価格調整を理解したい読者</p>
+<nav aria-labelledby="toc-heading">
+<h2 id="toc-heading">目次</h2>
+<ol><li><a href="#problem">問題設定：均衡の存在、価格の収束、主体の行動</a></li><li><a href="#micro">静学の出発点：個人の選択から超過需要へ</a></li><li><a href="#geometry">価格空間と三つの公理</a></li><li><a href="#existence">均衡の存在を動学から切り離して証明する</a></li><li><a href="#dynamics">価格調整則を構成する</a></li><li><a href="#local">局所安定性：尺度由来の零固有値を除いて判定する</a></li><li><a href="#global">大域収束を証明する追加条件</a></li><li><a href="#stable">解ける例：Cobb–Douglas交換経済</a></li><li><a href="#cycle">収束しない例：Scarf型の循環交換</a></li><li><a href="#mixture">循環から収束へ：同じ経済の連続的な拡張</a></li><li><a href="#counterexample">三公理をすべて満たしても、価格は循環できる</a></li><li><a href="#potential">市場にポテンシャルがある場合</a></li><li><a href="#discrete">離散更新、観測遅延、ノイズ</a></li><li><a href="#transactions">非均衡のまま取引する経済へ拡張する</a></li><li><a href="#money">相対価格の調整と貨幣的な名目基準</a></li><li><a href="#literature">既存研究はどこまで進んだか</a></li><li><a href="#empirical">理論を観測によって検証する</a></li><li><a href="#experiment">数値実験：循環と収束を同じ式で比較する</a></li><li><a href="#conclusion">この理論化で得られたことと、残る課題</a></li><li><a href="#notation">付録A：主要な記号</a></li><li><a href="#python">付録B：Pythonで再計算する</a></li><li><a href="#references">出典・参考文献</a></li></ol>
+</nav>
+</header>
+<section id="problem">
+<h2>1. 問題設定：均衡の存在、価格の収束、主体の行動</h2>
+<p>一般均衡理論に力学を導入するとは、財の需要と供給が一致する価格を求める理論に、そこへ至るまでの時間発展を加えることだ。静学が与えるのは条件 <span class="inline-math">\(Z(p^\ast)=0\)</span> であり、動学が必要とするのは状態方程式 <span class="inline-math">\(\dot x=F(x)\)</span> である。後者は前者から一意には決まらない。</p>
+<p>出発点は、スティーヴ・スメールの <cite>Mathematical Problems for the Next Century</cite> に収められた第8問題だ。1998年の問題文は、価格調整を含む一般均衡モデルを求め、とりわけ個々の経済主体の行動から価格の時間発展を説明することを望ましい要件としている。<a class="ref" href="#ref-smale">[1]</a></p>
+<p>以下では、既存の定理と、本稿で計算を追える形に再構成したモデルを区別する。一般問題全体の解決を宣言するのではなく、<strong>何を追加すればどの結論が証明でき、何を追加してもまだ足りないか</strong>を具体化する。</p>
+<div class="table-wrap"><table><caption>動的な一般均衡モデルが答えるべき六つの問い</caption><thead><tr><th scope="col">問い</th><th scope="col">数理的な内容</th><th scope="col">それだけでは分からないこと</th></tr></thead><tbody>
+<tr><th scope="row">存在</th><td>市場を清算する価格 p* が存在する</td><td>経済がその価格へ向かうか</td></tr>
+<tr><th scope="row">定常点の一致</th><td>F(x*) = 0 と競争均衡の条件が整合する</td><td>その定常点が安定か</td></tr>
+<tr><th scope="row">局所安定性</th><td>十分近い初期状態から均衡へ戻る</td><td>遠い初期状態から戻るか</td></tr>
+<tr><th scope="row">大域収束</th><td>明示した領域内の初期状態から均衡へ近づく</td><td>主体がその調整則を実行するか</td></tr>
+<tr><th scope="row">実装可能性</th><td>観測情報、取引制度、計算能力で更新則を実行できる</td><td>実際にその行動が選ばれるか</td></tr>
+<tr><th scope="row">実証性</th><td>注文、在庫、約定、価格変更のデータを説明する</td><td>別の市場制度や時期にも適用できるか</td></tr>
+</tbody></table></div>
+<p>この区別を保てば、市場の調整能力を評価するときにも、存在定理を収束の証拠にすることや、一つの非収束例をすべての市場への判決にすることを避けられる。</p>
+</section>
+<section id="micro">
+<h2>2. 静学の出発点：個人の選択から超過需要へ</h2>
+<h3>2.1 純粋交換経済</h3>
+<p>財を i = 1,…,L、消費者を a = 1,…,N とする。消費者 a は初期保有 <span class="inline-math">\(\omega_{a}\)</span>、効用関数 <span class="inline-math">\(u_{a}\)</span> を持つ。正の価格 p に対して、価格を所与として次の問題を解く。</p>
+<div aria-label="消費者の効用最大化問題" class="equation">\[\begin{aligned}x_a(p)&amp;\in\underset{x\ge 0}{\arg\max}\;u_a(x)\\[2pt]\text{subject to}\quad&amp;p\cdot x\le p\cdot\omega_a\end{aligned}\]</div>
+<p>総初期保有を W = <span class="inline-math">\(\sum_{a}\)</span><span class="inline-math">\(\omega_{a}\)</span> とすると、超過需要は</p>
+<div class="equation">\[Z(p)=\sum_a x_a(p)-W\]</div>
+<p>である。消費者が局所的に非飽和であり最適解が存在すれば、正価格では予算を使い切る。その結果、個々の予算式を足して p · Z(p) = 0 が得られる。これは、売却可能な保有財の価値と購入需要の価値が一致することを表す。</p>
+<p>価格をすべて同じ正の倍率で変えると予算集合は変わらない。そのため需要が一意に定まる場合、Z(λp) = Z(p) となる。効用最大化は需要の根拠を与えるが、<strong>誰が価格をいつ変更するかは、この最適化問題にはまだ含まれていない</strong>。</p>
+<h3>2.2 必要な正則性を別に置く</h3>
+<p>連続な効用、凸な選好、適切な初期保有などは静的な存在定理の基本的条件になる。アロー＝ドブリューの原論文は、消費・交換・生産を統合したモデルで存在を証明した。<a class="ref" href="#ref-arrow">[2]</a> ただし、需要が一意、微分可能、境界まで有限という性質は、それぞれ追加の条件だ。</p>
+<p>本稿で常微分方程式を扱う箇所では、断りのない限り、超過需要が正価格領域で単一値かつ局所リプシッツ連続であると仮定する。ヤコビ行列を使う箇所では C¹ 級を仮定する。非一意な需要を含めるなら、需要対応や微分包含による記述へ進む必要がある。</p>
+<h3>2.3 生産を加える場合</h3>
+<p>企業 f の実行可能な純産出集合を <span class="inline-math">\(Y_{f}\)</span> とし、負の成分を投入、正の成分を産出とする。企業は <span class="inline-math">\(y_{f}\)</span>(p) ∈ arg <span class="inline-math">\(\max_{y\in Y_f}\)</span> p · y を選ぶ。企業利潤を消費者へ持分に従って分配すれば、超過需要は次になる。</p>
+<div class="equation">\[Z(p)=\sum_a x_a(p)-\sum_a\omega_a-\sum_f y_f(p)\]</div>
+<p>利潤分配と予算制約を整合させればワルラスの法則は保たれる。だが、生産の時間、設備、受注残、在庫を扱うには、それらを状態変数として追加しなければならない。静的な供給関数を置くだけでは、生産調整の時間発展にはならない。</p>
+</section>
+<section id="geometry">
+<h2>3. 価格空間と三つの公理</h2>
+<h3>3.1 経済的に意味を持つのは価格の比</h3>
+<p>純粋交換モデルでは価格の共通倍率が需要を変えない。したがって、正価格錐 <span class="inline-math">\(\mathbb{R}^{L}_{++}\)</span> の各半直線を一つの点と考える。計算上は、代表元を単体の内部に取ればよい。</p>
+<div class="equation">\[\begin{aligned}q_i&amp;=\frac{p_i}{\sum_j p_j}\\[2pt]\Delta^\circ&amp;=\left\{q\in\mathbb{R}^L:q_i&gt;0,\ \sum_i q_i=1\right\}\end{aligned}\]</div>
+<p>相対価格の自由度は L−1 になる。たとえば2財では価格比が一つ、3財では二つになる。財の数量単位を変更すれば価格の数値も変わるため、調整速度の係数と単位の対応も指定する必要がある。本稿の具体例では、各財の総初期保有を1とする単位を使う。</p>
+<p>なお、1財だけの純粋交換一般均衡では、ワルラスの法則から正価格で Z = 0 となる。「一つの市場で需要超過なら価格が上がる」という部分均衡モデルは、他市場や所得を外部に置いたモデルであり、この1財経済とは異なる。</p>
+<h3>3.2 原問題の三公理を正確に読む</h3>
+<ol>
+<li><strong>0次同次性：</strong>Z(λp) = Z(p)。価格の共通倍率は相対的な取引条件を変えない。</li>
+<li><strong>ワルラスの法則：</strong>p · Z(p) = 0。超過需要を現在の価格で評価した総額はゼロになる。</li>
+<li><strong>境界での内向き条件：</strong><span class="inline-math">\(p_{i}\)</span> = 0 なら <span class="inline-math">\(Z_{i}\)</span>(p) &gt; 0。無料の財への需要超過が、その価格を正の領域へ押し戻す。</li>
+</ol>
+<p>ここでは価格がすべてゼロの点を除く。また、存在や微分方程式の議論には連続性などを補う必要がある。第3条件は、個人の合理性だけから常に得られる性質ではない。無料の財の需要が発散して有限な Z を定義できない場合もあり、境界への連続拡張ができるモデルと、内部だけで定義するモデルを区別する。</p>
+<h3>3.3 ワルラスの法則は球面への接線条件</h3>
+<p>p · Z(p) = 0 は、Z が原点からの方向 p に直交することを意味する。したがって加法的な調整 ṗ = Z(p) では</p>
+<div class="equation">\[\frac{d}{dt}\|p\|^2=2p\cdot\dot p=2p\cdot Z(p)=0\]</div>
+<p>となり、価格は球面上を動く。ただし、∑<span class="inline-math">\(Z_{i}\)</span> = 0 は一般には成立しない。単体上でそのまま q̇ = Z(q) と書くと、価格の和が1という制約を壊す。球面と単体の正規化を取り違えないことが、動学の第一の整合性条件になる。</p>
+</section>
+<section id="existence">
+<h2>4. 均衡の存在を動学から切り離して証明する</h2>
+<p>次は、原問題の公理に連続性を加えたときの、コンパクトな単体を使う存在証明である。アロー＝ドブリューの最も一般的な存在定理を再証明するものではなく、本稿の仮定に限定した補助命題だ。</p>
+<div class="theorem"><p><strong>命題1：内点均衡の存在。</strong>閉単体 Δ 上で Z が連続、q · Z(q) = 0、<span class="inline-math">\(q_{i}\)</span> = 0 ⇒ <span class="inline-math">\(Z_{i}\)</span>(q) &gt; 0 を満たすとする。このとき、Z(q*) = 0 を満たす q* ∈ Δ° が少なくとも一つ存在する。</p></div>
+<p><strong>証明。</strong><span class="inline-math">\(Z_{i}^{+}\)</span>(q) = max{<span class="inline-math">\(Z_{i}\)</span>(q),0} と置き、次の連続写像を作る。</p>
+<div class="equation">\[T_i(q)=\frac{q_i+Z_i^+(q)}{1+\sum_j Z_j^+(q)}\]</div>
+<p>T は Δ を Δ に写すので、ブラウワーの不動点定理により T(q*) = q* となる点がある。s = ∑<span class="inline-math">\(Z_{i}^{+}\)</span>(q*) とすると、不動点条件は <span class="inline-math">\(Z_{i}^{+}\)</span>(q*) = s <span class="inline-math">\(q_{i}^{\ast}\)</span> となる。もし s &gt; 0 なら、<span class="inline-math">\(q_{i}^{\ast}\)</span> &gt; 0 の成分で <span class="inline-math">\(Z_{i}\)</span>(q*) = s <span class="inline-math">\(q_{i}^{\ast}\)</span> であり、</p>
+<div class="equation">\[q^\ast\cdot Z(q^\ast)=s\sum_i(q_i^\ast)^2&gt;0\]</div>
+<p>となってワルラスの法則に反する。よって s = 0、すなわち Z(q*) ≤ 0 である。境界条件から q* は内部にあり、全成分が正の q* と Z ≤ 0 の内積がゼロになるには Z(q*) = 0 でなければならない。□</p>
+<p>この証明には時間が一度も登場しない。不動点が存在しても、自然に見える価格調整がそこへ到達するとは限らない。また、無料の財を許す一般形では、均衡を <span class="inline-math">\(p\ge0,\quad Z(p)\le0,\quad p_iZ_i(p)=0\)</span> という相補性条件で書く。正価格の内点なら Z = 0 に戻る。</p>
+<p>後述する Cobb–Douglas 例は境界で需要が発散し、Scarf 型の例は厳密な内向き条件を満たさない。この命題の仮定は十分条件であり、すべての具体例が従う共通の必要条件ではない。</p>
+</section>
+<section id="dynamics">
+<h2>5. 価格調整則を構成する</h2>
+<h3>5.1 タトンマンが表す市場制度</h3>
+<p>タトンマン（tâtonnement、模索過程）では、需要と供給の申告に応じて仮の価格を更新する。純粋な形では、均衡に達する前の注文はまだ実際の取引にならない。このため初期保有を固定して Z(p) を計算できる。これは明確な制度上の仮定である。</p>
+<p>最も素朴な規則は \(\dot p_i\) = <span class="inline-math">\(\kappa_{i}\)</span><span class="inline-math">\(Z_{i}\)</span>(p)、<span class="inline-math">\(\kappa_{i}\)</span> &gt; 0 だ。需要超過で値上げ、供給超過で値下げする。ただし、速度が全財で同一の場合に成り立つ球面保存は、異なる速度係数をそのまま入れると一般には失われる。</p>
+<h3>5.2 単体上の加法的な正規化</h3>
+<p>1 を全成分が1のベクトルとすると、</p>
+<div class="equation">\[\dot q=\kappa\left[Z(q)-q\left(\mathbf{1}^{\mathsf T}Z(q)\right)\right]\]</div>
+<p>は ∑<span class="inline-math">\(\dot q_{i}\)</span> = 0 を満たす。定常点では Z = cq となるが、ワルラスの法則から c‖q‖² = 0、したがって Z = 0 となる。厳密な境界内向き条件があれば、境界で <span class="inline-math">\(\dot q_{i}\)</span> &gt; 0 でもある。</p>
+<p>元の加法系 ṗ = κZ(p) から q = p/(∑p) を微分すると、この式の右辺にさらに 1/(∑p) が掛かる。正の時間尺度を変えれば相対価格の軌道は対応するが、時計の進み方まで同じだと見なしてはいけない。</p>
+<h3>5.3 本稿の主モデル：乗法的な価格調整</h3>
+<div aria-label="主モデル、正規化価格の変化率は価格と超過需要の積" class="equation main-equation">\[\dot q_i=\kappa q_i Z_i(q),\qquad \kappa&gt;0\]</div>
+<p>ワルラスの法則から ∑<span class="inline-math">\(\dot q_{i}\)</span> = κq · Z = 0 となる。したがって、初期価格の和が1なら、その和は保存される。解が内部に存在する間は</p>
+<div class="equation">\[q_i(t)=q_i(0)\exp\left[\kappa\int_0^t Z_i(q(s))\,ds\right]\]</div>
+<p>であり、積分が有限な有限時刻には正値性が保たれる。境界付近の特異性がある場合、大域的に内部に留まることは別に証明する。内点では <span class="inline-math">\(q_{i}\)</span> &gt; 0 なので、q̇ = 0 と Z = 0 は同値になる。</p>
+<p>相対価格比の変化は d log(<span class="inline-math">\(q_{i}\)</span>/<span class="inline-math">\(q_{j}\)</span>)/dt = κ(<span class="inline-math">\(Z_{i}\)</span> − <span class="inline-math">\(Z_{j}\)</span>) となる。この規則は価格の正値性と尺度の扱いに便利だが、効用最大化から自動的に導かれたわけではない。</p>
+<h3>5.4 財ごとに更新速度が違う場合</h3>
+<p>単体上で速度 <span class="inline-math">\(\kappa_{i}\)</span> を使うなら、次のように平均項を引く。</p>
+<div class="equation">\[\dot q_i=q_i\left[\kappa_iZ_i(q)-\sum_j q_j\kappa_jZ_j(q)\right]\]</div>
+<p>和は常に保存される。内点定常点では <span class="inline-math">\(\kappa_{i}\)</span><span class="inline-math">\(Z_{i}\)</span> = c が全財で共通になる。ワルラスの法則を使うと c∑<span class="inline-math">\(q_{i}\)</span>/<span class="inline-math">\(\kappa_{i}\)</span> = 0 なので c = 0 となり、やはり Z = 0 と一致する。</p>
+<p>一方、境界での乗法則は <span class="inline-math">\(q_{i}\)</span> = 0 を固定してしまう場合がある。ゼロ価格の財を含む均衡を調べるなら、内部の議論をそのまま流用せず、相補性と境界の更新規則を指定する。</p>
+<h3>5.5 価格を変更するのは誰か</h3>
+<p>競争均衡の消費者や企業は、価格を所与として数量を選ぶ。したがって、その最適化だけから価格変更の主体は決まらない。競売人が市場ごとの申告を集計するのか、売り手が注文や在庫から提示価格を変えるのか、取引所の規則が価格を変えるのかを定める必要がある。</p>
+<p>自財の超過需要しか使わない式でも、それは個々の売り手にとって自動的に観測可能とは限らない。市場全体の未充足注文を知る仕組みが必要になる。一方、単体への正規化は共通の表示尺度を選ぶ操作であり、現実の主体すべてが価格の和を計算するという行動仮定とは区別できる。分散的な実装を論じるには、数量の選択と価格の改定の両方について情報の所在を示すことが必要だ。</p>
+</section>
+<section id="local">
+<h2>6. 局所安定性：尺度由来の零固有値を除いて判定する</h2>
+<p>内点均衡 q* の周囲で超過需要を線形化し、J = DZ(q*) とする。0次同次性を微分すると Jq* = 0、ワルラスの法則を微分すると \((q^\ast)^{\mathsf T}J\) = 0 を得る。均衡での価格調整の微分は</p>
+<div class="equation">\[B=\kappa\operatorname{diag}(q^\ast)J\]</div>
+<p>になる。ただし調べるべき摂動は ∑δ<span class="inline-math">\(q_{i}\)</span> = 0 を満たすものだけだ。単体の接空間 T = {v : \(\mathbf{1}^{\mathsf T}v\) = 0} の正規直交基底を列に持つ行列 Q を選ぶと、独立な変数に対する行列は</p>
+<div class="equation">\[A=Q^{\mathsf T}BQ\]</div>
+<p>となる。全空間の B に必ず現れる尺度方向の零固有値を、相対価格の不安定性と取り違えてはいけない。</p>
+<ul>
+<li>A の全固有値の実部が負なら、均衡は局所漸近安定になる。</li>
+<li>実部が正の固有値があれば、均衡は不安定になる。</li>
+<li>正の実部を持つ固有値がなく、実部がゼロの固有値が残る場合、線形化だけでは結論できない。非線形項や保存量を調べる必要がある。</li>
+</ul>
+<p>実部は減衰または増幅、虚部は局所的な回転を表す。各市場の自己価格効果が負でも、市場間の交差効果が全体の固有値を変える。個々の市場を一つずつ眺めるだけでは、連結した経済全体の安定性は判定できない。</p>
+<p>十分条件の一つは (A+<span class="inline-math">\(A^{\mathsf T}\)</span>)/2 が負定値であることだ。このとき V(v) = ‖v‖²/2 は局所的に減少する。ただし、安定な非対称行列すべてがこの条件を満たすわけではなく、必要条件ではない。</p>
+</section>
+<section id="global">
+<h2>7. 大域収束を証明する追加条件</h2>
+<p>局所安定性から、遠方の初期価格を含む収束は出てこない。大域的な結論には、軌道を制御する量が必要になる。その一つが、均衡価格からの相対エントロピー型の関数である。</p>
+<div class="theorem"><p><strong>命題2：KL型関数による大域収束。</strong>Z が Δ° で局所リプシッツ連続、q · Z(q) = 0 を満たし、内点均衡 q* が存在するとする。さらに、すべての q ≠ q* に対して q* · Z(q) &gt; 0 と仮定する。このとき主モデル <span class="inline-math">\(\dot q_{i}\)</span> = κ<span class="inline-math">\(q_{i}\)</span><span class="inline-math">\(Z_{i}\)</span> は、任意の内点初期価格から q* へ収束する。</p></div>
+<p><strong>証明。</strong>次の関数を使う。</p>
+<div class="equation">\[\begin{aligned}V(q)&amp;=D_{\mathrm{KL}}(q^\ast\|q)=\sum_i q_i^\ast\log\frac{q_i^\ast}{q_i}\ge 0\\[3pt]\dot V(q)&amp;=-\sum_i q_i^\ast\frac{\dot q_i}{q_i}=-\kappa q^\ast\cdot Z(q)&lt;0\qquad(q\ne q^\ast)\end{aligned}\]</div>
+<p>全成分 <span class="inline-math">\(q_{i}^{\ast}\)</span> が正なので、q が単体の境界へ近づくと V は無限大になる。V が増えないことから、軌道は内部のコンパクトな劣位集合に閉じ込められる。局所リプシッツ性とこの有界性から解は全時刻へ延長でき、V̇ = 0 の最大不変集合は q* のみとなる。ラサールの不変原理により収束する。□</p>
+<p>証明で働いているのは <strong>q* · Z(q) &gt; 0 という追加の符号条件</strong>だ。これは、価格が均衡から外れると V を減らす方向へ超過需要が向くことを意味する。消費者の効用最大化やワルラスの法則だけから、この符号は導けない。</p>
+<p>KLという形を使っても、市場が情報量や社会厚生を最大化していることにはならない。ここでの V は軌道を評価するために選んだ数学的関数である。</p>
+</section>
+<section id="stable">
+<h2>8. 解ける例：Cobb–Douglas交換経済</h2>
+<h3>8.1 需要の導出</h3>
+<p>各財の総初期保有を <span class="inline-math">\(W_{i}\)</span> = 1 とし、すべての消費者が共通の支出比率 <span class="inline-math">\(\alpha_{i}\)</span> &gt; 0、∑<span class="inline-math">\(\alpha_{i}\)</span> = 1 を持つとする。効用は <span class="inline-math">\(u_{a}\)</span>(x) = <span class="inline-math">\(\prod_{i}\)</span><span class="inline-math">\(x_{i}^{\alpha_{i}}\)</span> である。消費者 a の所得は q · <span class="inline-math">\(\omega_{a}\)</span> なので、需要は <span class="inline-math">\(x_{ai}\)</span> = <span class="inline-math">\(\alpha_{i}\)</span>(q · <span class="inline-math">\(\omega_{a}\)</span>)/<span class="inline-math">\(q_{i}\)</span> となる。</p>
+<p>所得を全員について足すと q · W = ∑<span class="inline-math">\(q_{i}\)</span> = 1 となる。したがって集計超過需要は</p>
+<div class="equation">\[Z_i^S(q)=\frac{\alpha_i}{q_i}-1\]</div>
+<p>となる。元の正価格錐では <span class="inline-math">\(Z_{i}^{S}\)</span>(p) = <span class="inline-math">\(\alpha_{i}\)</span>(<span class="inline-math">\(\sum_{j}\)</span><span class="inline-math">\(p_{j}\)</span>)/<span class="inline-math">\(p_{i}\)</span> − 1 と書け、0次同次性も確認できる。</p>
+<h3>8.2 価格は指数的に収束する</h3>
+<p>主モデルに代入すると、非線形に見えた価格調整が線形になる。</p>
+<div class="equation">\[\begin{aligned}\dot q_i&amp;=\kappa q_i\left(\frac{\alpha_i}{q_i}-1\right)=\kappa(\alpha_i-q_i)\\[3pt]q_i(t)&amp;=\alpha_i+[q_i(0)-\alpha_i]e^{-\kappa t}\end{aligned}\]</div>
+<p>唯一の正規化均衡は q* = α である。どの内点初期価格も、同じ指数率で均衡に近づく。初期価格と α の凸結合になっているため、価格の正値性も直接確認できる。</p>
+<p>命題2の条件も確かめられる。コーシー＝シュワルツの不等式から ∑<span class="inline-math">\(\alpha_{i}\)</span>²/<span class="inline-math">\(q_{i}\)</span> ≥ (∑<span class="inline-math">\(\alpha_{i}\)</span>)²/∑<span class="inline-math">\(q_{i}\)</span> = 1 なので、</p>
+<div class="equation">\[q^\ast\cdot Z^S(q)=\sum_i\frac{\alpha_i^2}{q_i}-1\ge 0\]</div>
+<p>となり、等号は q = α のときだけ成立する。この例の安定性は、共通の支出比率が作る特別な集計構造に支えられている。Cobb–Douglasという名前だけを理由に、あらゆる保有構造・更新規則・拡張モデルの安定を主張してはいけない。</p>
+</section>
+<section id="cycle">
+<h2>9. 収束しない例：Scarf型の循環交換</h2>
+<h3>9.1 個人の合理性から循環が生じる</h3>
+<p>3人、3財の純粋交換経済を考える。各人は一種類の財を1単位持ち、二種類を固定比率で使いたいとする。Scarfの非収束例が示した問題を、次の対称な構成で具体化する。<a class="ref" href="#ref-scarf">[3]</a></p>
+<div class="table-wrap"><table><caption>循環交換を作る初期保有と効用</caption><thead><tr><th scope="col">消費者</th><th scope="col">初期保有</th><th scope="col">効用</th></tr></thead><tbody><tr><th scope="row">A</th><td>(1,0,0)</td><td>min(x₁,x₂)</td></tr><tr><th scope="row">B</th><td>(0,1,0)</td><td>min(x₂,x₃)</td></tr><tr><th scope="row">C</th><td>(0,0,1)</td><td>min(x₃,x₁)</td></tr></tbody></table></div>
+<p>A は所得 q₁ を使って財1と財2を q₁/(q₁+q₂) ずつ買う。B、Cも同様である。集計すると、次の超過需要が得られる。</p>
+<div class="equation">\[\begin{aligned}Z_1^C(q)&amp;=\frac{q_3}{q_1+q_3}-\frac{q_2}{q_1+q_2}\\[4pt]Z_2^C(q)&amp;=\frac{q_1}{q_1+q_2}-\frac{q_3}{q_2+q_3}\\[4pt]Z_3^C(q)&amp;=\frac{q_2}{q_2+q_3}-\frac{q_1}{q_1+q_3}\end{aligned}\]</div>
+<p>価格の倍率は各比で相殺され、ワルラスの法則も成立する。正価格で <span class="inline-math">\(Z_1^{C}\)</span> = 0 なら q₂ = q₃ となるため、唯一の正規化内点均衡は q* = (1/3,1/3,1/3) だ。</p>
+<h3>9.2 主モデルでも保存量があり、周期運動になる</h3>
+<p>本稿で使う乗法則 <span class="inline-math">\(\dot q_{i}\)</span> = κ<span class="inline-math">\(q_{i}\)</span><span class="inline-math">\(Z_{i}^{C}\)</span> に対し、次の量を調べる。この保存量の計算は、本稿で明示的に行う導出である。</p>
+<div class="equation">\[\begin{aligned}H(q)&amp;=\frac1{q_1}+\frac1{q_2}+\frac1{q_3}\ge 9\\[3pt]\dot H&amp;=-\kappa\sum_{i=1}^3\frac{Z_i^C(q)}{q_i}=0\end{aligned}\]</div>
+<p>最後の等式は各分数を代入して通分すれば確認できる。たとえば分母 q₁+q₂ を持つ2項は (q₁−q₂)/(q₁q₂) にまとまり、三組を足すとゼロになる。</p>
+<p>H は均衡でのみ最小値9を取る。H = h &gt; 9 の集合は、単体の内部にある閉じた滑らかな曲線になる。Hは厳密凸で境界に向かって発散するため、この曲線は均衡を囲み、境界へ逃げない。その曲線上に定常点はない。したがって、均衡以外の内点から出発した軌道は曲線上を回り続け、周期運動になる。</p>
+<p><strong>唯一の均衡、合理的な需要、需要超過で値上げする規則がそろっても、価格は均衡へ収束しない。</strong>ここで起こるのは、無限大への発散ではなく、保存量に沿った持続的な循環である。</p>
+<p class="note">適用範囲：この例では、たとえば q₁ = 0、q₂,q₃ &gt; 0 のとき <span class="inline-math">\(Z_1^{C}\)</span> = 0 となる。原問題の「ゼロ価格なら超過需要が厳密に正」という強い境界条件は満たさない。第11節では、その境界条件まで満たしても収束が保証されない別の構成を示す。</p>
+</section>
+<section id="mixture">
+<h2>10. 循環から収束へ：同じ経済の連続的な拡張</h2>
+<h3>10.1 二つの消費者群を混ぜる</h3>
+<p>第8節の共通比率を α = (1/3,1/3,1/3) とし、安定な超過需要 <span class="inline-math">\(Z^{S}\)</span> と循環する超過需要 <span class="inline-math">\(Z^{C}\)</span> を混ぜる。</p>
+<div class="equation">\[\begin{aligned}Z^\theta(q)&amp;=(1-\theta)Z^C(q)+\theta Z^S(q),\quad 0\le\theta\le1\\[3pt]\dot q_i&amp;=\kappa q_i Z_i^\theta(q)\end{aligned}\]</div>
+<p>これは集計関数の形式的な混合にとどまらない。Scarf型の3人に (1−θ)<span class="inline-math">\(e_{i}\)</span>、Cobb–Douglas型の別の3人に θ<span class="inline-math">\(e_{i}\)</span> の保有を与える6人経済として実現できる。<span class="inline-math">\(e_{i}\)</span> は第i財を1単位持つベクトルだ。両群の需要は所得、したがって保有の倍率に比例するため、この <span class="inline-math">\(Z^{\theta}\)</span> が正確に得られる。各財の総保有は引き続き1である。</p>
+<p>θ は補完的な固定比率の消費者群と、共通支出比率の消費者群との<strong>保有配分比率</strong>である。現実の市場への政策処方や、個人の合理性の強弱を表す指標ではない。</p>
+<h3>10.2 小さな散逸が循環を減衰させる</h3>
+<p>同じ H = ∑1/<span class="inline-math">\(q_{i}\)</span> を使うと、循環成分はその微分に寄与せず、</p>
+<div class="equation">\[\dot H=-\kappa\theta\left[\frac13\sum_{i=1}^3q_i^{-2}-H\right]\]</div>
+<p>となる。∑<span class="inline-math">\(q_{i}^{-2}\)</span> ≥ H²/3 と H ≥ 9 より、</p>
+<div class="equation">\[\begin{aligned}\dot H&amp;\le-\kappa\theta\frac{H(H-9)}9\le-\kappa\theta(H-9)\\[4pt]0\le H(q(t))-9&amp;\le[H(q(0))-9]e^{-\kappa\theta t}\end{aligned}\]</div>
+<p>を得る。θ &gt; 0 なら H は9へ近づく。Hの劣位集合は内部コンパクトなので解は境界に達せず、Hの唯一の最小点 q* へ収束する。θ = 0 では H が保存され、周期運動が残る。</p>
+<p>したがって、この特定の6人経済では、正の比率のCobb–Douglas群を加えるだけで大域収束を証明できる。ただし、これを「どんな市場も少量の別の消費者を加えれば安定する」という一般命題に広げることはできない。</p>
+<h3>10.3 局所的には減衰する回転になる</h3>
+<p>均衡での接空間の固有値は、直接微分すると</p>
+<div class="equation">\[\lambda_\pm=-\kappa\theta\pm i\,\frac{\kappa(1-\theta)\sqrt3}{4}\]</div>
+<p>になる。θ = 0 では純粋な回転、0 &lt; θ &lt; 1 では減衰する振動、θ = 1 では指数収束である。ここで H−9 に対する上の大域評価と、価格偏差に対する局所固有値の減衰率は、異なる量の評価として区別する。</p>
+</section>
+<section id="counterexample">
+<h2>11. 三公理をすべて満たしても、価格は循環できる</h2>
+<p>Scarf型の例に残った境界条件の違いを埋めるため、ここでは<strong>抽象的な超過需要場</strong>を明示的に構成する。個人の効用からの実現をこの節で主張するものではなく、三つの表示公理だけから収束を導くことができない、という論理的な反例である。</p>
+<p>3財の非負価格 p ≠ 0 に対して、次の記号を定める。</p>
+<div class="equation">\[\begin{aligned}n&amp;=\frac p{\|p\|},\quad c=\frac{(1,1,1)}{\sqrt3},\quad d=c\cdot n\\[3pt]a&amp;=0.9,\quad\varepsilon=0.01\\[3pt]Z(p)&amp;=(a-d)(c-dn)+\varepsilon(c\times n)\end{aligned}\]</div>
+<p>× は3次元の外積である。nだけに依存するので0次同次であり、n · (c−dn) = 0、n · (c×n) = 0 からワルラスの法則が成立する。原点を除けば滑らかでもある。</p>
+<p>境界 <span class="inline-math">\(n_{i}\)</span> = 0 では d ≤ √(2/3)、|\((c\times n)_i\)| ≤ 1 なので、</p>
+<div class="equation">\[Z_i(p)\ge\frac{0.9-\sqrt{2/3}}{\sqrt3}-0.01&gt;0.038\]</div>
+<p>となり、厳密な内向き条件も満たす。一方、c−dn と c×n は互いに直交し、いずれもノルム √(1−d²) を持つ。ε &gt; 0 なので、正象限の球面上で Z = 0 となるのは n = c だけだ。</p>
+<p>単位球面上の加法的な調整 ṅ = Z(n) を採用すると、軸 c に沿った成分 d は</p>
+<div class="equation">\[\dot d=(a-d)(1-d^2)\]</div>
+<p>に従う。d &lt; a なら増加し、a &lt; d &lt; 1 なら減少する。cから出発する場合を除き d → a となるが、cの周囲の方位角は速度 ε で回り続ける。d = a の円は、各座標の最小値が a/√3 − √(2/3)√(1−a²) ≈ 0.164 &gt; 0 なので、全体が正価格領域に収まる。</p>
+<p>結論は、<strong>滑らかさ、0次同次性、ワルラスの法則、厳密な境界内向き条件、唯一の正規化均衡がそろっても、この調整則には安定な周期軌道が生じる</strong>ということだ。均衡 c の接空間固有値は (1−a) ± iε であり、均衡自体は不安定である。</p>
+<p>前節の循環例は個人の選択まで明示し、この節の反例は原問題の公理をすべて満たす。それぞれ何を反証しているかを分けることで、境界条件を理由に論点がすり替わることを避けられる。</p>
+</section>
+<section id="potential">
+<h2>12. 市場にポテンシャルがある場合</h2>
+<h3>12.1 散逸する構造を追加する</h3>
+<p>主モデルは M(q) = diag(q) − <span class="inline-math">\(qq^{\mathsf T}\)</span> を使って q̇ = κM(q)Z(q) と書ける。Mは対称半正定値で、内点では零空間が1の張る空間になる。ワルラスの法則により <span class="inline-math">\(qq^{\mathsf T}\)</span>Z = 0 だから、元の乗法則と同じである。</p>
+<p>もし単体上にポテンシャル Φ があり、Z = −∇Φ + b(q)1 と表せるなら、</p>
+<div class="equation">\[\begin{aligned}\dot q&amp;=-\kappa M(q)\nabla\Phi(q)\\[3pt]\dot\Phi&amp;=-\kappa\nabla\Phi(q)^{\mathsf T}M(q)\nabla\Phi(q)\le0\end{aligned}\]</div>
+<p>となる。Φが単体上で厳密凸、最小点が内点にあり、軌道が内部コンパクト集合に留まるなどの条件があれば、その最小点への収束を導ける。Mの零空間とワルラスの法則から、内点定常点が Z = 0 に一致することも確認できる。</p>
+<p>接空間を保つ歪対称行列 R、すなわち <span class="inline-math">\(R^{\mathsf T}\)</span> = −R、R1 = 0 を使い、q̇ = −(κM+R)∇Φ としても、RはΦの時間微分に寄与しない。これは減衰と回転を分離する一つの形式だ。ただし正値性・境界不変性は別途必要であり、すべての市場にそのようなΦが存在するわけではない。</p>
+<p>微分可能な場が局所的に勾配になるには、適切な座標で交差微分の対称性が必要になる。一般の集計超過需要には所得効果があり、その対称性は自動的には得られない。凸ポテンシャルを持つ市場は、特別な構造を持つ市場クラスとして研究されている。<a class="ref" href="#ref-convex">[6]</a></p>
+<h3>12.2 Fisher市場を交換経済と混同しない</h3>
+<p>Fisher市場では、買い手の貨幣予算 <span class="inline-math">\(b_{a}\)</span> と売り手の供給 <span class="inline-math">\(s_{i}\)</span> が外生的に固定される。一般の交換経済の所得 p · <span class="inline-math">\(\omega_{a}\)</span> とは異なる。全予算 B = ∑<span class="inline-math">\(b_{a}\)</span> が使われると、</p>
+<div class="equation">\[p\cdot Z(p)=B-p\cdot s\]</div>
+<p>であり、財だけの超過需要に p · Z = 0 は恒等的には成立しない。予算が名目尺度を固定するため、価格を一律に変えても同じモデルには戻らない。</p>
+<p>買い手がCobb–Douglas効用を持つFisher市場なら、<span class="inline-math">\(\beta_{i}\)</span> = <span class="inline-math">\(\sum_{a}\)</span><span class="inline-math">\(b_{a}\)</span><span class="inline-math">\(\alpha_{ai}\)</span> として <span class="inline-math">\(Z_{i}\)</span>(p) = <span class="inline-math">\(\beta_{i}\)</span>/<span class="inline-math">\(p_{i}\)</span> − <span class="inline-math">\(s_{i}\)</span> となる。ここには明示的な凸ポテンシャルがある。</p>
+<div class="equation">\[\begin{aligned}\Phi(p)&amp;=\sum_i s_i p_i-\sum_i\beta_i\log p_i,\quad\nabla\Phi=-Z\\[3pt]\dot p_i&amp;=\kappa p_iZ_i=\kappa(\beta_i-s_ip_i)\\[3pt]p_i^\ast&amp;=\frac{\beta_i}{s_i}\qquad(\beta_i,s_i&gt;0)\end{aligned}\]</div>
+<p>この例では各価格が指数収束する。しかし、Fisher市場で得た凸性を、所得が価格に依存する交換経済全体へ無条件に移すことはできない。</p>
+<h3>12.3 均衡を計算するアルゴリズムと市場の行動</h3>
+<p>独立な価格座標に移したニュートン型の方法は、超過需要とそのヤコビ行列を使って根を探せる。だが、全市場の微分情報を誰が持ち、誰が更新を実行するかは別問題になる。価格機構の情報要件はSaariとSimonの研究でも検討されている。<a class="ref" href="#ref-saari">[13]</a></p>
+<p>また、単に ‖Z‖²/2 を最小化すれば十分とも限らない。その勾配がゼロになる条件は <span class="inline-math">\(J^{\mathsf T}\)</span>Z = 0 であり、Z = 0 と一致しない停留点を持ちうる。残差の小ささと、最適化アルゴリズムが止まったという事実は分けて確認する。</p>
+</section>
+<section id="discrete">
+<h2>13. 離散更新、観測遅延、ノイズ</h2>
+<h3>13.1 連続時間で安定でも、刻みが大きいと不安定になる</h3>
+<p>局所系 v̇ = Av を陽的Euler法で離散化すると、<span class="inline-math">\(v_{k+1}\)</span> = (I+hA)<span class="inline-math">\(v_{k}\)</span> となる。離散系の収束条件は、すべての固有値λについて |1+hλ| &lt; 1 である。</p>
+<div class="equation">\[\begin{aligned}\lambda=-a,\ a&gt;0\quad&amp;\Longrightarrow\quad0&lt;ha&lt;2\\[3pt]\lambda=\alpha+i\beta,\ \alpha&lt;0\quad&amp;\Longrightarrow\quad0&lt;h&lt;\frac{-2\alpha}{\alpha^2+\beta^2}\end{aligned}\]</div>
+<p>hが実際の価格改定間隔なら経済モデルの条件であり、微分方程式を計算する刻みなら数値手法の条件である。この二つを混ぜると、計算上の発散を市場の不安定性と誤認する。</p>
+<p>特に純虚数λ = iβにEuler法を使うと、|1+ihβ| &gt; 1 となり、どれほど小さな正のhでも線形化した軌道が人工的に膨らむ。循環例を検証するときは、保存量の誤差と刻みを半分にした結果を併せて調べる。</p>
+<h3>13.2 正値性を守る離散更新</h3>
+<p>価格を指数で更新して正規化する規則も使える。</p>
+<div class="equation">\[q_{i,k+1}=\frac{q_{i,k}\exp\left(h\kappa Z_i(q_k)\right)}{\sum_j q_{j,k}\exp\left(h\kappa Z_j(q_k)\right)}\]</div>
+<p>正の初期値なら常に正で、和も1になる。h → 0で主モデルに一致するが、有限のhで同じ保存量や収束性を持つとは限らない。正値性を守ることと、安定性を守ることは異なる。</p>
+<h3>13.3 反応が速すぎると、遅れが振動を生む</h3>
+<p>単一モードの遅延負帰還 v̇(t) = −a v(t−τ)、a &gt; 0 を考える。τは需要を観測して価格へ反映するまでの遅れだ。特性方程式は λ+a <span class="inline-math">\(e^{-\lambda\tau}\)</span> = 0 となる。λ = iωを代入すると、最初の安定境界は ω = a、aτ = π/2 に現れる。このスカラー系の漸近安定条件は</p>
+<div class="equation">\[a\tau&lt;\frac\pi2\]</div>
+<p>である。<a class="ref" href="#ref-hayes">[12]</a> 反応係数aを大きくするほど、許される遅延τは小さくなる。したがって「需要超過にはできるだけ速く反応するほどよい」という結論は一般には成り立たない。多財系の閾値は行列と遅延構造に依存する。また線形安定性を失ったことだけから、非線形の安定周期軌道の存在までは結論できない。</p>
+<h3>13.4 ノイズのある経済では点への収束が目的とは限らない</h3>
+<p>局所モデルを dv = Av dt + Σ <span class="inline-math">\(dW_{t}\)</span> とし、Aのすべての固有値の実部が負なら、一定の外乱の下では平均が均衡へ近づいても分散は一般にゼロにならない。定常共分散Cは AC+<span class="inline-math">\(CA^{\mathsf T}\)</span>+Σ<span class="inline-math">\(\Sigma^{\mathsf T}\)</span> = 0 を満たす。これは均衡の周囲の線形近似であり、価格の正値性を大域的に保証する確率モデルではない。</p>
+<p>単一モード dv = −av dt + σ <span class="inline-math">\(dW_{t}\)</span> なら定常分散は σ²/(2a) であり、固定された外乱に対してaを大きくすると分散は減る。一方、観測ノイズを更新係数a倍して取り込むモデルではノイズ係数がaσとなり、定常分散はaσ²/2に増える。反応速度とノイズの関係は、ノイズがどこへ入るかに依存する。</p>
+<p>技術や嗜好が動くなら、均衡自体も動く。外乱のないスカラー局所モデルで均衡の移動速度が高々v、復元係数がaなら、誤差方程式 ė = −ae−q̇* から lim <span class="inline-math">\(\sup_{t\to\infty}\)</span>|e(t)| ≤ v/a を得る。ただし観測遅延があれば、反応速度を上げるほど安定性を保てる遅延の上限は小さくなる。追従速度、遅延、ノイズの入り方を併せて調べることも、価格力学の役割になる。</p>
+</section>
+<section aria-labelledby="transactions-title" id="transactions">
+<h2 id="transactions-title">14. 非均衡のまま取引する経済へ拡張する</h2>
+<p>価格の提示だけを繰り返す模索過程では、均衡に達するまで初期保有を固定できる。実際に売買すれば財と資金の分布が変わるため、同じ固定関数 <var>Z</var>(<var>p</var>) を追い続けるモデルでは足りない。以下はその違いを明示する会計的な構成例であり、普遍的な収束定理ではない。</p>
+<h3>状態・注文・約定を分ける</h3>
+<p>主体を <var>a</var>、財を <var>i</var>、離散的な期を <var>t</var> とする。状態は名目価格 <span class="inline-math">\(P_{i,t}\)</span>、保有・在庫 <span class="inline-math">\(I_{ai,t}\)</span>、現金 <span class="inline-math">\(m_{a,t}\)</span>、期待 <span class="inline-math">\(e_{a,t}\)</span> からなる。価格の単位は「通貨／財の単位」、現金は通貨、在庫は各財の物量である。期内の順序を生産、注文、約定、消費、状態更新と固定する。以下の生産・取引・消費は、その期に動く数量を表す。</p>
+<p>純産出 <span class="inline-math">\(y_{ai,t}\)</span> には投入財を表す負の値も許し、技術集合と <span class="inline-math">\(I_{a,t}\)</span>＋<span class="inline-math">\(y_{a,t}\)</span> ≥ 0 を満たすものを選ぶ。出品 <var>o</var> と購入希望 <var>d</var> には、財と資金の制約を課す。</p>
+<div class="equation">\[\begin{aligned}0\le o_{ai,t}&amp;\le I_{ai,t}+y_{ai,t},\quad d_{ai,t}\ge0\\[2pt]\sum_i P_{i,t}d_{ai,t}&amp;\le m_{a,t}\end{aligned}\]</div>
+<p>この予算制約は「期首現金だけで購入する」という追加仮定である。同じ期の売上を使う仕組みや信用を導入するなら、決済順序と債権・債務を別に定める。取引後の財を同じ期に再販売しないことも、ここでは明示的に仮定する。</p>
+<p><span class="inline-math">\(v_{ab,i,t}\)</span> ≥ 0 を主体 <var>a</var> から <var>b</var> への実現取引量とする。希望数量がそのまま実現するとは限らない。</p>
+<div class="equation">\[\begin{aligned}\sum_b v_{ab,i,t}&amp;\le o_{ai,t},\quad \sum_a v_{ab,i,t}\le d_{bi,t}\\v_{aa,i,t}&amp;=0\end{aligned}\]</div>
+<p>この制約を満たす約定の選び方まで指定する。比例配給、先着順、注文板などは異なる動学を生む。配給規則を空欄のままにして「需要＝販売量」と置けば、欠品時の行動を説明できない。</p>
+<h3>物量と現金の保存</h3>
+<p>消費 <span class="inline-math">\(c_{ai,t}\)</span> ≥ 0 は次期在庫が非負となる範囲で選ぶ。純移転 <span class="inline-math">\(\tau_{a,t}\)</span> は移転後も現金が非負となる範囲に限定する。更新式は次になる。</p>
+<div class="equation">\[I_{ai,t+1}=I_{ai,t}+y_{ai,t}+\sum_b v_{ba,i,t}-\sum_b v_{ab,i,t}-c_{ai,t}\]</div>
+<div class="equation">\[m_{a,t+1}=m_{a,t}+\sum_{b,i}P_{i,t}v_{ab,i,t}-\sum_{b,i}P_{i,t}v_{ba,i,t}+\tau_{a,t}\]</div>
+<p>全主体について足すと取引項が相殺される。</p>
+<div class="equation">\[\begin{aligned}\sum_a\Delta I_{ai,t}&amp;=\sum_a y_{ai,t}-\sum_a c_{ai,t}\\\Delta M_t&amp;=\sum_a\tau_{a,t},\qquad M_t=\sum_a m_{a,t}\end{aligned}\]</div>
+<p>外部との貨幣の注入・回収がない閉じた現金系では、純移転の合計はゼロになる。賃金・配当も支払い側と受け取り側を対応させる。貨幣保有の需要があるため、財だけの注文超過に純粋交換経済のワルラス法則を機械的に適用してはいけない。</p>
+<h3>行動規則を指定して初めて閉じる</h3>
+<p>生産、注文、消費を現在の状態と期待の関数として定め、約定、期待更新、移転、価格改定の規則を指定すれば、状態遷移が閉じる。例えば期待販売量を <span class="inline-math">\(e_{t+1}\)</span>＝(1−γ)<span class="inline-math">\(e_{t}\)</span>＋γ<span class="inline-math">\(v_{t}\)</span>、0 ≤ γ ≤ 1 で更新できる。ただし欠品で販売が制限されると、この学習は潜在需要を過小評価する。未充足注文の観測を加えるかどうかが結果を変える。</p>
+<p>価格改定の候補として、無次元の注文超過 <span class="inline-math">\(E_{i,t}\)</span> と在庫偏差を使える。</p>
+<div class="equation">\[\log\frac{P_{i,t+1}}{P_{i,t}}=\kappa_i E_{i,t}-\eta_i\frac{I_{i,t}-I_i^\ast}{\bar I_i},\quad\kappa_i,\eta_i&gt;0\]</div>
+<p>ここで <span class="inline-math">\(I_{i,t}\)</span> は売り手側の集計在庫、<span class="inline-math">\(I_{i}^{*}\)</span> は目標在庫、<span class="inline-math">\(\bar I_{i}\)</span> &gt; 0 は物量の基準値である。<var>E</var> も注文量と出品量の差を所定の物量で割って定義する。この式は正価格を保つが、売り手の利潤最大化から自動的に導かれるものではない。誰が何を観測して価格を変えるのかを指定する追加的な行動仮説である。</p>
+<p>また、注文超過と在庫偏差が相殺すれば価格だけが止まる場合もある。<strong>会計的一貫性、定常点と競争均衡の一致、そこへの収束は別々に示す必要がある。</strong>非均衡で取引した経路によって保有分布が変われば、到達する均衡も初期保有を固定した場合と異なり得る。</p>
+<p>Cole・Fleischer・Rastogiは、有限在庫を持つ反復フィッシャー市場の特定のクラスで、局所情報による非同期更新の収束を示した。ただし供給と買い手予算を各期に外生的に与えるモデルであり、一般の貨幣循環まで自動的に説明する結果ではない。<a class="ref" href="#ref-ongoing">[8]</a></p>
+</section>
+<section aria-labelledby="money-title" id="money">
+<h2 id="money-title">15. 相対価格の調整と貨幣的な名目基準</h2>
+<p>純粋交換経済の価格正規化は、通貨建ての物価水準を決めない。フリードマンの観点を組み込むには、個別財の相対価格と、経済全体の名目尺度を分けてモデル化する。</p>
+<p>固定ウェイト <span class="inline-math">\(\omega_{i}\)</span> &gt; 0、∑<span class="inline-math">\(\omega_{i}\)</span>＝1 と基準価格を用いて、無次元の幾何平均物価指数 <var>Π</var> を定義する。</p>
+<div class="equation">\[\begin{aligned}\Pi&amp;=\exp\left[\sum_i\omega_i\log\left(\frac{P_i}{P_{i,0}}\right)\right]\\r_i&amp;=\frac{P_i}{\Pi},\qquad P_i=\Pi r_i\end{aligned}\]</div>
+<p><span class="inline-math">\(r_{i}\)</span> は基準時点の通貨単位で測った価格で、価格比 <span class="inline-math">\(r_{i}\)</span>/<span class="inline-math">\(r_{j}\)</span> は名目価格比と一致する。連続時間で補間すれば、個別価格の変化は一般物価の変化 <var>π</var>＝d log <var>Π</var>/d<var>t</var> と、d log <span class="inline-math">\(r_{i}\)</span>/d<var>t</var> に分解される。この指数は説明用の定義であり、特定の公的物価指数と同一ではない。</p>
+<p>対象範囲を指定した名目支出率を <span class="inline-math">\(E^{\mathrm{nom}}\)</span> とし、<var>Y</var> = <span class="inline-math">\(E^{\mathrm{nom}}\)</span>/<var>Π</var> を、この指数でデフレートした実質支出率と定義する。任意の幾何平均指数によるデフレートは、固定基準価格と数量の積を足した値と常に一致するわけではない。<var>M</var> は貨幣残高、<var>V</var> = <span class="inline-math">\(E^{\mathrm{nom}}\)</span>/<var>M</var> はその支出に対応する流通速度とする。最終支出を対象にする場合は、中間財を含む全約定額をそのまま代入しない。</p>
+<div class="equation">\[MV=\Pi Y,\qquad\pi=\mu+\nu-g\]</div>
+<p>ここで <var>μ</var>＝d log <var>M</var>/d<var>t</var>、<var>ν</var>＝d log <var>V</var>/d<var>t</var>、<var>g</var>＝d log <var>Y</var>/d<var>t</var>。<var>V</var>＝<var>ΠY</var>/<var>M</var> と定義するだけなら数量方程式は恒等式である。因果的な貨幣数量説には、貨幣需要、供給、実質産出の決定について追加仮説が要る。安定した貨幣需要という仮説も、流通速度が常に一定という仮説とは異なる。</p>
+<p>純粋交換モデルの Z(λp) = Z(p) は、価格表示の尺度対称性である。それだけから、現実の貨幣供給を変えても実質量が即座に不変になるという貨幣中立性は導けない。</p>
+<p>フリードマン的な構成では、長期の実質的制約を資源・技術・制度に置き、貨幣増加だけで実質産出や雇用を任意の水準へ恒久的に引き上げられるとはしない。一方、予想の調整や契約の時間差を通じた短期の実質効果は認める。本人も、貨幣が実質変数に重要な影響を持つことと、実質量を任意の水準へ固定できないことを区別している。<a class="ref" href="#ref-friedman">[11]</a></p>
+<p>特定財の供給減少は相対価格を変え、実質産出や測定される物価水準にも影響し得る。しかし一回の水準変化と持続的な一般物価上昇は同じではない。持続インフレは貨幣成長、貨幣需要、実質成長の関係として扱う。相対価格の力学を証明するだけでインフレ理論は完成せず、数量方程式だけで多市場の収束も保証されない。</p>
+<p>フリードマンが重視した安定した貨幣的背景は、価格・賃金の調整を嗜好や技術の変化に必要な相対価格の変化へ向けるための条件として位置づけられる。これは、あらゆる市場が無条件に安定するという命題ではない。<a class="ref" href="#ref-friedman">[11]</a></p>
+</section>
+<section aria-labelledby="literature-title" id="literature">
+<h2 id="literature-title">16. 既存研究はどこまで進んだか</h2>
+<p>スメールの第8問題は、一般均衡理論へ価格調整の時間発展を組み込み、できれば個々の経済主体の行動からその過程を説明するという研究課題である。原文が「限定された状況でのみ解かれている」と述べたのは1998年のことであり、その文章を現在の研究状況へそのまま移してはいけない。単に微分方程式を書くこと、均衡へ収束する計算過程を作ること、実際の市場行動を説明することは、それぞれ達成すべき内容が異なる。<a class="ref" href="#ref-smale">[1]</a></p>
+<h3>三つの障壁は、異なる命題である</h3>
+<p>アロー＝ドブリューの存在定理は、所定の選好・技術・資源条件を満たす経済に競争均衡が存在することを保証する。均衡の存在から、特定の価格調整則の安定性が直ちに従うわけではない。静的な均衡条件と動学の収束条件を分けることが出発点になる。<a class="ref" href="#ref-arrow">[2]</a></p>
+<p><strong>スカーフの反例は、特定の調整過程の非収束を示す。</strong>個人の効用最大化から作った経済でも、自財の超過需要に応じて価格を変える過程が、均衡の周囲を振動し続ける例がある。「不安定」という表現には、均衡へ近づかない循環も含まれ、常に価格が無限大へ発散するという意味ではない。別の情報や更新則を採用するすべての機構まで否定した結果でもない。<a class="ref" href="#ref-scarf">[3]</a></p>
+<p><strong>ゾンネンシャイン＝マンテル＝ドブリューの結果は、集計の形状制約の弱さを示す。</strong>正価格領域の適切なコンパクト集合上では、連続性・斉次性・ワルラス法則などに整合する非常に広い形の超過需要が、個人の合理的選択の集計として実現できる。したがって、個人の合理性だけを根拠に市場全体の一意性や安定性を保証できない。これは均衡の不存在や、市場の必然的な不安定性を意味しない。<a class="ref" href="#ref-smd">[4]</a></p>
+<p><strong>サーリ＝サイモンの研究は、収束機構が要求する情報を問う。</strong>ニュートン法に類似する過程では、超過需要とその価格への反応について広範な情報を使う。彼らは、扱う機構のクラスでその情報要求を大幅に減らすことの限界を検討した。「いかなる市場も無限の情報なしには収束できない」と一般化する根拠にはならない。利用可能な観測、履歴、補助状態、対象経済の制約を指定して読む必要がある。<a class="ref" href="#ref-saari">[13]</a></p>
+<h3>大域収束する価格過程は、すでに構成されている</h3>
+<p>Heringsの2024年の論文は、交換経済に対する三つの価格過程を整理している。したがって「一般均衡へ収束する方法は一つもない」という説明は誤りになる。出版版の要約に従えば、結論の範囲は次のように異なる。<a class="ref" href="#ref-herings">[5]</a></p>
+<div class="table-wrap">
+<table>
+<caption>Herings（2024）が整理する価格過程と収束条件</caption>
+<thead><tr><th scope="col">価格過程</th><th scope="col">条件と保証の範囲</th></tr></thead>
+<tbody>
+<tr><th scope="row">Smale（1976）</th><td>経済の正則性条件の下で、いずれかの価格がゼロの初期価格集合のほとんどすべてから、競争均衡へ収束する。</td></tr>
+<tr><th scope="row">Kamiya（1990）</th><td>超過需要の境界での振る舞いに条件を課し、ほとんどすべての初期価格から、競争均衡の集合へ収束する。</td></tr>
+<tr><th scope="row">van der Laan–Talman（1987）／Herings（1997）</th><td>genericな交換経済の集合について、任意の初期価格から競争均衡へ収束する。</td></tr>
+</tbody>
+</table>
+</div>
+<p>ここで「generic」は各定理が定める意味で一般的な経済のクラスを指す。「ほとんどすべての初期価格」「任意の初期価格」と同じ限定ではない。証明では価格経路の多様体構造などを使う。収束する経路を構成できても、その経路が各売り手・買い手の観測可能な情報と行動から実装されるかは、さらに検討を要する。<a class="ref" href="#ref-herings">[5]</a></p>
+<h3>フィッシャー市場で進む、条件を明示した収束理論</h3>
+<p>固定された貨幣予算を持つ買い手と所与の供給を扱うフィッシャー市場では、凸最適化との対応が有力になる。Cheung・Cole・Devanur（2013）は凸ポテンシャルを持つ市場を研究し、レオンチェフ効用や補完的CES効用を持つフィッシャー市場について離散的価格調整の収束を示した。補完財の存在だけで非収束と結論することはできず、この構造を一般の初期保有交換経済へ無条件に移すこともできない。<a class="ref" href="#ref-convex">[6]</a></p>
+<p>Cheung・Cole（2018）はCESまたはレオンチェフ効用のフィッシャー市場で、特定の非同期価格調整を解析した。更新が同時でなくても収束を証明できるが、任意の遅延や更新幅が許されるという結果ではない。<a class="ref" href="#ref-async">[7]</a></p>
+<p>Goktas・Zhao・Greenwaldの2025年改訂版は、ヒックス需要の価格弾力性が有界なホモセティック・フィッシャー市場で収束率を与える。弾力性が発散する線形効用の限界を、その有界性の定理へ含めてはいけない。<a class="ref" href="#ref-homothetic">[9]</a></p>
+<p>Nan・Gao・Kroerの2025年改訂版は、線形フィッシャー市場の価格調整を双対問題の劣勾配法として解析した。十分小さい固定刻み幅についての保証は、刻み幅に依存する半径の均衡近傍への収束であり、固定刻み幅のまま厳密な均衡点へ収束するという主張ではない。<a class="ref" href="#ref-linear">[10]</a></p>
+<p>以上の到達点から、本稿の仕事は新しい普遍解の宣言ではなく、既存の定理と具体的なモデルを接続し、どの仮定がどの結論を支えるかを示すことになる。数学的収束、分散的実装、現実への説明力をそれぞれ確かめる必要がある。</p>
+</section>
+<section aria-labelledby="empirical-title" id="empirical">
+<h2 id="empirical-title">17. 理論を観測によって検証する</h2>
+<p>価格だけを観測していても、どの調整機構が働いたかは決まらない。注文量、約定量、未充足注文、欠品、在庫、価格変更の時刻を区別して記録する。販売量は在庫制約によって打ち切られ得るため、そのまま需要量とはみなせない。</p>
+<p>例えば上の価格規則を推計する場合、注文超過に対する係数が正か、過剰在庫に対する係数が負か、他市場の価格を加えると説明が改善するかを調べる。ただし同時点の価格と需要は相互に決まる。単純な回帰係数を価格の因果効果と呼ばず、観測順序、外生変化、操作変数など、採用した識別の根拠を明示する。</p>
+<p>検証の中心は、推計に使わなかった期間に、価格・数量・在庫の調整経路を予測できるかである。収束を主張するモデルなら、外的な条件が概ね一定な期間に、不均衡が長期的にゼロへ近づくか、予測した減衰速度や振動が観測されるかを確かめる。収束していても残差が毎時点単調に減るとは限らず、単調性の検証はその性質を予測するLyapunov関数などについて行う。外部条件が動き続ける経済では、固定点への収束と、動く均衡への追随を区別する。</p>
+<p>予測と合わなければ、需要関数、価格決定規則、情報遅延、取引制約のどこが破れたかを調べる。観測された変動をすべて未知のショックへ押し込むと、モデルは反証できなくなる。数学的に正しい定理であっても、その仮定が現実に対応するかは別の検証課題である。</p>
+</section>
+<section id="experiment">
+<h2>18. 数値実験：循環と収束を同じ式で比較する</h2>
+<p>第10節の6人交換経済を計算する。初期価格の比、保有配分比率θ、調整速度κを変更できる。<strong>θ = 0ならHは保存、θ &gt; 0ならHは9へ減少する</strong>。均衡価格はすべての場合で (1/3,1/3,1/3) だ。価格が一時的に均衡へ近づくだけでは、収束の証明にはならない。</p>
+<form id="experiment-form">
+<fieldset><legend>初期価格の比（正の値を入力すると、和が1になるよう正規化する）</legend><div class="form-row">
+<label>財1 <input id="initial-1" min="0.000001" name="q1" required="" step="any" type="number" value="0.6"/></label>
+<label>財2 <input id="initial-2" min="0.000001" name="q2" required="" step="any" type="number" value="0.3"/></label>
+<label>財3 <input id="initial-3" min="0.000001" name="q3" required="" step="any" type="number" value="0.1"/></label></div></fieldset>
+<fieldset><legend>モデルと計算範囲</legend><div class="form-row">
+<label>保有配分比率 θ <input id="theta" max="1" min="0" name="theta" required="" step="any" type="number" value="0.2"/></label>
+<label>調整速度 κ <input id="kappa" max="5" min="0.01" name="kappa" required="" step="any" type="number" value="1"/></label>
+<label>終時刻 T <input id="horizon" max="200" min="0.1" name="T" required="" step="any" type="number" value="30"/></label>
+<label>基準刻み h <input id="step-size" max="0.2" min="0.001" name="h" required="" step="any" type="number" value="0.02"/></label>
+</div></fieldset>
+<div class="form-row actions"><button data-js="" disabled="" type="submit">この条件で計算</button><button data-js="" data-theta="0" disabled="" type="button">循環 θ = 0</button><button data-js="" data-theta="0.2" disabled="" type="button">減衰 θ = 0.2</button><button data-js="" data-theta="1" disabled="" type="button">収束 θ = 1</button></div>
+</form>
+<noscript><p>JavaScriptが無効なため、以下には既定値の参考計算を表示している。本文・証明・出典はそのまま読める。</p></noscript>
+<p aria-live="polite" id="experiment-status" role="status">既定値：初期価格 (0.6, 0.3, 0.1)、θ = 0.2、κ = 1、T = 30。</p>
+<div id="experiment-results">
+<div class="table-wrap"><table id="diagnostic-table"><caption>計算の確認値</caption><thead><tr><th scope="col">指標</th><th scope="col">値</th></tr></thead><tbody id="diagnostic-body"><tr><th scope="row">初期価格（正規化後）</th><td>(0.600000, 0.300000, 0.100000)</td></tr><tr><th scope="row">終点の市場清算残差 ‖Zθ‖∞</th><td>7.483e-04</td></tr><tr><th scope="row">終点の均衡からの距離 ‖q−q*‖∞</th><td>6.236e-04</td></tr><tr><th scope="row">H(0) → H(T)</th><td>15.000000000 → 9.000019202</td></tr><tr><th scope="row">価格の和の最大誤差</th><td>8.882e-16</td></tr><tr><th scope="row">刻みを半分にした終点の差</th><td>1.914e-13</td></tr><tr><th scope="row">実効刻み（基準／表示経路）</th><td>0.02 / 0.01</td></tr><tr><th scope="row">H−9の理論上界を超えた最大値</th><td>0.000e+00</td></tr></tbody></table></div>
+<div class="table-wrap"><table id="trajectory-table"><caption>価格と不均衡の経路</caption><thead><tr><th scope="col">時刻</th><th scope="col">q₁</th><th scope="col">q₂</th><th scope="col">q₃</th><th scope="col">H(q)</th><th scope="col">‖<span class="inline-math">\(Z^{\theta}\)</span>‖∞</th><th scope="col">‖q−q*‖∞</th></tr></thead><tbody id="trajectory-body"><tr><td>0.00</td><td>0.600000</td><td>0.300000</td><td>0.100000</td><td>15.000000</td><td>3.810e-01</td><td>2.667e-01</td></tr><tr><td>3.00</td><td>0.313090</td><td>0.474849</td><td>0.212061</td><td>10.015529</td><td>1.904e-01</td><td>1.415e-01</td></tr><tr><td>6.00</td><td>0.262693</td><td>0.410042</td><td>0.327266</td><td>9.301127</td><td>9.240e-02</td><td>7.671e-02</td></tr><tr><td>9.00</td><td>0.294011</td><td>0.333037</td><td>0.372952</td><td>9.085212</td><td>4.920e-02</td><td>3.962e-02</td></tr><tr><td>12.00</td><td>0.331964</td><td>0.312097</td><td>0.355938</td><td>9.025976</td><td>2.710e-02</td><td>2.260e-02</td></tr><tr><td>15.00</td><td>0.345022</td><td>0.321159</td><td>0.333820</td><td>9.007724</td><td>1.462e-02</td><td>1.217e-02</td></tr><tr><td>18.00</td><td>0.340129</td><td>0.332890</td><td>0.326981</td><td>9.002338</td><td>8.151e-03</td><td>6.796e-03</td></tr><tr><td>21.00</td><td>0.333576</td><td>0.336809</td><td>0.329615</td><td>9.000702</td><td>4.463e-03</td><td>3.718e-03</td></tr><tr><td>24.00</td><td>0.331438</td><td>0.335390</td><td>0.333172</td><td>9.000212</td><td>2.468e-03</td><td>2.057e-03</td></tr><tr><td>27.00</td><td>0.332203</td><td>0.333429</td><td>0.334368</td><td>9.000064</td><td>1.357e-03</td><td>1.131e-03</td></tr><tr><td>30.00</td><td>0.333275</td><td>0.332769</td><td>0.333957</td><td>9.000019</td><td>7.483e-04</td><td>6.236e-04</td></tr></tbody></table></div>
+</div>
+<p class="note">計算法は固定刻み4次Runge–Kutta法。Tを等分する実効刻みで計算し、さらに刻みを半分にして終点の差を確認する。表示する経路は細かい方の計算結果だ。途中で価格が非正になる計算は中断し、無断の切り上げや再正規化で誤差を隠さない。Hの保存誤差や上界との差は数値計算の診断であり、数学的証明の代わりではない。時刻とκはモデル内の無次元量で、実際の秒・日・年への較正は行っていない。</p>
+<p>比較時はθだけを変更して、同じ初期値と時刻でHを読むとよい。θ = 0では価格の各成分が上下してもHはほぼ一定になる。θ &gt; 0では回転しながらHが9へ向かう。θが小さければ収束に時間がかかるので、有限時間の計算を見て非収束と断定しない。</p>
+</section>
+<section id="conclusion">
+<h2>19. この理論化で得られたことと、残る課題</h2>
+<p>本稿で完成したのは、<strong>ミクロ的な需要、価格空間の幾何、調整則、安定性の証明、反例を接続した、条件の見えるモデル群</strong>である。三つの交換経済には同じ乗法的調整則を使い、構造を変えると結果がどう変わるかを比較した。</p>
+<div class="table-wrap"><table><caption>本稿のモデルと保証の範囲</caption><thead><tr><th scope="col">構成</th><th scope="col">証明したこと</th><th scope="col">結論を支える条件</th></tr></thead><tbody>
+<tr><th scope="row">一般的な存在命題</th><td>少なくとも一つの内点均衡がある</td><td>閉単体上の連続性、ワルラス法則、厳密な内向き条件</td></tr>
+<tr><th scope="row">KL型の収束命題</th><td>すべての内点初期価格から均衡へ収束する</td><td>q* · Z(q) &gt; 0 と内部の正則性</td></tr>
+<tr><th scope="row">共通比率のCobb–Douglas経済</th><td>閉形式の指数収束</td><td>各財の総保有1、共通の支出比率、指定の乗法則</td></tr>
+<tr><th scope="row">Scarf型経済</th><td>均衡以外は周期運動になる</td><td>循環する補完構造とHの保存</td></tr>
+<tr><th scope="row">6人の混合経済</th><td>θ &gt; 0で大域収束、θ = 0で循環</td><td>指定した効用と保有配分、Hの厳密な減少</td></tr>
+<tr><th scope="row">球面上の抽象的な場</th><td>原問題の三公理と一意均衡があっても周期アトラクタを持てる</td><td>明示した滑らかなZと加法則。個人需要への実現は主張しない</td></tr>
+<tr><th scope="row">非均衡取引と貨幣の拡張</th><td>必要な会計制約と追加の行動仮説を特定した</td><td>約定・生産・期待・決済規則の選択。一般的収束は未証明</td></tr>
+</tbody></table></div>
+<p>本稿の比較から引き出せる中心的な結論は、<strong>市場の安定性は「合理的な主体がいる」という条件だけでなく、選好と保有の集計構造、価格変更の規則、観測できる情報、取引の時間構造によって決まる</strong>ということだ。スメールの問題を進めるには、その組合せを具体的に定めて、定理と実証を対応させる必要がある。</p>
+<p>この先の研究課題は、対象市場について需要と保有の構造を推定し、観測可能な情報だけで実行できる調整則を定め、取引・在庫・貨幣を含むモデルへ拡張することになる。数学が保証する範囲と、現実の行動について置いた仮説を明示したまま進むことが、理論を検証可能にする。</p>
+</section>
+<section id="notation">
+<h2>付録A：主要な記号</h2>
+<div class="table-wrap"><table><caption>本文の記号と意味</caption><thead><tr><th scope="col">記号</th><th scope="col">意味</th></tr></thead><tbody>
+<tr><th scope="row">L, N</th><td>財の数、消費者の数。貨幣節の名目支出は混同を避けて<span class="inline-math">\(E^{\mathrm{nom}}\)</span>と表す</td></tr>
+<tr><th scope="row">p</th><td>純粋交換モデルの価格ベクトル。共通倍率は同じ相対価格を表す</td></tr>
+<tr><th scope="row">q, Δ°</th><td>成分の和を1にした相対価格と、その正の内部</td></tr>
+<tr><th scope="row">Z, J</th><td>超過需要と、その価格に関するヤコビ行列</td></tr>
+<tr><th scope="row"><span class="inline-math">\(\omega_{a}\)</span>, W</th><td>個人の初期保有、全員の初期保有の合計</td></tr>
+<tr><th scope="row">κ, θ</th><td>調整速度、混合モデルのCobb–Douglas群への保有配分比率</td></tr>
+<tr><th scope="row">V, H, Φ</th><td>KL型の評価関数、Scarf型の保存量、ポテンシャル。貨幣節のVは流通速度</td></tr>
+<tr><th scope="row"><span class="inline-math">\(P_{i}\)</span>, Π, <span class="inline-math">\(r_{i}\)</span></th><td>名目価格、物価指数、共通の名目尺度を除いた価格</td></tr>
+<tr><th scope="row">M, Y</th><td>貨幣残高、選んだ物価指数でデフレートした実質支出率</td></tr>
+<tr><th scope="row">I, m, v</th><td>在庫、個人の現金残高、実現取引量。単位は各節で定める</td></tr>
+<tr><th scope="row">q̇, ∇, ⊤, ‖ · ‖∞</th><td>時間微分、勾配、転置、成分の絶対値の最大値</td></tr>
+</tbody></table></div>
+</section>
+<section id="python">
+<h2>付録B：Pythonで再計算する</h2>
+<p>次は標準ライブラリだけで混合モデルを再計算する最小コードだ。θ = 0でHが保存され、θ &gt; 0で9へ近づくことを確認できる。大きな刻みは避け、hを半分にした結果も比較する。</p>
+<pre><code class="language-python">from math import ceil, isfinite
+
+def rhs(q, theta, kappa=1.0):
+    if any(x &lt;= 0 or not isfinite(x) for x in q):
+        raise ValueError("Non-positive price; reduce the step size")
+    x, y, z = q
+    excess = (
+        z / (x + z) - y / (x + y),
+        x / (x + y) - z / (y + z),
+        y / (y + z) - x / (x + z),
+    )
+    return [kappa * ((1 - theta) * q[i] * excess[i]
+                    + theta * (1 / 3 - q[i])) for i in range(3)]
+
+def rk4(q, dt, theta):
+    def shift(k, factor):
+        return [x + factor * dt * v for x, v in zip(q, k)]
+    a = rhs(q, theta)
+    b = rhs(shift(a, 0.5), theta)
+    c = rhs(shift(b, 0.5), theta)
+    d = rhs(shift(c, 1.0), theta)
+    result = [q[i] + dt * (a[i] + 2*b[i] + 2*c[i] + d[i]) / 6
+              for i in range(3)]
+    if any(x &lt;= 0 or not isfinite(x) for x in result):
+        raise ValueError("Non-positive price; reduce the step size")
+    return result
+
+def run(theta, duration=200.0, step=0.01):
+    q = [0.6, 0.3, 0.1]
+    steps = ceil(duration / step)
+    dt = duration / steps
+    for _ in range(steps):
+        q = rk4(q, dt, theta)
+    return q, sum(1 / x for x in q)
+
+for theta in (0.0, 0.02, 0.2, 1.0):
+    coarse, H = run(theta)
+    fine, _ = run(theta, step=0.005)
+    difference = max(abs(a - b) for a, b in zip(coarse, fine))
+    print(theta, coarse, "H =", H, "step difference =", difference)</code></pre>
+</section>
+<section id="references">
+<h2>出典・参考文献</h2>
+<p>原問題、既存の定理、研究状況についての参照先を挙げる。本文の具体例の式変形と証明は、読者が条件を確認できるよう本稿内で示した。文献調査日：<time datetime="2026-11-13">2026年11月13日</time>。公開原稿と掲載版の版の違いは各項に記した。</p>
+<ol class="references">
+<li id="ref-smale">Steve Smale (1998). <cite>Mathematical Problems for the Next Century</cite>. <em>The Mathematical Intelligencer</em> 20(2), 7–15. <a href="https://doi.org/10.1007/BF03025291">DOI</a> / <a href="https://www.fim.uni-passau.de/fileadmin/dokumente/fakultaeten/fim/lehrstuhl/muller/SmaleProblems1998.pdf">著者原稿第2版 PDF</a>。参照箇所：Problem 8、原稿10–11頁。</li>
+<li id="ref-arrow">Kenneth J. Arrow and Gérard Debreu (1954). <cite>Existence of an Equilibrium for a Competitive Economy</cite>. <em>Econometrica</em> 22(3), 265–290. <a href="https://web.stanford.edu/class/msande314/arrow-debreu.pdf">大学公開の原論文 PDF</a>。参照内容：消費・生産を含む競争均衡の存在。</li>
+<li id="ref-scarf">Herbert E. Scarf (1960). <cite>Some Examples of Global Instability of the Competitive Equilibrium</cite>. <em>International Economic Review</em> 1(3), 157–172. <a href="https://www.jstor.org/stable/2556215">掲載論文</a> / <a href="https://cowles.yale.edu/node/145803">Cowles Foundationの1959年原稿・抄録</a>。本文の乗法則におけるHの保存は、本稿で別途計算した。</li>
+<li id="ref-smd">Pierre-André Chiappori and Ivar Ekeland (2004). <cite>Individual Excess Demands</cite>. <em>Journal of Mathematical Economics</em> 40(1–2), 41–57. <a href="https://doi.org/10.1016/j.jmateco.2003.11.003">DOI</a> / <a href="https://www.ceremade.dauphine.fr/~ekeland/research/excessdemand.pdf">著者公開原稿 PDF</a>。参照箇所：第4節・定理6によるSonnenschein–Mantel–Debreu型の分解。原論文群：<a href="https://doi.org/10.1016/0022-0531(73)90066-5">Sonnenschein (1973)</a>、<a href="https://doi.org/10.1016/0022-0531(74)90100-8">Mantel (1974)</a>、<a href="https://doi.org/10.1016/0304-4068(74)90032-9">Debreu (1974)</a>。</li>
+<li id="ref-herings">P. Jean-Jacques Herings (2024). <cite>Globally and Universally Convergent Price Adjustment Processes</cite>. <em>Journal of Mathematical Economics</em> 113, 103007. <a href="https://doi.org/10.1016/j.jmateco.2024.103007">DOI</a> / <a href="https://research.tilburguniversity.edu/en/publications/globally-and-universally-convergent-price-adjustment-processes-2/">大学公式の出版版情報・抄録</a>。本文の条件表は出版版抄録に従う。</li>
+<li id="ref-convex">Yun Kuen Cheung, Richard Cole and Nikhil R. Devanur (2013). <cite>Tatonnement Beyond Gross Substitutes? Gradient Descent to the Rescue</cite>. STOC ’13. <a href="https://www.nikhildevanur.com/pubs/stoc202fp-cheung.pdf">著者公開の会議論文 PDF</a>。凸ポテンシャル市場と、補完的な効用を持つFisher市場の収束。</li>
+<li id="ref-async">Yun Kuen Cheung and Richard Cole (2018). <cite>Amortized Analysis of Asynchronous Price Dynamics</cite>. ESA 2018, LIPIcs 112, 18:1–18:15. <a href="https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ESA.2018.18">公式論文・PDF</a>。CES・Leontief Fisher市場の非同期価格調整。</li>
+<li id="ref-ongoing">Richard Cole, Lisa Fleischer and Ashish Rastogi (2010). <cite>Discrete Price Updates Yield Fast Convergence in Ongoing Markets with Finite Warehouses</cite>. <a href="https://cs.nyu.edu/~cole/papers/tat10.pdf">著者公開原稿 PDF</a> / <a href="https://arxiv.org/abs/1012.2124">arXiv:1012.2124</a>。有限在庫を持つ反復Fisher市場の条件付き収束。</li>
+<li id="ref-homothetic">Denizalp Goktas, Jiayi Zhao and Amy Greenwald. <cite>Tâtonnement in Homothetic Fisher Markets</cite>. EC ’23; arXiv第3版、2025年2月28日改訂. <a href="https://arxiv.org/abs/2306.04890v3">arXiv:2306.04890v3</a>。ヒックス需要の有界な価格弾力性を使う収束解析。</li>
+<li id="ref-linear">Tianlong Nan, Yuan Gao and Christian Kroer. <cite>On the Convergence of Tâtonnement for Linear Fisher Markets</cite>. arXiv第2版、2025年2月16日改訂. <a href="https://arxiv.org/abs/2406.12526v2">arXiv:2406.12526v2</a>。固定刻み幅に依存する均衡近傍への保証。</li>
+<li id="ref-friedman">Milton Friedman (1968). <cite>The Role of Monetary Policy</cite>. <em>American Economic Review</em> 58(1), 1–17. <a href="https://fraser.stlouisfed.org/files/docs/publications/aer/aer_1968_friedman_role_monetary_policy.pdf">FRASER公開の原論文 PDF</a>。参照箇所：特に11–13頁の名目量・実質量と安定した貨幣的背景の議論。</li>
+<li id="ref-hayes">N. D. Hayes (1950). <cite>Roots of the Transcendental Equation Associated with a Certain Difference-Differential Equation</cite>. <em>Journal of the London Mathematical Society</em> s1-25(3), 226–232. <a href="https://academic.oup.com/jlms/article-abstract/s1-25/3/226/865157">出版社の書誌</a> / <a href="https://doi.org/10.1112/jlms/s1-25.3.226">DOI</a>。遅延方程式の特性根の古典的研究。本文はスカラー例の特性方程式と安定境界を明示した。</li>
+<li id="ref-saari">Donald G. Saari and Carl P. Simon (1978). <cite>Effective Price Mechanisms</cite>. <em>Econometrica</em> 46(5), 1097–1125. <a href="https://doi.org/10.2307/1911438">DOI</a> / <a href="https://www.researchgate.net/publication/4814069_Effective_Price_Mechanisms">共著者公開ページ・抄録</a>。価格機構の情報要求について参照し、本文未確認の細かな情報下限の定理は掲げていない。</li>
+</ol>
+</section>
+<footer><p><a href="#main">本文の先頭へ戻る</a></p><p>数理モデルの仮定・証明・参照先は各節に記載した。数値例は理論上の経済を扱い、実測データの推定結果ではない。</p></footer>
+</article>
+</main>
+<script>
+(() => {
+  'use strict';
+  const sum = values => values.reduce((a, b) => a + b, 0);
+  const maxAbs = values => Math.max(...values.map(Math.abs));
+  const H = q => {
+    const value = sum(q.map(x => 1 / x));
+    if (!Number.isFinite(value)) throw new Error('初期価格の比が極端すぎて、有限の精度でHを計算できない。価格比の差を小さくしてほしい。');
+    return value;
+  };
+  const invariantError = q => Math.abs(sum(q) - 1);
+  const distance = q => maxAbs(q.map(x => x - 1 / 3));
+
+  function requirePositive(q) {
+    if (q.length !== 3 || q.some(x => !Number.isFinite(x) || x <= 0)) {
+      throw new Error('計算途中で価格の正値性を保てなくなった。刻み h を小さくするか、極端な初期価格を調整して再計算してほしい。');
+    }
+  }
+
+  function cyclicExcess(q) {
+    requirePositive(q);
+    const [x, y, z] = q;
+    return [z / (x + z) - y / (x + y),
+      x / (x + y) - z / (y + z),
+      y / (y + z) - x / (x + z)];
+  }
+
+  function excess(q, theta) {
+    const z = cyclicExcess(q);
+    const value = theta === 0 ? z : q.map((x, i) => (1 - theta) * z[i] + theta * (1 / (3 * x) - 1));
+    if (value.some(x => !Number.isFinite(x))) throw new Error('価格比が極端すぎて超過需要を有限の精度で計算できない。価格比の差を小さくしてほしい。');
+    return value;
+  }
+
+  function rhs(q, theta, kappa) {
+    const z = cyclicExcess(q);
+    return q.map((x, i) => kappa * ((1 - theta) * x * z[i] + theta * (1 / 3 - x)));
+  }
+
+  function rk4(q, dt, theta, kappa) {
+    const stage = (v, scale) => q.map((x, i) => x + dt * scale * v[i]);
+    const a = rhs(q, theta, kappa);
+    const b = rhs(stage(a, 0.5), theta, kappa);
+    const c = rhs(stage(b, 0.5), theta, kappa);
+    const d = rhs(stage(c, 1), theta, kappa);
+    const next = q.map((x, i) => x + dt * (a[i] + 2 * b[i] + 2 * c[i] + d[i]) / 6);
+    requirePositive(next);
+    return next;
+  }
+
+  function integrate(initial, theta, kappa, horizon, count) {
+    requirePositive(initial);
+    if (!Number.isFinite(theta) || theta < 0 || theta > 1 || !Number.isFinite(kappa) || kappa <= 0 || !Number.isFinite(horizon) || horizon <= 0 || !Number.isInteger(count) || count < 1 || count > 40000) {
+      throw new Error('計算条件が範囲外になっている。入力値を確認してほしい。');
+    }
+    if (invariantError(initial) > 1e-10) throw new Error('初期価格の和は1である必要がある。');
+    const dt = horizon / count;
+    const selected = new Set(Array.from({length: 11}, (_, i) => Math.round(i * count / 10)));
+    const initialH = H(initial);
+    let q = initial.slice();
+    let maxSumError = invariantError(q);
+    let maxHDrift = 0;
+    let maxHIncrease = 0;
+    let maxBoundExcess = 0;
+    let maxExactError = 0;
+    let previousH = initialH;
+    const rows = [];
+    for (let step = 0; step <= count; step++) {
+      const time = step * dt;
+      const currentH = H(q);
+      maxSumError = Math.max(maxSumError, invariantError(q));
+      maxHDrift = Math.max(maxHDrift, Math.abs(currentH - initialH));
+      maxHIncrease = Math.max(maxHIncrease, currentH - previousH);
+      const bound = (initialH - 9) * Math.exp(-kappa * theta * time);
+      maxBoundExcess = Math.max(maxBoundExcess, currentH - 9 - bound);
+      if (theta === 1) {
+        const exact = initial.map(x => 1 / 3 + (x - 1 / 3) * Math.exp(-kappa * time));
+        maxExactError = Math.max(maxExactError, maxAbs(q.map((x, i) => x - exact[i])));
+      }
+      if (selected.has(step)) rows.push({time, q: q.slice(), H: currentH, residual: maxAbs(excess(q, theta)), distance: distance(q)});
+      previousH = currentH;
+      if (step < count) q = rk4(q, dt, theta, kappa);
+    }
+    return {final: q, rows, dt, initialH, maxSumError, maxHDrift, maxHIncrease, maxBoundExcess, maxExactError};
+  }
+
+  // Pure numerical functions are exposed for independent verification.
+  const api = Object.freeze({rhs, excess, rk4, integrate, H});
+  if (typeof globalThis !== 'undefined') globalThis.PriceDynamics = api;
+  if (typeof document === 'undefined') return;
+
+  const byId = id => document.getElementById(id);
+  const form = byId('experiment-form');
+  if (!form) return;
+  const format = (value, places = 6) => {
+    if (Math.abs(value) > 0 && Math.abs(value) < 1e-5) return value.toExponential(3);
+    return value.toFixed(places);
+  };
+  const scientific = value => value === 0 ? '0' : value.toExponential(3);
+
+  function inputNumber(id, label) {
+    const element = byId(id);
+    if (element.value.trim() === '') throw new Error(label + 'を入力してほしい。');
+    const value = Number(element.value);
+    if (!Number.isFinite(value)) throw new Error(label + 'には有限の数値を入力してほしい。');
+    return value;
+  }
+
+  function appendRow(body, values, heading = false) {
+    const row = document.createElement('tr');
+    values.forEach((value, i) => {
+      const cell = document.createElement(heading && i === 0 ? 'th' : 'td');
+      if (heading && i === 0) cell.scope = 'row';
+      cell.textContent = value;
+      row.appendChild(cell);
+    });
+    body.appendChild(row);
+  }
+
+  function render() {
+    const status = byId('experiment-status');
+    try {
+      if (!form.reportValidity()) return;
+      const raw = [1, 2, 3].map(i => inputNumber('initial-' + i, '初期価格'));
+      requirePositive(raw);
+      const total = sum(raw);
+      if (!Number.isFinite(total) || total <= 0) throw new Error('初期価格の合計が大きすぎる。小さい比率で入力してほしい。');
+      const initial = raw.map(x => x / total);
+      const theta = inputNumber('theta', 'θ');
+      const kappa = inputNumber('kappa', 'κ');
+      const horizon = inputNumber('horizon', '終時刻');
+      const step = inputNumber('step-size', '刻み');
+      const count = Math.ceil(horizon / step);
+      if (count > 20000) throw new Error('基準計算は20,000ステップまで。Tを短くするかhを大きくしてほしい。');
+      const coarse = integrate(initial, theta, kappa, horizon, count);
+      const fine = integrate(initial, theta, kappa, horizon, 2 * count);
+      const stepDifference = maxAbs(fine.final.map((x, i) => x - coarse.final[i]));
+      const diagnostics = [
+        ['初期価格（正規化後）', '(' + initial.map(x => format(x)).join(', ') + ')'],
+        ['終点の市場清算残差 ‖Zθ‖∞', scientific(maxAbs(excess(fine.final, theta)))],
+        ['終点の均衡からの距離 ‖q−q*‖∞', scientific(distance(fine.final))],
+        ['H(0) → H(T)', format(fine.initialH, 9) + ' → ' + format(H(fine.final), 9)],
+        ['価格の和の最大誤差', scientific(fine.maxSumError)],
+        ['刻みを半分にした終点の差', scientific(stepDifference)],
+        ['実効刻み（基準／表示経路）', scientific(coarse.dt) + ' / ' + scientific(fine.dt)]
+      ];
+      if (theta === 0) diagnostics.push(['Hの最大保存誤差', scientific(fine.maxHDrift)]);
+      else diagnostics.push(['H−9の理論上界を超えた最大値', scientific(fine.maxBoundExcess)]);
+      if (theta === 1) diagnostics.push(['閉形式解からの最大誤差', scientific(fine.maxExactError)]);
+      const diagnosticBody = byId('diagnostic-body');
+      diagnosticBody.replaceChildren();
+      diagnostics.forEach(values => appendRow(diagnosticBody, values, true));
+      const body = byId('trajectory-body');
+      body.replaceChildren();
+      fine.rows.forEach(row => appendRow(body, [format(row.time, 2), ...row.q.map(x => format(x)), format(row.H), scientific(row.residual), scientific(row.distance)]));
+      byId('experiment-results').hidden = false;
+      status.classList.remove('error');
+      let interpretation = theta === 0 ? '理論上はHを保存する周期運動。' : theta === 1 ? '理論上は閉形式の指数収束。' : '理論上はHが減少し、均衡へ収束。';
+      if (distance(initial) < 1e-14) interpretation = '均衡価格から出発しているため、理論上は価格が動かない。';
+      const warning = stepDifference > 1e-5 || fine.maxSumError > 1e-8 || (theta === 0 && fine.maxHDrift > 1e-5) || (theta > 0 && fine.maxBoundExcess > 1e-5)
+        ? ' 数値誤差が大きい。hを小さくして再確認してほしい。' : '';
+      status.textContent = 'θ = ' + theta + '、κ = ' + kappa + '、T = ' + horizon + '。' + interpretation + warning;
+    } catch (error) {
+      byId('experiment-results').hidden = true;
+      status.classList.add('error');
+      status.textContent = error instanceof Error ? error.message : '計算を完了できなかった。入力値を確認してほしい。';
+    }
+  }
+
+  form.addEventListener('submit', event => { event.preventDefault(); render(); });
+  document.querySelectorAll('[data-theta]').forEach(button => button.addEventListener('click', () => {
+    byId('theta').value = button.dataset.theta;
+    render();
+  }));
+  document.querySelectorAll('[data-js]').forEach(element => { element.disabled = false; });
+  render();
+})();
+
+</script>
+</body>
+</html>
