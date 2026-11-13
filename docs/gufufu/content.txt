@@ -13,6 +13,7 @@ Separate the dots https://sugishun-tech.github.io/separate_the_dots/
 [謎テキスト]
 ジーンズに関する思考実験 https://sugishun-tech.github.io/jeans/
 p進弦理論 https://sugishun-tech.github.io/stringtheory/
+一般均衡理論 https://sugishun-tech.github.io/econ1/
 
 [アート]
 異世界に行ったときの記憶 https://sugishun-tech.github.io/isekai/
