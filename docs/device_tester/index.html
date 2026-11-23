@@ -7,7 +7,7 @@
     <style>
      body { font-family: sans-serif; background: #1a1a1a; color: white; display: flex; flex-direction: column; align-items: center; padding: 20px; }
      .container { max-width: 800px; width: 100%; text-align: center; }
-     
+
      /* 映像・音声ビジュアライザーのレイアウト */
      .preview-box { position: relative; background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
      video { width: 100%; display: block; background: #222; }
@@ -20,7 +20,7 @@
      #startBtn:disabled { background: #555; cursor: not-allowed; }
      #stopBtn { background: #f1c40f; color: #333; }
      #stopBtn:disabled { background: #555; cursor: not-allowed; }
-     
+
      .status { margin-top: 10px; color: #aaa; font-size: 14px; }
     </style>
   </head>
@@ -28,14 +28,14 @@
 
     <div class="container">
       <h2>Device Tester</h2>
-      
+
       <div class="preview-box">
         <video id="preview" autoplay muted playsinline></video>
         <canvas id="visualizer"></canvas>
       </div>
 
       <div class="controls">
-        <button id="startBtn">録画開始</button>
+        <button id="startBtn" disabled>録画開始</button>
         <button id="stopBtn" disabled>停止 & 保存</button>
       </div>
       <div class="status" id="statusText">カメラとマイクの使用を許可してください</div>
@@ -54,17 +54,32 @@
      let audioContext;
      let analyser;
      let animationId;
+     let captureInfo = '';
 
-     // 初期化: カメラとマイクのストリームを取得
+     // 初期化: フルHD (1920x1080) / 30fps を優先して取得
      async function init() {
        try {
-         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+         const stream = await navigator.mediaDevices.getUserMedia({
+           video: {
+             width: { ideal: 1920 },
+             height: { ideal: 1080 },
+             frameRate: { ideal: 30 }
+           },
+           audio: true
+         });
+
          video.srcObject = stream;
+
+         // 実際に取得できた解像度・フレームレートを表示
+         const settings = stream.getVideoTracks()[0].getSettings();
+         captureInfo = `解像度: ${settings.width ?? '不明'}×${settings.height ?? '不明'} / ${settings.frameRate ?? '不明'}fps`;
+
          setupVisualizer(stream);
          setupRecorder(stream);
-         statusText.innerText = "準備完了";
+         startBtn.disabled = false;
+         statusText.innerText = `準備完了 | ${captureInfo}`;
        } catch (err) {
-         statusText.innerText = "エラー: デバイスにアクセスできません。" + err.message;
+         statusText.innerText = 'エラー: デバイスにアクセスできません。' + err.message;
          startBtn.disabled = true;
        }
      }
@@ -85,7 +100,7 @@
          analyser.getByteFrequencyData(dataArray);
 
          canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-         canvasCtx.fillStyle = 'rgba(46, 204, 113, 0.5)'; // 緑色の波形
+         canvasCtx.fillStyle = 'rgba(46, 204, 113, 0.5)';
 
          const barWidth = (canvas.width / bufferLength) * 2.5;
          let x = 0;
@@ -101,21 +116,27 @@
 
      // 録画機能のセットアップ (MediaRecorder API)
      function setupRecorder(stream) {
-       mediaRecorder = new MediaRecorder(stream);
+       mediaRecorder = new MediaRecorder(stream, {
+         videoBitsPerSecond: 12000000, // 映像の目標ビットレート: 12 Mbps
+         audioBitsPerSecond: 192000    // 音声の目標ビットレート: 192 kbps
+       });
 
        mediaRecorder.ondataavailable = (e) => {
          if (e.data.size > 0) recordedChunks.push(e.data);
        };
 
        mediaRecorder.onstop = () => {
-         const blob = new Blob(recordedChunks, { type: 'video/webm' });
+         const blob = new Blob(recordedChunks, {
+           type: mediaRecorder.mimeType || 'video/webm'
+         });
          const url = URL.createObjectURL(blob);
          const a = document.createElement('a');
          a.href = url;
-         a.download = `test-recording-${new Date().getTime()}.webm`;
+         a.download = `test-recording-${Date.now()}.webm`;
          a.click();
+         setTimeout(() => URL.revokeObjectURL(url), 60000);
          recordedChunks = [];
-         statusText.innerText = "保存完了！";
+         statusText.innerText = `保存完了！ | ${captureInfo}`;
        };
      }
 
@@ -125,14 +146,14 @@
        mediaRecorder.start();
        startBtn.disabled = true;
        stopBtn.disabled = false;
-       statusText.innerText = "録画中...";
+       statusText.innerText = `録画中... | ${captureInfo}`;
      };
 
      stopBtn.onclick = () => {
        mediaRecorder.stop();
        startBtn.disabled = false;
        stopBtn.disabled = true;
-       statusText.innerText = "処理中...";
+       statusText.innerText = `処理中... | ${captureInfo}`;
      };
 
      // 起動
