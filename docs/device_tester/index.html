@@ -24,6 +24,17 @@
      .recording-timer { margin-top: 12px; font-family: monospace; font-size: 32px; font-weight: bold; font-variant-numeric: tabular-nums; }
      .recording-timer.recording { color: #e74c3c; }
 
+     .mixer { margin-top: 16px; padding: 12px; background: #242424; border-radius: 8px; text-align: left; }
+     .mixer h3 { margin: 0 0 8px; font-size: 16px; }
+     .mic-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 10px 0; border-top: 1px solid #444; }
+     .mic-name { flex: 1 1 100%; overflow-wrap: anywhere; }
+     .mic-row input[type=range] { width: 130px; vertical-align: middle; }
+     .mic-row meter, .mix-level meter { width: 125px; height: 16px; vertical-align: middle; }
+     .mic-db { font-family: monospace; font-size: 12px; min-width: 65px; }
+     .mix-level { margin-top: 8px; }
+     .clip-warning { color: #ff8b7e; }
+     .mixer-hint { font-size: 12px; color: #aaa; margin: 8px 0; }
+     #resumeAudioBtn { padding: 6px 12px; font-size: 13px; }
      .status { margin-top: 10px; color: #aaa; font-size: 14px; }
     </style>
   </head>
@@ -37,11 +48,20 @@
         <canvas id="visualizer"></canvas>
       </div>
 
+      <section class="mixer">
+        <div id="recordingTimer" class="recording-timer">00:00:00</div>
+        <h3>マイクミキサー</h3>
+        <div class="mixer-hint">使用するマイクにチェックを入れて個別に音量を調整。録画中も音量・ミュートを変更できます。</div>
+        <div id="micList">マイクを検出中...</div>
+        <div class="mix-level">合成音声 <meter id="mixMeter" min="0" max="1" low="0.6" high="0.9" optimum="0" value="0"></meter> <span id="mixDb" class="mic-db">−∞ dBFS</span> <span id="clipWarning" class="clip-warning" hidden>音割れ注意</span></div>
+        <button id="resumeAudioBtn" type="button" hidden>音量メーターを有効化</button>
+        <div class="mixer-hint">エコーキャンセル・ノイズ抑制・自動ゲインは無効。マイクを追加接続した場合はページを再読み込みしてください。</div>
+      </section>
+
       <div class="controls">
         <button id="startBtn" disabled>録画開始</button>
         <button id="stopBtn" disabled>停止 & 保存</button>
       </div>
-      <div id="recordingTimer" class="recording-timer">00:00:00</div>
       <div class="status" id="statusText">カメラとマイクの使用を許可してください</div>
     </div>
 
@@ -54,11 +74,27 @@
      const statusText = document.getElementById('statusText');
      const recordingTimer = document.getElementById('recordingTimer');
 
+     const micList = document.getElementById('micList');
+     const mixMeter = document.getElementById('mixMeter');
+     const mixDb = document.getElementById('mixDb');
+     const clipWarning = document.getElementById('clipWarning');
+     const resumeAudioBtn = document.getElementById('resumeAudioBtn');
+     const microphones = [];
+     const audioConstraints = {
+       echoCancellation: false,
+       noiseSuppression: false,
+       autoGainControl: false
+     };
+     let mixDestination;
+     let mixBus;
+     let mixedSamples;
+     let ready = false;
+     let busy = false;
+     let recording = false;
      let mediaRecorder;
      let recordedChunks = [];
      let audioContext;
      let analyser;
-     let animationId;
      let captureInfo = '';
      let recordingStartedAt = null;
      let timerId = null;
@@ -90,55 +126,201 @@
        recordingTimer.classList.remove('recording');
      }
 
-     // 初期化: フルHD (1920x1080) / 30fps を優先して取得
+     function updateControls() {
+       startBtn.disabled = !ready || busy || recording || !microphones.some(m => m.stream);
+       for (const mic of microphones) {
+         mic.enabled.disabled = busy || recording;
+         mic.slider.disabled = !mic.stream;
+         mic.mute.disabled = !mic.stream;
+       }
+     }
+
+     function syncGain(mic) {
+       if (mic.gain) {
+         mic.gain.gain.setTargetAtTime(mic.mute.checked ? 0 : Number(mic.slider.value) / 100,
+                                      audioContext.currentTime, 0.01);
+       }
+       mic.gainLabel.textContent = `${mic.slider.value}%`;
+     }
+
+     function disconnectMic(mic) {
+       if (mic.source) mic.source.disconnect();
+       if (mic.gain) mic.gain.disconnect();
+       if (mic.analyser) mic.analyser.disconnect();
+       if (mic.stream) mic.stream.getTracks().forEach(track => track.stop());
+       mic.stream = mic.source = mic.gain = mic.analyser = null;
+       mic.meter.value = 0;
+       mic.db.textContent = '−∞ dBFS';
+     }
+
+     function connectMic(mic, stream) {
+       mic.stream = stream;
+       mic.source = audioContext.createMediaStreamSource(stream);
+       mic.gain = audioContext.createGain();
+       mic.gain.channelCount = 1;
+       mic.gain.channelCountMode = 'explicit';
+       mic.gain.gain.value = mic.mute.checked ? 0 : Number(mic.slider.value) / 100;
+       mic.analyser = audioContext.createAnalyser();
+       mic.analyser.fftSize = 1024;
+       mic.samples = new Float32Array(mic.analyser.fftSize);
+       mic.source.connect(mic.gain);
+       mic.gain.connect(mic.analyser);
+       mic.analyser.connect(mixBus);
+       mic.enabled.checked = true;
+       stream.getAudioTracks()[0].addEventListener('ended', () => {
+         if (mic.stream !== stream) return;
+         disconnectMic(mic);
+         mic.enabled.checked = false;
+         statusText.textContent = `マイク切断: ${mic.label} | ${captureInfo}`;
+         updateControls();
+       });
+     }
+
+     function createMicRow(device, index) {
+       const row = document.createElement('div');
+       row.className = 'mic-row';
+       row.innerHTML = `<label class="mic-name"><input type="checkbox" class="mic-enabled"> <span></span></label>
+         <label>音量 <input type="range" min="0" max="400" step="5" value="100"> <output>100%</output></label>
+         <label><input type="checkbox" class="mic-mute"> ミュート</label>
+         <meter min="0" max="1" low="0.6" high="0.9" optimum="0" value="0"></meter>
+         <span class="mic-db">−∞ dBFS</span>`;
+       const mic = {
+         deviceId: device.deviceId,
+         label: device.label || `マイク ${index + 1}`,
+         enabled: row.querySelector('.mic-enabled'),
+         slider: row.querySelector('input[type=range]'),
+         gainLabel: row.querySelector('output'),
+         mute: row.querySelector('.mic-mute'),
+         meter: row.querySelector('meter'),
+         db: row.querySelector('.mic-db'),
+         stream: null
+       };
+       row.querySelector('.mic-name span').textContent = mic.label;
+       mic.meter.setAttribute('aria-label', `${mic.label} 音量`);
+       mic.slider.oninput = mic.mute.onchange = () => syncGain(mic);
+       mic.enabled.onchange = async () => {
+         busy = true;
+         updateControls();
+         try {
+           if (mic.enabled.checked) {
+             const stream = await navigator.mediaDevices.getUserMedia({
+               video: false,
+               audio: { ...audioConstraints, ...(mic.deviceId ? { deviceId: { exact: mic.deviceId } } : {}) }
+             });
+             connectMic(mic, stream);
+           } else {
+             disconnectMic(mic);
+           }
+           statusText.textContent = `準備完了 | ${captureInfo}`;
+         } catch (err) {
+           disconnectMic(mic);
+           mic.enabled.checked = false;
+           statusText.textContent = `マイク取得エラー: ${mic.label} (${err.message})`;
+         } finally {
+           busy = false;
+           updateControls();
+         }
+       };
+       microphones.push(mic);
+       micList.appendChild(row);
+       return mic;
+     }
+
+     function updateMeter(node, samples, meter, db) {
+       node.getFloatTimeDomainData(samples);
+       let peak = 0;
+       for (const sample of samples) peak = Math.max(peak, Math.abs(sample));
+       meter.value = Math.min(peak, 1);
+       db.textContent = peak > 0 ? `${(20 * Math.log10(peak)).toFixed(1)} dBFS` : '−∞ dBFS';
+       return peak;
+     }
+
+     // 初期化: 既定のマイク1台を有効にし、追加マイクは選択時に取得する
      async function init() {
+       let stream;
        try {
-         const stream = await navigator.mediaDevices.getUserMedia({
+         stream = await navigator.mediaDevices.getUserMedia({
            video: {
              width: { ideal: 1920 },
              height: { ideal: 1080 },
              frameRate: { ideal: 30 }
            },
-           audio: true
+           audio: audioConstraints
          });
-
-         video.srcObject = stream;
-
-         // 実際に取得できた解像度・フレームレートを表示
-         const settings = stream.getVideoTracks()[0].getSettings();
+         const videoTracks = stream.getVideoTracks();
+         const initialAudio = stream.getAudioTracks()[0];
+         video.srcObject = new MediaStream(videoTracks);
+         const settings = videoTracks[0].getSettings();
          captureInfo = `解像度: ${settings.width ?? '不明'}×${settings.height ?? '不明'} / ${settings.frameRate ?? '不明'}fps`;
 
-         setupVisualizer(stream);
-         setupRecorder(stream);
-         startBtn.disabled = false;
-         statusText.innerText = `準備完了 | ${captureInfo}`;
+         audioContext = new (window.AudioContext || window.webkitAudioContext)();
+         mixBus = audioContext.createGain();
+         mixBus.channelCount = 1;
+         mixBus.channelCountMode = 'explicit';
+         mixDestination = audioContext.createMediaStreamDestination();
+         mixDestination.channelCount = 1;
+         analyser = audioContext.createAnalyser();
+         analyser.fftSize = 1024;
+         mixedSamples = new Float32Array(analyser.fftSize);
+         mixBus.connect(analyser);
+         analyser.connect(mixDestination);
+         // スピーカーには接続しない（ハウリング防止）。
+
+         const devices = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'audioinput');
+         const physical = devices.filter(d => d.deviceId !== 'default' && d.deviceId !== 'communications');
+         const initialId = initialAudio.getSettings().deviceId;
+         const inputs = physical.length ? physical : devices;
+         let initialDevice = inputs.find(d => d.deviceId === initialId) || inputs.find(d => d.label && d.label === initialAudio.label);
+         if (!initialDevice && initialId === 'default') {
+           const alias = devices.find(d => d.deviceId === 'default');
+           if (alias && alias.groupId) initialDevice = inputs.find(d => d.groupId === alias.groupId);
+         }
+         if (!initialDevice) {
+           initialDevice = { deviceId: initialId || '', label: initialAudio.label || '既定のマイク' };
+           inputs.unshift(initialDevice);
+         }
+         micList.textContent = '';
+         inputs.forEach((device, i) => {
+           const mic = createMicRow(device, i);
+           if (device === initialDevice) connectMic(mic, new MediaStream([initialAudio]));
+         });
+
+         const mixedStream = new MediaStream([...videoTracks, ...mixDestination.stream.getAudioTracks()]);
+         setupVisualizer();
+         setupRecorder(mixedStream);
+         audioContext.onstatechange = () => { resumeAudioBtn.hidden = audioContext.state === 'running'; };
+         resumeAudioBtn.hidden = audioContext.state === 'running';
+         ready = true;
+         updateControls();
+         statusText.textContent = `準備完了 | ${captureInfo}`;
        } catch (err) {
-         statusText.innerText = 'エラー: デバイスにアクセスできません。' + err.message;
+         for (const mic of microphones) disconnectMic(mic);
+         if (stream) stream.getTracks().forEach(track => track.stop());
+         if (audioContext) audioContext.close().catch(() => {});
+         statusText.textContent = 'エラー: デバイスにアクセスできません。' + err.message;
+         micList.textContent = 'マイクの初期化に失敗しました。';
          startBtn.disabled = true;
        }
      }
 
-     // 音声の波形表示 (Web Audio API)
-     function setupVisualizer(stream) {
-       audioContext = new (window.AudioContext || window.webkitAudioContext)();
-       const source = audioContext.createMediaStreamSource(stream);
-       analyser = audioContext.createAnalyser();
-       analyser.fftSize = 256;
-       source.connect(analyser);
-
+     // 合成後のスペクトルと各マイクのピークを表示
+     function setupVisualizer() {
        const bufferLength = analyser.frequencyBinCount;
        const dataArray = new Uint8Array(bufferLength);
-
+       let lastClip = -Infinity;
        function draw() {
-         animationId = requestAnimationFrame(draw);
+         requestAnimationFrame(draw);
          analyser.getByteFrequencyData(dataArray);
-
+         for (const mic of microphones) {
+           if (mic.analyser) updateMeter(mic.analyser, mic.samples, mic.meter, mic.db);
+         }
+         const peak = updateMeter(analyser, mixedSamples, mixMeter, mixDb);
+         if (peak >= 1) lastClip = performance.now();
+         clipWarning.hidden = performance.now() - lastClip > 1000;
          canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
          canvasCtx.fillStyle = 'rgba(46, 204, 113, 0.5)';
-
          const barWidth = (canvas.width / bufferLength) * 2.5;
          let x = 0;
-
          for (let i = 0; i < bufferLength; i++) {
            const barHeight = dataArray[i] / 2;
            canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
@@ -173,18 +355,39 @@
          setTimeout(() => URL.revokeObjectURL(url), 60000);
          recordedChunks = [];
          statusText.innerText = `保存完了！ | ${captureInfo}`;
-         startBtn.disabled = false;
+         recording = false;
+         updateControls();
        };
      }
 
      // イベントリスナー
-     startBtn.onclick = () => {
-       recordedChunks = [];
-       mediaRecorder.start();
-       startRecordingTimer();
-       startBtn.disabled = true;
-       stopBtn.disabled = false;
-       statusText.innerText = `録画中... | ${captureInfo}`;
+     resumeAudioBtn.onclick = async () => {
+       try {
+         await audioContext.resume();
+       } catch (err) {
+         statusText.textContent = '音声開始エラー: ' + err.message;
+       }
+     };
+
+     startBtn.onclick = async () => {
+       busy = true;
+       updateControls();
+       try {
+         await audioContext.resume();
+         if (audioContext.state !== 'running') throw new Error('音声処理を開始できません');
+         if (!microphones.some(m => m.stream)) throw new Error('有効なマイクがありません');
+         recordedChunks = [];
+         mediaRecorder.start();
+         recording = true;
+         startRecordingTimer();
+         stopBtn.disabled = false;
+         statusText.innerText = `録画中... | ${captureInfo}`;
+       } catch (err) {
+         statusText.textContent = '録画開始エラー: ' + err.message;
+       } finally {
+         busy = false;
+         updateControls();
+       }
      };
 
      stopBtn.onclick = () => {
@@ -193,6 +396,13 @@
        stopBtn.disabled = true;
        statusText.innerText = `処理中... | ${captureInfo}`;
      };
+
+     // ページ終了時にデバイスを解放
+     window.addEventListener('pagehide', () => {
+       for (const mic of microphones) disconnectMic(mic);
+       if (video.srcObject) video.srcObject.getTracks().forEach(track => track.stop());
+       if (audioContext && audioContext.state !== 'closed') audioContext.close().catch(() => {});
+     });
 
      // 起動
      init();
