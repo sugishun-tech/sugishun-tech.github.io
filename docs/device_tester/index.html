@@ -21,6 +21,9 @@
      #stopBtn { background: #f1c40f; color: #333; }
      #stopBtn:disabled { background: #555; cursor: not-allowed; }
 
+     .recording-timer { margin-top: 12px; font-family: monospace; font-size: 32px; font-weight: bold; font-variant-numeric: tabular-nums; }
+     .recording-timer.recording { color: #e74c3c; }
+
      .status { margin-top: 10px; color: #aaa; font-size: 14px; }
     </style>
   </head>
@@ -38,6 +41,7 @@
         <button id="startBtn" disabled>録画開始</button>
         <button id="stopBtn" disabled>停止 & 保存</button>
       </div>
+      <div id="recordingTimer" class="recording-timer">00:00:00</div>
       <div class="status" id="statusText">カメラとマイクの使用を許可してください</div>
     </div>
 
@@ -48,6 +52,7 @@
      const startBtn = document.getElementById('startBtn');
      const stopBtn = document.getElementById('stopBtn');
      const statusText = document.getElementById('statusText');
+     const recordingTimer = document.getElementById('recordingTimer');
 
      let mediaRecorder;
      let recordedChunks = [];
@@ -55,6 +60,35 @@
      let analyser;
      let animationId;
      let captureInfo = '';
+     let recordingStartedAt = null;
+     let timerId = null;
+
+     // 録画時間の表示 (HH:MM:SS)
+     function updateRecordingTimer() {
+       if (recordingStartedAt === null) return;
+       const totalSeconds = Math.floor((performance.now() - recordingStartedAt) / 1000);
+       const hours = Math.floor(totalSeconds / 3600);
+       const minutes = Math.floor(totalSeconds / 60) % 60;
+       const seconds = totalSeconds % 60;
+       recordingTimer.textContent = [hours, minutes, seconds]
+         .map(value => String(value).padStart(2, '0')).join(':');
+     }
+
+     function startRecordingTimer() {
+       clearInterval(timerId);
+       recordingStartedAt = performance.now();
+       recordingTimer.textContent = '00:00:00';
+       recordingTimer.classList.add('recording');
+       timerId = setInterval(updateRecordingTimer, 100);
+     }
+
+     function stopRecordingTimer() {
+       updateRecordingTimer();
+       clearInterval(timerId);
+       timerId = null;
+       recordingStartedAt = null;
+       recordingTimer.classList.remove('recording');
+     }
 
      // 初期化: フルHD (1920x1080) / 30fps を優先して取得
      async function init() {
@@ -126,6 +160,8 @@
        };
 
        mediaRecorder.onstop = () => {
+         stopRecordingTimer();
+         stopBtn.disabled = true;
          const blob = new Blob(recordedChunks, {
            type: mediaRecorder.mimeType || 'video/webm'
          });
@@ -137,6 +173,7 @@
          setTimeout(() => URL.revokeObjectURL(url), 60000);
          recordedChunks = [];
          statusText.innerText = `保存完了！ | ${captureInfo}`;
+         startBtn.disabled = false;
        };
      }
 
@@ -144,6 +181,7 @@
      startBtn.onclick = () => {
        recordedChunks = [];
        mediaRecorder.start();
+       startRecordingTimer();
        startBtn.disabled = true;
        stopBtn.disabled = false;
        statusText.innerText = `録画中... | ${captureInfo}`;
@@ -151,7 +189,7 @@
 
      stopBtn.onclick = () => {
        mediaRecorder.stop();
-       startBtn.disabled = false;
+       stopRecordingTimer();
        stopBtn.disabled = true;
        statusText.innerText = `処理中... | ${captureInfo}`;
      };
